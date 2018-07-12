@@ -52,6 +52,7 @@ class Lightbox{
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            // gathers all elements in the DOM that have the same group id as the lightbox
             const elements = document.querySelectorAll(`[data-lightbox-group='${this._uid}']`);
             
             // index all elements / get lightbox gallery data
@@ -109,9 +110,11 @@ class Lightbox{
         if(element){
             this._$lbContent.innerHTML = '';
 
+            // either the image is already loaded
             if(element.loaded){
                 this._$lbContent.appendChild(element.data);
             } 
+            // or we need to do it before showing it
             else{
                 this._loading = true;
                 this._index = key;
@@ -121,6 +124,7 @@ class Lightbox{
                 }).catch(e => {
                     element.data = `<p class="lightbox__message lightbox__message_error">Impossible de charger le contenu ...</p>`;
                 }).finally(() => {
+                    // if there is an index mismatch, it means that while the element was still loading, the user had closed the lightbox and clicked on another element
                     if(this._index === key){
                         this._$lbContent.innerHTML = '';
                         this._$lbContent.appendChild(element.data);

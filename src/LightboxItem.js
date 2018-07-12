@@ -8,7 +8,7 @@ class LightboxItem{
     }
 
     /**
-     * Loads asynchronously html
+     * Loads asynchronously data and returns a Promise that serves html content
      * @return {Promise} 
      */
     load() {
