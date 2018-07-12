@@ -2,7 +2,7 @@ import '../assets/css/lightbox';
 
 import Lightbox from './Lightbox';
 
-const lb = new Lightbox({
+window.lb = new Lightbox({
     uid: 1,
     closeOnBlur: true,
     closeOnEscape: true

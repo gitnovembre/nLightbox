@@ -36,8 +36,24 @@ export class LightboxImage extends LightboxItem{
             img.alt = this._alt;
             img.onload = () => {
                 const $figure = document.createElement('figure');
-                $figure.appendChild(img);
+                
+                const $closeBtn = document.createElement('button');
+                $closeBtn.textContent = 'Close';
+                $closeBtn.className = 'lightbox__close lightbox__ui lightbox__ui_close';
+                $figure.appendChild($closeBtn);
 
+                const $controlNextBtn = document.createElement('button');
+                $controlNextBtn.textContent = '►';
+                $controlNextBtn.className = 'lightbox__next lightbox__ui lightbox__ui_controls lightbox__ui_controls_next';
+                $figure.appendChild($controlNextBtn);
+
+                const $controlPrevBtn = document.createElement('button');
+                $controlPrevBtn.textContent = '◀';
+                $controlPrevBtn.className = 'lightbox__prev lightbox__ui lightbox__ui_controls lightbox__ui_controls_prev';
+                $figure.appendChild($controlPrevBtn);
+
+                $figure.appendChild(img);
+            
                 resolve($figure);
             }
             
