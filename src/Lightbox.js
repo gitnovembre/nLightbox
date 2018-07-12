@@ -1,48 +1,6 @@
 import uniqid from 'uniqid';
 
-class LightboxItem{
-    constructor(key, source, type){
-        this.key = key;
-        this.source = source;
-        this.type = type;
-
-        this.loaded = false;
-        this.data = null;
-    }
-
-    /**
-     * Loads asynchronously html
-     * @return {Promise} 
-     */
-    load() {
-        return null;
-    }
-}
-
-LightboxItem.ITEM_TYPE_IMAGE = Symbol();
-LightboxItem.ITEM_TYPE_VIDEO = Symbol();
-
-
-class LigthboxImage extends LightboxItem{
-    constructor(key, source){
-        super(key, source, LightboxItem.ITEM_TYPE_IMAGE);
-    }
-
-    load() {
-        return new Promise((resolve, reject) => {
-            const img = new Image;
-            img.src = this.source;
-            img.onload = () => {
-                const $figure = document.createElement('figure');
-                $figure.appendChild(img);
-
-                resolve($figure);
-            }
-            
-            img.onerror = e => reject(e.message);
-        });
-    }
-}
+import { LightboxImage } from './LightboxItem'
 
 class Lightbox{
     constructor(options = {}){
@@ -116,7 +74,7 @@ class Lightbox{
 
                 switch(type){
                     case 'image':
-                    return new LigthboxImage(key, source);
+                    return new LightboxImage(key, source);
 
                     default:
                     throw new Error('Invalid lightbox type');
@@ -168,7 +126,7 @@ class Lightbox{
                         this._$lbContent.appendChild(element.data);
                     }
                     element.loaded = true;
-                    
+
                     this._loading = false;
                 });
             }
