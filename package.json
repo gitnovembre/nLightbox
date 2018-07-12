@@ -6,6 +6,7 @@
   "author": "Jérémie Metter-Rothan <jmetterrothan@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/uniqid": "^4.1.2",
     "node-sass": "^4.9.2",
     "uniqid": "^5.0.3"
   }
