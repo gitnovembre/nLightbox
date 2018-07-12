@@ -1,7 +1,9 @@
 class LightboxItem{
-    constructor(key, source){
+    /**
+     * @param {string} key
+     */
+    constructor(key){
         this.key = key;
-        this.source = source;
 
         this.loaded = false;
         this.data = null;
@@ -17,14 +19,21 @@ class LightboxItem{
 }
 
 export class LightboxImage extends LightboxItem{
-    constructor(key, source){
-        super(key, source);
+    /**
+     * @param {string} key 
+     * @param {DOMStringMap} options 
+     */
+    constructor(key, options){
+        super(key);
+        this._src = options.lightboxSrc;
+        this._alt = options.lightboxAlt;
     }
 
     load() {
         return new Promise((resolve, reject) => {
             const img = new Image;
-            img.src = this.source;
+            img.src = this._src;
+            img.alt = this._alt;
             img.onload = () => {
                 const $figure = document.createElement('figure');
                 $figure.appendChild(img);

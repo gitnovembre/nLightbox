@@ -11,7 +11,8 @@ class Lightbox{
         this._closeOnEscape = options.closeOnEscape === true;
 
         this._elements = [];
-        this._index = undefined;
+        this._currentKey = undefined;
+        this._currentIndex = -1;
 
         this._openState = false;
         this._loadingState = false;
@@ -58,12 +59,7 @@ class Lightbox{
             // index all elements / get lightbox gallery data
             this._elements = Array.from(elements).map(item => {
                 const key = uniqid();
-                const source = item.dataset.lightboxSrc;
                 const type = item.dataset.lightboxType;
-
-                delete item.dataset.lightboxSrc;
-                delete item.dataset.lightboxType;
-                delete item.dataset.lightboxGroup;
 
                 item.dataset.lightboxTarget = key;
 
@@ -75,7 +71,7 @@ class Lightbox{
 
                 switch(type){
                     case 'image':
-                    return new LightboxImage(key, source);
+                    return new LightboxImage(key, item.dataset);
 
                     default:
                     throw new Error('Invalid lightbox type');
@@ -117,15 +113,15 @@ class Lightbox{
             // or we need to do it before showing it
             else{
                 this._loading = true;
-                this._index = key;
+                this._currentKey = key;
                 
                 element.load().then(markup => {
                     element.data = markup;
                 }).catch(e => {
                     element.data = `<p class="lightbox__message lightbox__message_error">Impossible de charger le contenu ...</p>`;
                 }).finally(() => {
-                    // if there is an index mismatch, it means that while the element was still loading, the user had closed the lightbox and clicked on another element
-                    if(this._index === key){
+                    // if there is a key mismatch, it means that while the element was finished loading, the user had already closed the lightbox and clicked on another element
+                    if(this._currentKey === key){
                         this._$lbContent.innerHTML = '';
                         this._$lbContent.appendChild(element.data);
                     }
