@@ -1,0 +1,88 @@
+$lightbox-bgcolor : #0B0319;
+
+$lightbox-spacing : 64px;
+
+@import './_reset';
+
+.lightbox {
+    position:fixed;
+    top:0; left:0;
+    z-index:500;
+    display:none;
+
+    background:$lightbox-bgcolor;
+
+    &__message{
+        color:#b4b4b4;
+        font-family:Arial, sans-serif;
+        font-size:14px;
+        line-height:20px;
+        text-align:center;
+
+        &_loader{
+            display:none;
+        }
+    }
+
+    &.active{
+        display:block;
+    }
+
+    &.loading &__message{
+        &_loader{
+            display:block;
+        }
+    }
+
+    &__inner{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        width:100vw;
+        height:100vh;
+        padding:$lightbox-spacing;
+        box-sizing:border-box;
+    }
+
+    &__content{
+        position:relative;
+        img, video, canvas{
+            display:block;
+            max-width:calc(100vw - #{$lightbox-spacing * 2});
+            max-height:calc(100vh - #{$lightbox-spacing * 2});
+            height:auto;
+        }
+    }
+
+    &__ui{
+        position:absolute;
+        width:64px;
+        height:32px;
+        line-height:32px;
+        display:block;
+        background:rgba(255, 255, 255, 0.15);
+        border:none;
+        outline:none;
+        text-align:center;
+        font-size:13px;
+        color:#fff;
+        border-radius:32px;
+        cursor:pointer;
+
+        &_close{
+            top:-48px;
+            right:0;
+        }
+
+        &_controls{
+            width:32px;
+            top:calc((100% - 32px) / 2);
+            &_next{
+                right:-48px;
+            }
+            &_prev{
+                left:-48px;
+            }
+        }
+    }
+}
