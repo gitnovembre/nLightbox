@@ -1,9 +1,5 @@
 $lightbox-bgcolor : #0B0319;
 
-$lightbox-spacing : 64px;
-
-@import './_reset';
-
 .lightbox {
     position:fixed;
     top:0; left:0;
@@ -14,7 +10,7 @@ $lightbox-spacing : 64px;
     align-items:center;
     width:100vw;
     height:100vh;
-    padding:$lightbox-spacing;
+    padding:64px;
     box-sizing:border-box;
 
     background:$lightbox-bgcolor;
@@ -53,8 +49,8 @@ $lightbox-spacing : 64px;
     &__content{
         img, video, canvas{
             display:block;
-            max-width:calc(100vw - #{$lightbox-spacing * 2});
-            max-height:calc(100vh - #{$lightbox-spacing * 2});
+            max-width:calc(100vw - 64px * 2);
+            max-height:calc(100vh - 64px * 2);
             height:auto;
         }
     }
@@ -86,10 +82,10 @@ $lightbox-spacing : 64px;
                 width:32px;
                 top:calc((100% - 32px) / 2);
                 &_next{
-                    right:$lightbox-spacing / 2 - 16;
+                    right:64px / 2 - 16;
                 }
                 &_prev{
-                    left:$lightbox-spacing / 2 - 16;
+                    left:64px / 2 - 16;
                 }
             }
 

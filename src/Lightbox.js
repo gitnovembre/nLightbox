@@ -182,10 +182,10 @@ export default class Lightbox {
 
                 switch (data.type) {
                 case 'image':
-                    return new LightboxImage(key, data);
+                    return new LightboxImage(this, key, data);
 
                 case 'video':
-                    return new LightboxVideo(key, data);
+                    return new LightboxVideo(this, key, data);
 
                 default:
                     throw new Error('Invalid lightbox type');
@@ -403,5 +403,21 @@ export default class Lightbox {
 
     isOpen() {
         return this._openState;
+    }
+
+    /**
+     * Get the current element n°
+     * @return {number}
+     */
+    current() {
+        return this._currentIndex + 1;
+    }
+
+    /**
+     * Get the total number of elements in the gallery
+     * @return {number}
+     */
+    size() {
+        return this._elements.length;
     }
 }

@@ -1,8 +1,10 @@
 class LightboxItem {
     /**
+     * @param {Lightbox} lightbox
      * @param {string} key
      */
-    constructor(key) {
+    constructor(lightbox, key) {
+        this.lightbox = lightbox;
         this.key = key;
 
         this.loaded = false;
@@ -11,15 +13,16 @@ class LightboxItem {
 }
 export class LightboxImage extends LightboxItem {
     /**
+     * @param {Lightbox} lightbox
      * @param {string} key
      * @param {Object} options
      */
-    constructor(key, options) {
-        super(key);
-        this._src = options.src;
-        this._alt = options.alt;
-        this._width = parseInt(options.width, 10);
-        this._height = parseInt(options.height, 10);
+    constructor(lightbox, key, options) {
+        super(lightbox, key);
+        this.src = options.src;
+        this.alt = options.alt;
+        this.width = parseInt(options.width, 10);
+        this.height = parseInt(options.height, 10);
     }
 
     /**
@@ -29,14 +32,20 @@ export class LightboxImage extends LightboxItem {
     load() {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.src = this._src;
-            img.alt = this._alt;
-            if (this._width > 0) img.width = this._width;
-            if (this._height > 0)img.height = this._height;
+
+            img.src = this.src;
+            img.alt = this.alt;
+
+            if (this.width > 0) img.width = this.width;
+            if (this.height > 0)img.height = this.height;
 
             img.onload = () => {
                 const $figure = document.createElement('figure');
                 $figure.appendChild(img);
+
+                // const $figcaption = document.createElement('figcaption');
+                // $figcaption.textContent = '';
+                // $figure.appendChild($figcaption);
 
                 resolve($figure);
             };
@@ -48,15 +57,16 @@ export class LightboxImage extends LightboxItem {
 
 export class LightboxVideo extends LightboxItem {
     /**
+     * @param {Lightbox} lightbox
      * @param {string} key
      * @param {Object} options
      */
-    constructor(key, options) {
-        super(key);
-        this._src = options.src;
-        this._controls = options.controls === 'true';
-        this._width = parseInt(options.width, 10);
-        this._height = parseInt(options.height, 10);
+    constructor(lightbox, key, options) {
+        super(lightbox, key);
+        this.src = options.src;
+        this.controls = options.controls === 'true';
+        this.width = parseInt(options.width, 10);
+        this.height = parseInt(options.height, 10);
     }
 
     /**
@@ -68,11 +78,11 @@ export class LightboxVideo extends LightboxItem {
             const video = document.createElement('video');
             video.controls = this._controls;
 
-            if (this._width > 0) video.width = this._width;
-            if (this._height > 0)video.height = this._height;
+            if (this.width > 0) video.width = this.width;
+            if (this.height > 0)video.height = this.height;
 
             const source = document.createElement('source');
-            source.src = this._src;
+            source.src = this.src;
 
             video.appendChild(source);
 

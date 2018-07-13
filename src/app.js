@@ -1,4 +1,4 @@
-import '../assets/css/lightbox'; //eslint-disable-line
+import '../assets/css/main'; //eslint-disable-line
 
 import Lightbox from './Lightbox';
 
