@@ -10,7 +10,18 @@ $lightbox-spacing : 64px;
     z-index:500;
     display:none;
 
+    justify-content:center;
+    align-items:center;
+    width:100vw;
+    height:100vh;
+    padding:$lightbox-spacing;
+    box-sizing:border-box;
+
     background:$lightbox-bgcolor;
+
+    &.active{
+        display:flex;
+    }
 
     &__message{
         color:#b4b4b4;
@@ -22,10 +33,10 @@ $lightbox-spacing : 64px;
         &_loader{
             display:none;
         }
-    }
 
-    &.active{
-        display:block;
+        &_error{
+            padding:0 64px;
+        }
     }
 
     &.loading &__message{
@@ -34,18 +45,12 @@ $lightbox-spacing : 64px;
         }
     }
 
+
     &__inner{
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        width:100vw;
-        height:100vh;
-        padding:$lightbox-spacing;
-        box-sizing:border-box;
+        position:relative;
     }
 
     &__content{
-        position:relative;
         img, video, canvas{
             display:block;
             max-width:calc(100vw - #{$lightbox-spacing * 2});
@@ -55,34 +60,44 @@ $lightbox-spacing : 64px;
     }
 
     &__ui{
-        position:absolute;
-        width:64px;
-        height:32px;
-        line-height:32px;
-        display:block;
-        background:rgba(255, 255, 255, 0.15);
-        border:none;
-        outline:none;
-        text-align:center;
-        font-size:13px;
-        color:#fff;
-        border-radius:32px;
-        cursor:pointer;
+        &_element{
+            position:absolute;
+            width:64px;
+            height:32px;
+            line-height:32px;
+            display:block;
+            background:rgba(255, 255, 255, 0.15);
+            border:none;
+            outline:none;
+            text-align:center;
+            font-size:13px;
+            color:#fff;
+            border-radius:32px;
+            cursor:pointer;
 
-        &_close{
-            top:-48px;
-            right:0;
-        }
+            &_close{
+                top:-48px;
+                right:0;
+            }
 
-        &_controls{
-            width:32px;
-            top:calc((100% - 32px) / 2);
-            &_next{
-                right:-48px;
+            &_controls{
+                width:32px;
+                top:calc((100% - 32px) / 2);
+                &_next{
+                    right:-48px;
+                }
+                &_prev{
+                    left:-48px;
+                }
             }
-            &_prev{
-                left:-48px;
+
+            &.hidden{
+                display:none;
             }
         }
+    }
+
+    &.loading &__ui{
+        display:none;
     }
 }
