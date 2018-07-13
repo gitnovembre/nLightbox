@@ -12,6 +12,14 @@ class LightboxUIElement {
         this._$root.classList.remove('hidden');
     }
 
+    disable() {
+        this._$root.classList.add('disabled');
+    }
+
+    enable() {
+        this._$root.classList.remove('disabled');
+    }
+
     appendTo(parent) {
         parent.appendChild(this._$root);
     }

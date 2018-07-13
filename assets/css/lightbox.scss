@@ -35,7 +35,7 @@ $lightbox-spacing : 64px;
         }
 
         &_error{
-            padding:0 64px;
+            padding:32px 64px;
         }
     }
 
@@ -60,6 +60,7 @@ $lightbox-spacing : 64px;
     }
 
     &__ui{
+        z-index:510;
         &_element{
             position:absolute;
             width:64px;
@@ -81,23 +82,52 @@ $lightbox-spacing : 64px;
             }
 
             &_controls{
+                position:fixed;
                 width:32px;
                 top:calc((100% - 32px) / 2);
                 &_next{
-                    right:-48px;
+                    right:$lightbox-spacing / 2 - 16;
                 }
                 &_prev{
-                    left:-48px;
+                    left:$lightbox-spacing / 2 - 16;
                 }
             }
 
             &.hidden{
                 display:none;
             }
+            &.disabled{
+                opacity:0.25;
+                cursor:default;
+            }
         }
     }
 
     &.loading &__ui{
         display:none;
+    }
+
+    @media only screen and (max-device-width: 767px) {
+        padding:0;
+
+        &__ui{
+            &_element{
+                &_close{
+                    position:fixed;
+                    top:16px;
+                    right:16px;
+                }
+                &_controls{
+                    display:none !important;
+                }
+            }
+        }
+
+        &__content{
+            img, video, canvas{
+                max-width:100vw;
+                max-height:100vh;
+            }
+        }
     }
 }
