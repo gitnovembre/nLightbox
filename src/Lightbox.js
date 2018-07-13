@@ -1,6 +1,6 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 
-import { LightboxImage } from './LightboxItem';
+import { LightboxImage, LightboxVideo } from './LightboxItem';
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev } from './LightboxUIElement';
 
 export default class Lightbox {
@@ -160,6 +160,9 @@ export default class Lightbox {
                 case 'image':
                     return new LightboxImage(key, item.dataset);
 
+                case 'video':
+                    return new LightboxVideo(key, item.dataset);
+
                 default:
                     throw new Error('Invalid lightbox type');
                 }
@@ -234,6 +237,10 @@ export default class Lightbox {
         }
     }
 
+    /**
+     * Appends content of the given element
+     * @param {LightboxElement} element
+     */
     _appendElement(element) {
         const index = this._findIndex(element.key);
 
@@ -247,10 +254,19 @@ export default class Lightbox {
         }
     }
 
+    /**
+     * Finds the index of an element in the array based on its key
+     * @param {string} key
+     * @return {number}
+     */
     _findIndex(key) {
         return this._elements.findIndex(e => e.key === key);
     }
 
+    /**
+     * Opens the lightbox and fires a callback
+     * @return {Promise}
+     */
     open() {
         return new Promise((resolve, reject) => {
             if (!this._openState) {
@@ -265,6 +281,10 @@ export default class Lightbox {
         });
     }
 
+    /**
+     * Closes the lightbox and fires a callback
+     * @return {Promise}
+     */
     close() {
         return new Promise((resolve, reject) => {
             if (this._openState) {
@@ -279,14 +299,24 @@ export default class Lightbox {
         });
     }
 
+    /**
+     * Toggle the lightbox
+     * @return {Promise}
+     */
     toggle() {
         return this.isOpen() ? this.close() : this.open();
     }
 
+    /**
+     * Tries to load next item
+     */
     next() {
         this._loadByIndex(this._currentIndex + 1);
     }
 
+    /**
+     * Tries to load previous item
+     */
     prev() {
         this._loadByIndex(this._currentIndex - 1);
     }
@@ -313,12 +343,36 @@ export default class Lightbox {
         return this._loadingState;
     }
 
+    /**
+     * Changes the current index
+     * @param {number} index
+     */
     set _index(index) {
         if (index >= 0 && index < this._elements.length) {
             this._currentIndex = index;
         }
+
+        if (this._UI.prev.active) {
+            if (this._currentIndex === 0) {
+                this._UI.prev.element.disable();
+            } else {
+                this._UI.prev.element.enable();
+            }
+        }
+
+        if (this._UI.next.active) {
+            if (this._currentIndex === this._elements.length - 1) {
+                this._UI.next.element.disable();
+            } else {
+                this._UI.next.element.enable();
+            }
+        }
     }
 
+    /**
+     * Get the current index
+     * @return {number}
+     */
     get _index() {
         return this._currentIndex;
     }

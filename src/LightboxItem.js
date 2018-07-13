@@ -9,7 +9,6 @@ class LightboxItem {
         this.data = null;
     }
 }
-
 export class LightboxImage extends LightboxItem {
     /**
      * @param {string} key

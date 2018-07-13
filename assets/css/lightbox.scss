@@ -35,7 +35,7 @@ $lightbox-spacing : 64px;
         }
 
         &_error{
-            padding:0 64px;
+            padding:32px 64px;
         }
     }
 
@@ -81,18 +81,23 @@ $lightbox-spacing : 64px;
             }
 
             &_controls{
+                position:fixed;
                 width:32px;
                 top:calc((100% - 32px) / 2);
                 &_next{
-                    right:-48px;
+                    right:$lightbox-spacing / 2 - 16;
                 }
                 &_prev{
-                    left:-48px;
+                    left:$lightbox-spacing / 2 - 16;
                 }
             }
 
             &.hidden{
                 display:none;
+            }
+            &.disabled{
+                opacity:0.25;
+                cursor:default;
             }
         }
     }
