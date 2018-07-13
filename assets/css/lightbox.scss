@@ -60,6 +60,7 @@ $lightbox-spacing : 64px;
     }
 
     &__ui{
+        z-index:510;
         &_element{
             position:absolute;
             width:64px;
@@ -104,5 +105,29 @@ $lightbox-spacing : 64px;
 
     &.loading &__ui{
         display:none;
+    }
+
+    @media only screen and (max-device-width: 767px) {
+        padding:0;
+
+        &__ui{
+            &_element{
+                &_close{
+                    position:fixed;
+                    top:16px;
+                    right:16px;
+                }
+                &_controls{
+                    display:none !important;
+                }
+            }
+        }
+
+        &__content{
+            img, video, canvas{
+                max-width:100vw;
+                max-height:100vh;
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 import uniqid from 'uniqid'; //eslint-disable-line
+import Hammer from 'hammerjs';
 
 import { LightboxImage, LightboxVideo } from './LightboxItem';
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev } from './LightboxUIElement';
@@ -8,8 +9,9 @@ export default class Lightbox {
         this._uid = parseInt(options.uid, 10) || 1;
         this._onOpenCallback = typeof options.onOpen === 'function' ? options.onOpen : null;
         this._onCloseCallback = typeof options.onClose === 'function' ? options.onClose : null;
-        this._closeOnBlur = options.closeOnBlur === true;
-        this._closeOnEscape = options.closeOnEscape === true;
+        this._closeOnBlur = typeof options.closeOnBlur === 'boolean' ? options.closeOnBlur : true;
+        this._closeOnEscape = typeof options.closeOnEscape === 'boolean' ? options.closeOnEscape : true;
+        this._arrowKeyNavigation = typeof options.arrowKeyNavigation === 'boolean' ? options.arrowKeyNavigation : true;
 
         this._elements = [];
         this._currentKey = undefined;
@@ -131,10 +133,32 @@ export default class Lightbox {
             }
         });
 
+        // Touch gestures support
+        const h = new Hammer(this._$lb);
+        h.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+        h.get('tap').set({ taps: 2 });
+
+        // controls when swiping
+        h.on('swiperight', () => {
+            this.prev();
+        });
+        h.on('swipeleft', () => {
+            this.next();
+        });
+
+        // close on double tap
+        h.on('tap', () => {
+            this.close();
+        });
+
         document.addEventListener('keydown', (e) => {
             // user can close the lightbox when pressing the escape key
             if (e.keyCode === 27 && this._closeOnEscape) {
                 this.close();
+            } else if (e.keyCode === 37 && this._arrowKeyNavigation) {
+                this.prev();
+            } else if (e.keyCode === 39 && this._arrowKeyNavigation) {
+                this.next();
             }
         });
 
