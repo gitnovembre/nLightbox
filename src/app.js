@@ -6,7 +6,7 @@ window.lb = new Lightbox({
     uid: 1,
     closeOnBlur: true,
     closeOnEscape: true,
-    arrowKeyNavigation: false,
+    arrowKeyNavigation: true,
     ui: {
         close: true,
         controls: true,

@@ -164,13 +164,13 @@ export default class Lightbox {
 
         document.addEventListener('DOMContentLoaded', () => {
             // gathers all elements in the DOM that have the same group id as the lightbox
-            const elements = document.querySelectorAll(`[data-lightbox-group='${this._uid}']`);
+            const elements = document.querySelectorAll('[data-lightbox]');
 
             // index all elements / get lightbox gallery data
-            this._elements = Array.from(elements).map((i) => {
-                const item = i;
+            this._elements = Array.from(elements).map((node) => {
+                const item = node;
                 const key = uniqid();
-                const type = item.dataset.lightboxType;
+                const data = JSON.parse(item.dataset.lightbox);
 
                 item.dataset.lightboxTarget = key;
 
@@ -180,12 +180,12 @@ export default class Lightbox {
                     this.open();
                 });
 
-                switch (type) {
+                switch (data.type) {
                 case 'image':
-                    return new LightboxImage(key, item.dataset);
+                    return new LightboxImage(key, data);
 
                 case 'video':
-                    return new LightboxVideo(key, item.dataset);
+                    return new LightboxVideo(key, data);
 
                 default:
                     throw new Error('Invalid lightbox type');
