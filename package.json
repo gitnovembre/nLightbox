@@ -1,0 +1,21 @@
+{
+  "name": "jmetterrothan-lightbox-novembre",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:gitnovembre/lightbox-novembre.git",
+  "author": "Jérémie Metter-Rothan <jmetterrothan@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/uniqid": "^4.1.2",
+    "hammerjs": "^2.0.8",
+    "node-sass": "^4.9.2",
+    "uniqid": "^5.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "stylelint": "^9.3.0",
+    "stylelint-order": "^0.8.1"
+  }
+}
