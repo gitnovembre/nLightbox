@@ -167,20 +167,21 @@ export default class Lightbox {
             const elements = document.querySelectorAll('[data-lightbox]');
 
             // index all elements / get lightbox gallery data
-            this._elements = Array.from(elements).map((node) => {
-                const item = node;
-                const key = uniqid();
-                const data = JSON.parse(item.dataset.lightbox);
-
+            this._elements = Array.from(elements).map((node) => ({
+                data: JSON.parse(node.dataset.lightbox),
+                key: uniqid(),
+                item: node,
+            })).filter((element) => element.data.group === this._uid).map((element) => {
+                const { key, data, item } = element;
                 item.dataset.lightboxTarget = key;
 
-                item.addEventListener('click', (e) => {
+                element.item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this._loadByKey(key);
+                    this._loadByKey(element.key);
                     this.open();
                 });
 
-                switch (data.type) {
+                switch (element.data.type) {
                 case 'image':
                     return new LightboxImage(this, key, data);
 
@@ -199,7 +200,7 @@ export default class Lightbox {
      * @param {string} element
      */
     _loadByKey(key) {
-        this._loadElement(this._elements.find(e => e.key === key));
+        this._loadElement(this._elements.find((e) => e.key === key));
     }
 
     /**
@@ -284,7 +285,7 @@ export default class Lightbox {
      * @return {number}
      */
     _findIndex(key) {
-        return this._elements.findIndex(e => e.key === key);
+        return this._elements.findIndex((e) => e.key === key);
     }
 
     /**
@@ -403,21 +404,5 @@ export default class Lightbox {
 
     isOpen() {
         return this._openState;
-    }
-
-    /**
-     * Get the current element n°
-     * @return {number}
-     */
-    current() {
-        return this._currentIndex + 1;
-    }
-
-    /**
-     * Get the total number of elements in the gallery
-     * @return {number}
-     */
-    size() {
-        return this._elements.length;
     }
 }
