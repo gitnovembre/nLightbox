@@ -52,6 +52,10 @@ $lightbox-bgcolor : #0B0319;
             max-width:calc(100vw - 64px * 2);
             max-height:calc(100vh - 64px * 2);
             height:auto;
+            margin:0;
+        }
+        figure{
+            margin:0;
         }
     }
 

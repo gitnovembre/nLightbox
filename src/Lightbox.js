@@ -1,7 +1,7 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
-import { LightboxImage, LightboxVideo } from './LightboxItem';
+import { LightboxImage, LightboxVideo, LightboxYoutubeVideo } from './LightboxItem';
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
@@ -201,6 +201,9 @@ export default class Lightbox {
                 case 'video':
                     return new LightboxVideo(this, key, data);
 
+                case 'youtube':
+                    return new LightboxYoutubeVideo(this, key, data);
+
                 default:
                     throw new Error('Invalid lightbox type');
                 }
@@ -249,7 +252,7 @@ export default class Lightbox {
                 this._loading = true;
                 this._currentKey = element.key;
 
-                element.load().then((markup) => {
+                Promise.resolve(element.load()).then((markup) => {
                     element.data = markup;
                 }).catch(() => {
                     const mess = document.createElement('p');
