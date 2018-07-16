@@ -1,6 +1,9 @@
 class LightboxUIElement {
-    constructor() {
-        this._$root = document.createElement('button');
+    /**
+     * @param {string} tag HTML tag name
+     */
+    constructor(tag) {
+        this._$root = document.createElement(tag);
         this._$root.classList.add('lightbox__ui_element');
     }
 
@@ -27,11 +30,19 @@ class LightboxUIElement {
     addEventListener(eventName, callback) {
         this._$root.addEventListener(eventName, callback);
     }
+
+    set innerHTML(html) {
+        this._$root.innerHTML = html;
+    }
+
+    get innerHTML() {
+        return this._$root.innerHTML;
+    }
 }
 
 export class LightboxUINext extends LightboxUIElement {
     constructor() {
-        super();
+        super('button');
         this._$root.classList.add('lightbox__ui_element_controls', 'lightbox__ui_element_controls_next');
         this._$root.textContent = '►';
     }
@@ -39,7 +50,7 @@ export class LightboxUINext extends LightboxUIElement {
 
 export class LightboxUIPrev extends LightboxUIElement {
     constructor() {
-        super();
+        super('button');
         this._$root.classList.add('lightbox__ui_element_controls', 'lightbox__ui_element_controls_prev');
         this._$root.textContent = '◀';
     }
@@ -47,9 +58,17 @@ export class LightboxUIPrev extends LightboxUIElement {
 
 export class LightboxUIClose extends LightboxUIElement {
     constructor() {
-        super();
+        super('button');
         this._$root.classList.add('lightbox__ui_element_close');
         this._$root.textContent = 'Close';
+    }
+}
+
+export class LightboxUIPagination extends LightboxUIElement {
+    constructor() {
+        super('div');
+        this._$root.classList.add('lightbox__ui_element_pagination');
+        this._$root.textContent = '';
     }
 }
 

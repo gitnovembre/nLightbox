@@ -43,14 +43,10 @@ export class LightboxImage extends LightboxItem {
                 const $figure = document.createElement('figure');
                 $figure.appendChild(img);
 
-                // const $figcaption = document.createElement('figcaption');
-                // $figcaption.textContent = '';
-                // $figure.appendChild($figcaption);
-
                 resolve($figure);
             };
 
-            img.onerror = e => reject(e.message);
+            img.onerror = (e) => reject(e.message);
         });
     }
 }
@@ -87,7 +83,7 @@ export class LightboxVideo extends LightboxItem {
             video.appendChild(source);
 
             video.oncanplay = () => resolve(video);
-            video.onerror = e => reject(e.message);
+            video.onerror = (e) => reject(e.message);
         });
     }
 }

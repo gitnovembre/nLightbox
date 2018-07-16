@@ -3,6 +3,7 @@ module.exports = {
     "rules": {
         "indent": ["error", 4],
         "no-underscore-dangle": 0,
+        "arrow-parens": [2, "always"],
     },
     "env": {
         "browser": true,

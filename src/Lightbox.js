@@ -2,7 +2,7 @@ import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
 import { LightboxImage, LightboxVideo } from './LightboxItem';
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev } from './LightboxUIElement';
+import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement';
 
 export default class Lightbox {
     constructor(options = {}) {
@@ -32,6 +32,10 @@ export default class Lightbox {
             prev: {
                 element: null,
                 active: options.ui && options.ui.controls === true,
+            },
+            pagination: {
+                element: null,
+                active: options.ui && options.ui.pagination === true,
             },
         };
 
@@ -104,6 +108,15 @@ export default class Lightbox {
         this._UI.next.element = nextBtn;
 
 
+        // pagination creation
+        const paginationEl = new LightboxUIPagination();
+        paginationEl.appendTo(this._$lbUI);
+        if (!this._UI.pagination.active) {
+            paginationEl.hide();
+        }
+        this._UI.pagination.element = paginationEl;
+
+
         // loader creation
         const $loader = document.createElement('p');
         $loader.className = 'lightbox__message lightbox__message_loader';
@@ -167,20 +180,21 @@ export default class Lightbox {
             const elements = document.querySelectorAll('[data-lightbox]');
 
             // index all elements / get lightbox gallery data
-            this._elements = Array.from(elements).map((node) => {
-                const item = node;
-                const key = uniqid();
-                const data = JSON.parse(item.dataset.lightbox);
-
+            this._elements = Array.from(elements).map((node) => ({
+                data: JSON.parse(node.dataset.lightbox),
+                key: uniqid(),
+                item: node,
+            })).filter((element) => element.data.group === this._uid).map((element) => {
+                const { key, data, item } = element;
                 item.dataset.lightboxTarget = key;
 
-                item.addEventListener('click', (e) => {
+                element.item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this._loadByKey(key);
+                    this._loadByKey(element.key);
                     this.open();
                 });
 
-                switch (data.type) {
+                switch (element.data.type) {
                 case 'image':
                     return new LightboxImage(this, key, data);
 
@@ -199,7 +213,7 @@ export default class Lightbox {
      * @param {string} element
      */
     _loadByKey(key) {
-        this._loadElement(this._elements.find(e => e.key === key));
+        this._loadElement(this._elements.find((e) => e.key === key));
     }
 
     /**
@@ -284,7 +298,7 @@ export default class Lightbox {
      * @return {number}
      */
     _findIndex(key) {
-        return this._elements.findIndex(e => e.key === key);
+        return this._elements.findIndex((e) => e.key === key);
     }
 
     /**
@@ -372,6 +386,10 @@ export default class Lightbox {
      * @param {number} index
      */
     set _index(index) {
+        if (index === this._currentIndex) {
+            return;
+        }
+
         if (index >= 0 && index < this._elements.length) {
             this._currentIndex = index;
         }
@@ -391,6 +409,10 @@ export default class Lightbox {
                 this._UI.next.element.enable();
             }
         }
+
+        if (this._UI.pagination.active) {
+            this._UI.pagination.element.innerHTML = `<span>${this._currentIndex + 1}</span> / <span>${this._elements.length}</span>`;
+        }
     }
 
     /**
@@ -403,21 +425,5 @@ export default class Lightbox {
 
     isOpen() {
         return this._openState;
-    }
-
-    /**
-     * Get the current element n°
-     * @return {number}
-     */
-    current() {
-        return this._currentIndex + 1;
-    }
-
-    /**
-     * Get the total number of elements in the gallery
-     * @return {number}
-     */
-    size() {
-        return this._elements.length;
     }
 }
