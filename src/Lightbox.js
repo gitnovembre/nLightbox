@@ -2,7 +2,7 @@ import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
 import { LightboxImage, LightboxVideo } from './LightboxItem';
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement';
+import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
     constructor(options = {}) {
