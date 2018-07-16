@@ -2,7 +2,7 @@ import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
 import { LightboxImage, LightboxVideo } from './LightboxItem';
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev } from './LightboxUIElement';
+import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement';
 
 export default class Lightbox {
     constructor(options = {}) {
@@ -32,6 +32,10 @@ export default class Lightbox {
             prev: {
                 element: null,
                 active: options.ui && options.ui.controls === true,
+            },
+            pagination: {
+                element: null,
+                active: options.ui && options.ui.pagination === true,
             },
         };
 
@@ -102,6 +106,15 @@ export default class Lightbox {
             nextBtn.hide();
         }
         this._UI.next.element = nextBtn;
+
+
+        // pagination creation
+        const paginationEl = new LightboxUIPagination();
+        paginationEl.appendTo(this._$lbUI);
+        if (!this._UI.pagination.active) {
+            paginationEl.hide();
+        }
+        this._UI.pagination.element = paginationEl;
 
 
         // loader creation
@@ -373,6 +386,10 @@ export default class Lightbox {
      * @param {number} index
      */
     set _index(index) {
+        if (index === this._currentIndex) {
+            return;
+        }
+
         if (index >= 0 && index < this._elements.length) {
             this._currentIndex = index;
         }
@@ -391,6 +408,10 @@ export default class Lightbox {
             } else {
                 this._UI.next.element.enable();
             }
+        }
+
+        if (this._UI.pagination.active) {
+            this._UI.pagination.element.innerHTML = `<span>${this._currentIndex + 1}</span> / <span>${this._elements.length}</span>`;
         }
     }
 
