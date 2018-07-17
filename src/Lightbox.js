@@ -5,137 +5,144 @@ import { LightboxImage, LightboxVideo, LightboxYoutubeVideo } from './LightboxIt
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
-    constructor(options = {}) {
-        this._uid = parseInt(options.uid, 10) || 1;
-        this._onOpenCallback = typeof options.onOpen === 'function' ? options.onOpen : null;
-        this._onCloseCallback = typeof options.onClose === 'function' ? options.onClose : null;
-        this._closeOnBlur = typeof options.closeOnBlur === 'boolean' ? options.closeOnBlur : true;
-        this._closeOnEscape = typeof options.closeOnEscape === 'boolean' ? options.closeOnEscape : true;
-        this._arrowKeyNavigation = typeof options.arrowKeyNavigation === 'boolean' ? options.arrowKeyNavigation : true;
+    constructor(customOptions = {}) {
+        const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
 
-        this._elements = [];
-        this._currentKey = undefined;
-        this._currentIndex = -1;
+        this.UId = parseInt(options.uid, 10) || 1;
 
-        this._openState = false;
-        this._loadingState = false;
+        this.closeOnBlur = options.closeOnBlur === true;
+        this.closeOnEscape = options.closeOnEscape === true;
+        this.arrowKeyNavigation = options.arrowKeyNavigation === true;
 
-        this._UI = {
+        this.observers = {
+            [Lightbox.EVENT_ONCLOSE]: null,
+            [Lightbox.EVENT_ONOPEN]: null,
+            [Lightbox.EVENT_ONCONTROLS]: null,
+            [Lightbox.EVENT_ONCONTROLS_NEXT]: null,
+            [Lightbox.EVENT_ONCONTROLS_PREV]: null,
+        };
+
+        this.elements = [];
+        this.currentKey = undefined;
+        this.currentIndex = -1;
+
+        this.openState = false;
+        this.loadingState = false;
+
+        this.UI = {
             close: {
                 element: null,
-                active: options.ui && options.ui.close === true,
+                active: options.ui.close === true,
             },
             next: {
                 element: null,
-                active: options.ui && options.ui.controls === true,
+                active: options.ui.controls === true,
             },
             prev: {
                 element: null,
-                active: options.ui && options.ui.controls === true,
+                active: options.ui.controls === true,
             },
             pagination: {
                 element: null,
-                active: options.ui && options.ui.pagination === true,
+                active: options.ui.pagination === true,
             },
         };
 
-        this._$lb = null;
-        this._$lbInner = null;
-        this._$lbContent = null;
-
-        this._init();
+        this.$lb = null;
+        this.$lbInner = null;
+        this.$lbContent = null;
     }
 
-    _init() {
+    init() {
         // lb creation
-        this._$lb = document.createElement('div');
-        this._$lb.classList.add('lightbox');
-        this._$lb.setAttribute('id', uniqid());
+        this.$lb = document.createElement('div');
+        this.$lb.classList.add('lightbox');
+        this.$lb.setAttribute('id', uniqid());
 
         // inner box creation
-        this._$lbInner = document.createElement('div');
-        this._$lbInner.classList.add('lightbox__inner');
+        this.$lbInner = document.createElement('div');
+        this.$lbInner.classList.add('lightbox__inner');
 
         // UI container creation
-        this._$lbUI = document.createElement('div');
-        this._$lbUI.classList.add('lightbox__ui');
-        this._$lbInner.appendChild(this._$lbUI);
+        this.$lbUI = document.createElement('div');
+        this.$lbUI.classList.add('lightbox__ui');
+        this.$lbInner.appendChild(this.$lbUI);
 
-        this._$lb.appendChild(this._$lbInner);
+        this.$lb.appendChild(this.$lbInner);
 
         this._initUI();
         this._initEvents();
 
-        document.body.appendChild(this._$lb);
+        document.body.appendChild(this.$lb);
     }
 
     _initUI() {
         // UI elements creation
         const closeBtn = new LightboxUIClose();
-        closeBtn.appendTo(this._$lbUI);
+        closeBtn.appendTo(this.$lbUI);
         closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.close();
         });
 
-        if (!this._UI.close.active) {
+        if (!this.UI.close.active) {
             closeBtn.hide();
         }
-        this._UI.close.element = closeBtn;
+        this.UI.close.element = closeBtn;
 
 
         const prevBtn = new LightboxUIPrev();
-        prevBtn.appendTo(this._$lbUI);
+        prevBtn.appendTo(this.$lbUI);
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.prev();
         });
-        if (!this._UI.prev.active) {
+        if (!this.UI.prev.active) {
             prevBtn.hide();
         }
-        this._UI.prev.element = prevBtn;
+        this.UI.prev.element = prevBtn;
 
 
         const nextBtn = new LightboxUINext();
-        nextBtn.appendTo(this._$lbUI);
+        nextBtn.appendTo(this.$lbUI);
         nextBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.next();
         });
-        if (!this._UI.next.active) {
+        if (!this.UI.next.active) {
             nextBtn.hide();
         }
-        this._UI.next.element = nextBtn;
+        this.UI.next.element = nextBtn;
 
 
         // pagination creation
         const paginationEl = new LightboxUIPagination();
-        paginationEl.appendTo(this._$lbUI);
-        if (!this._UI.pagination.active) {
+        paginationEl.appendTo(this.$lbUI);
+        if (!this.UI.pagination.active) {
             paginationEl.hide();
         }
-        this._UI.pagination.element = paginationEl;
+        this.UI.pagination.element = paginationEl;
 
 
         // loader creation
         const $loader = document.createElement('p');
         $loader.className = 'lightbox__message lightbox__message_loader';
         $loader.innerHTML = 'Chargement en cours ...';
-        this._$lbInner.appendChild($loader);
+        this.$lbInner.appendChild($loader);
 
         // content box creation
-        this._$lbContent = document.createElement('div');
-        this._$lbContent.className = 'lightbox__content';
-        this._$lbInner.appendChild(this._$lbContent);
+        this.$lbContent = document.createElement('div');
+        this.$lbContent.className = 'lightbox__content';
+        this.$lbInner.appendChild(this.$lbContent);
     }
 
     _initEvents() {
         // lb events
-        this._$lb.addEventListener('click', (e) => {
+        this.$lb.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
 
-            if (e.target === this._$lb && this._closeOnBlur) { // user clicks off content bounds
+            if (e.target === this.$lb && this.closeOnBlur) { // user clicks off content bounds
                 this.close();
             } else if (e.target.classList.contains('lightbox__close')) { // user clicks on a child element of the lightbox which has the classname "close"
                 this.close();
@@ -147,7 +154,7 @@ export default class Lightbox {
         });
 
         // Touch gestures support
-        const h = new Hammer(this._$lb);
+        const h = new Hammer(this.$lb);
         h.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
         h.get('tap').set({ taps: 2 });
 
@@ -166,11 +173,11 @@ export default class Lightbox {
 
         document.addEventListener('keydown', (e) => {
             // user can close the lightbox when pressing the escape key
-            if (e.keyCode === 27 && this._closeOnEscape) {
+            if (e.keyCode === 27 && this.closeOnEscape) {
                 this.close();
-            } else if (e.keyCode === 37 && this._arrowKeyNavigation) {
+            } else if (e.keyCode === 37 && this.arrowKeyNavigation) {
                 this.prev();
-            } else if (e.keyCode === 39 && this._arrowKeyNavigation) {
+            } else if (e.keyCode === 39 && this.arrowKeyNavigation) {
                 this.next();
             }
         });
@@ -180,11 +187,11 @@ export default class Lightbox {
             const elements = document.querySelectorAll('[data-lightbox]');
 
             // index all elements / get lightbox gallery data
-            this._elements = Array.from(elements).map((node) => ({
+            this.elements = Array.from(elements).map((node) => ({
                 data: JSON.parse(node.dataset.lightbox),
                 key: uniqid(),
                 item: node,
-            })).filter((element) => element.data.group === this._uid).map((element) => {
+            })).filter((element) => element.data.group === this.UId).map((element) => {
                 const { key, data, item } = element;
                 item.dataset.lightboxTarget = key;
 
@@ -211,12 +218,27 @@ export default class Lightbox {
         });
     }
 
+    on(eventName, callback) {
+        if (typeof callback !== 'function') {
+            throw new Error('Callback must be a function');
+        }
+        if (!Object.prototype.hasOwnProperty.call(this.observers, eventName)) {
+            throw new Error(`Undefined event name : ${eventName}`);
+        }
+
+        this.observers[eventName] = callback;
+
+        console.log(this.observers);
+    }
+
     /**
      * Retrieve an element by key and draws it
      * @param {string} element
      */
     _loadByKey(key) {
-        this._loadElement(this._elements.find((e) => e.key === key));
+        if (this.currentKey !== key) {
+            this._loadElement(this.elements.find((e) => e.key === key));
+        }
     }
 
     /**
@@ -229,11 +251,13 @@ export default class Lightbox {
         if (index < 0) {
             index = 0;
         }
-        if (index >= this._elements.length) {
-            index = this._elements.length - 1;
+        if (index >= this.elements.length) {
+            index = this.elements.length - 1;
         }
 
-        this._loadElement(this._elements[index]);
+        if (this.currentIndex !== i) {
+            this._loadElement(this.elements[index]);
+        }
     }
 
     /**
@@ -244,13 +268,13 @@ export default class Lightbox {
         const element = e;
 
         if (element) {
-            this._$lbContent.innerHTML = '';
+            this.$lbContent.innerHTML = '';
 
             if (element.loaded) { // either the image is already loaded
                 this._appendElement(element);
             } else { // or we need to do it before showing it
                 this._loading = true;
-                this._currentKey = element.key;
+                this.currentKey = element.key;
 
                 Promise.resolve(element.load()).then((markup) => {
                     element.data = markup;
@@ -267,7 +291,7 @@ export default class Lightbox {
                     the user had already closed the lightbox
                     and clicked on another element
                     */
-                    if (this._currentKey === element.key) {
+                    if (this.currentKey === element.key) {
                         this._appendElement(element);
                     }
                     element.loaded = true;
@@ -290,8 +314,8 @@ export default class Lightbox {
         if (index !== -1) {
             this._index = index;
 
-            this._$lbContent.innerHTML = '';
-            this._$lbContent.appendChild(element.data);
+            this.$lbContent.innerHTML = '';
+            this.$lbContent.appendChild(element.data);
         }
     }
 
@@ -301,7 +325,7 @@ export default class Lightbox {
      * @return {number}
      */
     _findIndex(key) {
-        return this._elements.findIndex((e) => e.key === key);
+        return this.elements.findIndex((e) => e.key === key);
     }
 
     /**
@@ -310,11 +334,13 @@ export default class Lightbox {
      */
     open() {
         return new Promise((resolve, reject) => {
-            if (!this._openState) {
-                this._openState = true;
-                this._$lb.classList.add('active');
+            if (!this.openState) {
+                this.openState = true;
+                this.$lb.classList.add('active');
 
-                if (this._onOpenCallback) this._onOpenCallback();
+                if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
+                    this.observers[Lightbox.EVENT_ONOPEN]();
+                }
                 resolve();
             }
 
@@ -328,11 +354,13 @@ export default class Lightbox {
      */
     close() {
         return new Promise((resolve, reject) => {
-            if (this._openState) {
-                this._openState = false;
-                this._$lb.classList.remove('active');
+            if (this.openState) {
+                this.openState = false;
+                this.$lb.classList.remove('active');
 
-                if (this._onCloseCallback) this._onCloseCallback();
+                if (this.observers[Lightbox.EVENT_ONCLOSE] !== null) {
+                    this.observers[Lightbox.EVENT_ONCLOSE]();
+                }
                 resolve();
             }
 
@@ -352,14 +380,14 @@ export default class Lightbox {
      * Tries to load next item
      */
     next() {
-        this._loadByIndex(this._currentIndex + 1);
+        this._loadByIndex(this.currentIndex + 1);
     }
 
     /**
      * Tries to load previous item
      */
     prev() {
-        this._loadByIndex(this._currentIndex - 1);
+        this._loadByIndex(this.currentIndex - 1);
     }
 
     /**
@@ -368,11 +396,11 @@ export default class Lightbox {
      */
     set _loading(state) {
         if (state === true) {
-            this._loadingState = true;
-            this._$lb.classList.add('loading');
+            this.loadingState = true;
+            this.$lb.classList.add('loading');
         } else {
-            this._loadingState = false;
-            this._$lb.classList.remove('loading');
+            this.loadingState = false;
+            this.$lb.classList.remove('loading');
         }
     }
 
@@ -381,7 +409,7 @@ export default class Lightbox {
      * @return {boolean}
      */
     get _loading() {
-        return this._loadingState;
+        return this.loadingState;
     }
 
     /**
@@ -389,32 +417,32 @@ export default class Lightbox {
      * @param {number} index
      */
     set _index(index) {
-        if (index === this._currentIndex) {
+        if (index === this.currentIndex) {
             return;
         }
 
-        if (index >= 0 && index < this._elements.length) {
-            this._currentIndex = index;
+        if (index >= 0 && index < this.elements.length) {
+            this.currentIndex = index;
         }
 
-        if (this._UI.prev.active) {
-            if (this._currentIndex === 0) {
-                this._UI.prev.element.disable();
+        if (this.UI.prev.active) {
+            if (this.currentIndex === 0) {
+                this.UI.prev.element.disable();
             } else {
-                this._UI.prev.element.enable();
+                this.UI.prev.element.enable();
             }
         }
 
-        if (this._UI.next.active) {
-            if (this._currentIndex === this._elements.length - 1) {
-                this._UI.next.element.disable();
+        if (this.UI.next.active) {
+            if (this.currentIndex === this.elements.length - 1) {
+                this.UI.next.element.disable();
             } else {
-                this._UI.next.element.enable();
+                this.UI.next.element.enable();
             }
         }
 
-        if (this._UI.pagination.active) {
-            this._UI.pagination.element.innerHTML = `<span>${this._currentIndex + 1}</span> / <span>${this._elements.length}</span>`;
+        if (this.UI.pagination.active) {
+            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span> / <span>${this.elements.length}</span>`;
         }
     }
 
@@ -423,10 +451,29 @@ export default class Lightbox {
      * @return {number}
      */
     get _index() {
-        return this._currentIndex;
+        return this.currentIndex;
     }
 
     isOpen() {
-        return this._openState;
+        return this.openState;
     }
 }
+
+Lightbox.DEFAULT_CONFIG = {
+    uid: 1,
+    closeOnBlur: true,
+    closeOnEscape: true,
+    arrowKeyNavigation: true,
+    ui: {
+        close: true,
+        controls: true,
+        pagination: true,
+    },
+};
+
+
+Lightbox.EVENT_ONCLOSE = 'close';
+Lightbox.EVENT_ONOPEN = 'open';
+Lightbox.EVENT_ONCONTROLS = 'controls';
+Lightbox.EVENT_ONCONTROLS_NEXT = 'controls.next';
+Lightbox.EVENT_ONCONTROLS_PREV = 'controls.prev';
