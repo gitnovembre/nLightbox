@@ -17,9 +17,8 @@ export default class Lightbox {
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
             [Lightbox.EVENT_ONOPEN]: null,
-            [Lightbox.EVENT_ONCONTROLS]: null,
-            [Lightbox.EVENT_ONCONTROLS_NEXT]: null,
-            [Lightbox.EVENT_ONCONTROLS_PREV]: null,
+            [Lightbox.EVENT_ONCHANGE_BEFORE]: null,
+            [Lightbox.EVENT_ONCHANGE_AFTER]: null,
         };
 
         this.elements = [];
@@ -155,6 +154,7 @@ export default class Lightbox {
 
         // Touch gestures support
         const h = new Hammer(this.$lb);
+
         h.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
         h.get('tap').set({ taps: 2 });
 
@@ -201,6 +201,7 @@ export default class Lightbox {
                     this.open();
                 });
 
+                // TODO: Enable custom types support
                 switch (element.data.type) {
                 case 'image':
                     return new LightboxImage(this, key, data);
@@ -227,8 +228,6 @@ export default class Lightbox {
         }
 
         this.observers[eventName] = callback;
-
-        console.log(this.observers);
     }
 
     /**
@@ -266,8 +265,13 @@ export default class Lightbox {
      */
     _loadElement(e) {
         const element = e;
+        const prevElement = this.elements[this.currentIndex];
 
         if (element) {
+            if (this.observers[Lightbox.EVENT_ONCHANGE_BEFORE] !== null) {
+                this.observers[Lightbox.EVENT_ONCHANGE_BEFORE](prevElement, element);
+            }
+
             this.$lbContent.innerHTML = '';
 
             if (element.loaded) { // either the image is already loaded
@@ -316,6 +320,10 @@ export default class Lightbox {
 
             this.$lbContent.innerHTML = '';
             this.$lbContent.appendChild(element.data);
+
+            if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
+                this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+            }
         }
     }
 
@@ -388,6 +396,13 @@ export default class Lightbox {
      */
     prev() {
         this._loadByIndex(this.currentIndex - 1);
+    }
+
+    /**
+     * Tries to load an item based on its index
+     */
+    jumpTo(i) {
+        this._loadByIndex(i);
     }
 
     /**
@@ -474,6 +489,5 @@ Lightbox.DEFAULT_CONFIG = {
 
 Lightbox.EVENT_ONCLOSE = 'close';
 Lightbox.EVENT_ONOPEN = 'open';
-Lightbox.EVENT_ONCONTROLS = 'controls';
-Lightbox.EVENT_ONCONTROLS_NEXT = 'controls.next';
-Lightbox.EVENT_ONCONTROLS_PREV = 'controls.prev';
+Lightbox.EVENT_ONCHANGE_BEFORE = 'change.before';
+Lightbox.EVENT_ONCHANGE_AFTER = 'change.after';

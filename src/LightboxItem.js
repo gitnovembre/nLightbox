@@ -11,13 +11,14 @@ class LightboxItem {
         this.data = null;
     }
 }
+
 export class LightboxImage extends LightboxItem {
     /**
      * @param {Lightbox} lightbox
      * @param {string} key
      * @param {Object} options
      */
-    constructor(lightbox, key, { src, width, height, alt = '' } = {}) { //eslint-disable-line
+    constructor(lightbox, key, { src, width = -1, height = -1, alt = '' } = {}) { //eslint-disable-line
         super(lightbox, key);
         this.src = src;
         this.alt = alt;
