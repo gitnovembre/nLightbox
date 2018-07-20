@@ -1,3 +1,7 @@
 import Lightbox from './src/Lightbox';
+import LightboxItem from './src/LightboxItem';
 
-export default Lightbox;
+export {
+    Lightbox,
+    LightboxItem,
+};
