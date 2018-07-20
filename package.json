@@ -9,7 +9,8 @@
     "@types/uniqid": "^4.1.2",
     "hammerjs": "^2.0.8",
     "node-sass": "^4.9.2",
-    "uniqid": "^5.0.3"
+    "uniqid": "^5.0.3",
+    "yt-player": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",

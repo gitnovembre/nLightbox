@@ -1818,6 +1818,10 @@ load-json-file@^4.0.0:
     pify "^3.0.0"
     strip-bom "^3.0.0"
 
+load-script2@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/load-script2/-/load-script2-1.0.1.tgz#fd7d75987d0a7dbeab5b11f93581b9154a04eac1"
+
 locate-path@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"
@@ -3511,3 +3515,9 @@ yargs@^7.0.0:
     which-module "^1.0.0"
     y18n "^3.2.1"
     yargs-parser "^5.0.0"
+
+yt-player@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/yt-player/-/yt-player-3.1.0.tgz#44031ff15eae36637534c6ada2e535274cbce02d"
+  dependencies:
+    load-script2 "^1.0.0"

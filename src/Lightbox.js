@@ -1,7 +1,10 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
-import { LightboxImage, LightboxVideo, LightboxYoutubeVideo } from './LightboxItem';
+import LightboxImage from './LightboxImage';
+import LightboxVideo from './LightboxVideo';
+import LightboxYoutube from './LightboxYoutube';
+
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
@@ -24,7 +27,7 @@ export default class Lightbox {
         this.types = {
             [LightboxImage.TYPE_NAME]: LightboxImage,
             [LightboxVideo.TYPE_NAME]: LightboxVideo,
-            [LightboxYoutubeVideo.TYPE_NAME]: LightboxYoutubeVideo,
+            [LightboxYoutube.TYPE_NAME]: LightboxYoutube,
         };
 
         this.elements = [];
@@ -477,7 +480,7 @@ export default class Lightbox {
         }
 
         if (this.UI.pagination.active) {
-            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span> / <span>${this.elements.length}</span>`;
+            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span>&nbsp;/&nbsp;<span>${this.elements.length}</span>`;
         }
     }
 
