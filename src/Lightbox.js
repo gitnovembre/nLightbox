@@ -1,7 +1,10 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
-import { LightboxImage, LightboxVideo, LightboxYoutubeVideo } from './LightboxItem';
+import LightboxImage from './LightboxImage';
+import LightboxVideo from './LightboxVideo';
+import LightboxYoutube from './LightboxYoutube';
+
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
@@ -24,11 +27,11 @@ export default class Lightbox {
         this.types = {
             [LightboxImage.TYPE_NAME]: LightboxImage,
             [LightboxVideo.TYPE_NAME]: LightboxVideo,
-            [LightboxYoutubeVideo.TYPE_NAME]: LightboxYoutubeVideo,
+            [LightboxYoutube.TYPE_NAME]: LightboxYoutube,
         };
 
         this.elements = [];
-        this.currentKey = undefined;
+        this.currentLoadingKey = undefined;
         this.currentIndex = -1;
 
         this.openState = false;
@@ -208,22 +211,22 @@ export default class Lightbox {
                 dataset: JSON.parse(node.dataset.lightbox),
                 key: uniqid(),
                 item: node,
-            })).filter((element) => element.dataset.group === this.UId).map((element) => {
-                const { key, dataset, item } = element;
+            })).filter((element) => element.dataset.group === this.UId).map((protoElement) => {
+                const { key, dataset, item } = protoElement;
                 item.dataset.lightboxTarget = key;
 
-                element.item.addEventListener('click', (e) => {
+                item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this._loadByKey(element.key);
+                    this._loadByKey(key);
                     this.open();
                 });
 
                 // check if type is registered
-                if (!this._typeExists(element.dataset.type)) {
+                if (!this._typeExists(dataset.type)) {
                     throw new Error('Invalid lightbox type');
                 }
 
-                const CustomType = this.types[element.dataset.type];
+                const CustomType = this.types[dataset.type];
                 return new CustomType(this, key, dataset);
             });
         });
@@ -249,9 +252,7 @@ export default class Lightbox {
      * @param {string} element
      */
     _loadByKey(key) {
-        if (this.currentKey !== key) {
-            this._loadElement(this.elements.find((e) => e.key === key));
-        }
+        this._loadElement(this.elements.find((e) => e.key === key));
     }
 
     /**
@@ -268,9 +269,7 @@ export default class Lightbox {
             index = this.elements.length - 1;
         }
 
-        if (this.currentIndex !== i) {
-            this._loadElement(this.elements[index]);
-        }
+        this._loadElement(this.elements[index]);
     }
 
     /**
@@ -279,67 +278,82 @@ export default class Lightbox {
      */
     _loadElement(e) {
         const element = e;
-        const prevElement = this.elements[this.currentIndex];
 
-        if (element) {
+        if (element && (element.loaded || !element.loading)) {
+            const prevElement = this.elements[this.currentIndex];
             if (this.observers[Lightbox.EVENT_ONCHANGE_BEFORE] !== null) {
                 this.observers[Lightbox.EVENT_ONCHANGE_BEFORE](prevElement, element);
             }
 
-            this.$lbContent.innerHTML = '';
+            // hide all
+            this.elements.forEach((k) => {
+                if (k.container) {
+                    k.container.classList.remove('active');
+                }
+            });
 
             if (element.loaded) { // either the image is already loaded
-                this._appendElement(element);
+                this._showElement(element);
             } else { // or we need to do it before showing it
+                // Load flags
                 this._loading = true;
-                this.currentKey = element.key;
+                this.currentLoadingKey = element.key;
+                element.loading = true;
+
+                // Content container creation
+                const container = document.createElement('div');
+                container.classList.add('lightbox__container');
+                container.id = element.key;
 
                 Promise.resolve(element.load()).then((markup) => {
-                    element.data = markup;
-                }).catch(() => {
+                    // check lb if inner content is valid
+                    if (!(typeof markup === 'object')) {
+                        throw new Error('Lightbox item load function must return a valid Node object');
+                    }
+                    container.appendChild(markup);
+                }).catch((error) => {
                     const mess = document.createElement('p');
                     mess.classList.add('lightbox__message', 'lightbox__message_error');
-                    mess.textContent = 'Impossible de charger le contenu ...';
-
-                    element.data = mess;
+                    mess.innerHTML = `
+                        Impossible de charger le contenu
+                        <span class="error_message">(${error instanceof Error ? error.message : error})</span>
+                    `;
+                    container.appendChild(mess);
                 }).finally(() => {
+                    this.$lbContent.appendChild(container);
+                    element.container = container;
+
+                    // Remove loading flag
+                    element.loaded = true;
+                    element.loading = false;
+                    this._loading = false;
+
                     /*
                     if there is a key mismatch, it means that
                     while the element was finished loading,
                     the user had already closed the lightbox
                     and clicked on another element
                     */
-                    if (this.currentKey === element.key) {
-                        this._appendElement(element);
+                    if (this.currentLoadingKey === element.key) {
+                        this._showElement(element);
                     }
-                    element.loaded = true;
-
-                    this._loading = false;
                 });
             }
         }
     }
 
     /**
-     * Appends content of the given element
+     * Shows content of the given element
      * @param {LightboxElement} element
      */
-    _appendElement(element) {
+    _showElement(element) {
         const index = this._findIndex(element.key);
 
         // if the index could not be found, someone messed w/ the element list
         // (it should always find a match)
         if (index !== -1) {
             this._index = index;
-
-            this.$lbContent.innerHTML = '';
-
-            // check lb if inner content is valid
-            if (!(typeof element.data === 'object')) {
-                throw new Error('Lightbox item load function must return a valid Node object');
-            }
-
-            this.$lbContent.appendChild(element.data);
+            element.container.classList.add('active');
 
             if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
                 this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
@@ -477,7 +491,7 @@ export default class Lightbox {
         }
 
         if (this.UI.pagination.active) {
-            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span> / <span>${this.elements.length}</span>`;
+            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span>&nbsp;/&nbsp;<span>${this.elements.length}</span>`;
         }
     }
 

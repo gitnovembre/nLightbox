@@ -1,6 +1,7 @@
-$lightbox-bgcolor : #0B0319;
+@import './structure';
 
 .lightbox {
+    font-family:$lightbox-font;
     position:fixed;
     top:0; left:0;
     z-index:500;
@@ -19,19 +20,42 @@ $lightbox-bgcolor : #0B0319;
         display:flex;
     }
 
+    &__container {
+        display:none;
+        &.active {
+            display:block;
+        }
+    }
+
     &__message{
         color:#b4b4b4;
-        font-family:Arial, sans-serif;
         font-size:14px;
         line-height:20px;
         text-align:center;
+        display:flex;
+        flex-direction:column;
+        flex-wrap:nowrap;
+        align-items:center;
+        justify-content:center;
 
         &_loader{
             display:none;
         }
 
         &_error{
+            width:500px;
+            height:500px;
+            max-width:100%;
+            max-height:100%;
             padding:32px 64px;
+            font-size:16px;
+            line-height:24px;
+
+            .error_message {
+                font-size:12px;
+                color:#807f7f;
+                display:block;
+            }
         }
     }
 
@@ -66,14 +90,16 @@ $lightbox-bgcolor : #0B0319;
             width:64px;
             height:32px;
             line-height:32px;
-            display:block;
+            display:flex;
+            align-items:center;
+            justify-content:center;
             background:rgba(255, 255, 255, 0.15);
             border:none;
             outline:none;
             text-align:center;
             font-size:13px;
             color:#fff;
-            font-family:Arial, sans-serif;
+            font-family:$lightbox-font;
             border-radius:32px;
             cursor:pointer;
 
@@ -86,11 +112,26 @@ $lightbox-bgcolor : #0B0319;
                 position:fixed;
                 width:32px;
                 top:calc((100% - 32px) / 2);
-                &_next{
+                padding:0;
+                
+                &_next {
                     right:64px / 2 - 16;
                 }
-                &_prev{
+                &_prev {
                     left:64px / 2 - 16;
+                }
+
+                .icon{
+                    display:block;
+                    width:12px;
+                    height:12px;
+
+                    &_prev {
+                        content:url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNDc3LjE3NSA0NzcuMTc1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0NzcuMTc1IDQ3Ny4xNzU7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNDUuMTg4LDIzOC41NzVsMjE1LjUtMjE1LjVjNS4zLTUuMyw1LjMtMTMuOCwwLTE5LjFzLTEzLjgtNS4zLTE5LjEsMGwtMjI1LjEsMjI1LjFjLTUuMyw1LjMtNS4zLDEzLjgsMCwxOS4xbDIyNS4xLDIyNQ0KCQljMi42LDIuNiw2LjEsNCw5LjUsNHM2LjktMS4zLDkuNS00YzUuMy01LjMsNS4zLTEzLjgsMC0xOS4xTDE0NS4xODgsMjM4LjU3NXoiLz4NCjwvZz4NCjwvc3ZnPg0K');
+                    }
+                    &_next {
+                        content:url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz4KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEyOSAxMjkiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMjkgMTI5Ij4KICA8Zz4KICAgIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Im00MC40LDEyMS4zYy0wLjgsMC44LTEuOCwxLjItMi45LDEuMnMtMi4xLTAuNC0yLjktMS4yYy0xLjYtMS42LTEuNi00LjIgMC01LjhsNTEtNTEtNTEtNTFjLTEuNi0xLjYtMS42LTQuMiAwLTUuOCAxLjYtMS42IDQuMi0xLjYgNS44LDBsNTMuOSw1My45YzEuNiwxLjYgMS42LDQuMiAwLDUuOGwtNTMuOSw1My45eiIvPgogIDwvZz4KPC9zdmc+Cg==');
+                    }
                 }
             }
 
