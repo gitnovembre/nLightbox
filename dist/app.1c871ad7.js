@@ -3113,6 +3113,8 @@ function LightboxItem(lightbox, key) {
     this.data = null;
 };
 
+LightboxItem.TYPE_NAME = 'default';
+
 var LightboxImage = exports.LightboxImage = function (_LightboxItem) {
     _inherits(LightboxImage, _LightboxItem);
 
@@ -3179,6 +3181,8 @@ var LightboxImage = exports.LightboxImage = function (_LightboxItem) {
 
     return LightboxImage;
 }(LightboxItem);
+
+LightboxImage.TYPE_NAME = 'image';
 
 var LightboxVideo = exports.LightboxVideo = function (_LightboxItem2) {
     _inherits(LightboxVideo, _LightboxItem2);
@@ -3250,6 +3254,8 @@ var LightboxVideo = exports.LightboxVideo = function (_LightboxItem2) {
 
     return LightboxVideo;
 }(LightboxItem);
+
+LightboxVideo.TYPE_NAME = 'video';
 
 var LightboxYoutubeVideo = exports.LightboxYoutubeVideo = function (_LightboxItem3) {
     _inherits(LightboxYoutubeVideo, _LightboxItem3);
@@ -3330,6 +3336,8 @@ var LightboxYoutubeVideo = exports.LightboxYoutubeVideo = function (_LightboxIte
 
     return LightboxYoutubeVideo;
 }(LightboxItem);
+
+LightboxYoutubeVideo.TYPE_NAME = 'youtube';
 
 exports.default = LightboxItem;
 },{}],"../src/LightboxUIElement.js":[function(require,module,exports) {
@@ -3473,6 +3481,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _uniqid = require('uniqid');
@@ -3498,7 +3508,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Lightbox = function () {
     function Lightbox() {
-        var _observers;
+        var _observers, _types;
 
         var customOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -3513,6 +3523,8 @@ var Lightbox = function () {
         this.arrowKeyNavigation = options.arrowKeyNavigation === true;
 
         this.observers = (_observers = {}, _defineProperty(_observers, Lightbox.EVENT_ONCLOSE, null), _defineProperty(_observers, Lightbox.EVENT_ONOPEN, null), _defineProperty(_observers, Lightbox.EVENT_ONCHANGE_BEFORE, null), _defineProperty(_observers, Lightbox.EVENT_ONCHANGE_AFTER, null), _observers);
+
+        this.types = (_types = {}, _defineProperty(_types, _LightboxItem.LightboxImage.TYPE_NAME, _LightboxItem.LightboxImage), _defineProperty(_types, _LightboxItem.LightboxVideo.TYPE_NAME, _LightboxItem.LightboxVideo), _defineProperty(_types, _LightboxItem.LightboxYoutubeVideo.TYPE_NAME, _LightboxItem.LightboxYoutubeVideo), _types);
 
         this.elements = [];
         this.currentKey = undefined;
@@ -3548,6 +3560,21 @@ var Lightbox = function () {
     _createClass(Lightbox, [{
         key: 'init',
         value: function init() {
+            var _this = this;
+
+            var customTypes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+            // register custom types
+            customTypes.forEach(function (typeClass) {
+                if (!typeClass.TYPE_NAME) {
+                    throw new Error('Invalid Lightbox type : ' + typeClass.TYPE_NAME);
+                }
+                if (_this._typeExists(typeClass.TYPE_NAME)) {
+                    throw new Error('Cannot overwrite existing Lightbox type, ' + typeClass.TYPE_NAME);
+                }
+                _this.types[typeClass.TYPE_NAME] = typeClass;
+            });
+
             // lb creation
             this.$lb = document.createElement('div');
             this.$lb.classList.add('lightbox');
@@ -3572,14 +3599,14 @@ var Lightbox = function () {
     }, {
         key: '_initUI',
         value: function _initUI() {
-            var _this = this;
+            var _this2 = this;
 
             // UI elements creation
             var closeBtn = new _LightboxUIElement.LightboxUIClose();
             closeBtn.appendTo(this.$lbUI);
             closeBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                _this.close();
+                _this2.close();
             });
 
             if (!this.UI.close.active) {
@@ -3591,7 +3618,7 @@ var Lightbox = function () {
             prevBtn.appendTo(this.$lbUI);
             prevBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                _this.prev();
+                _this2.prev();
             });
             if (!this.UI.prev.active) {
                 prevBtn.hide();
@@ -3602,7 +3629,7 @@ var Lightbox = function () {
             nextBtn.appendTo(this.$lbUI);
             nextBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                _this.next();
+                _this2.next();
             });
             if (!this.UI.next.active) {
                 nextBtn.hide();
@@ -3631,23 +3658,23 @@ var Lightbox = function () {
     }, {
         key: '_initEvents',
         value: function _initEvents() {
-            var _this2 = this;
+            var _this3 = this;
 
             // lb events
             this.$lb.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (e.target === _this2.$lb && _this2.closeOnBlur) {
+                if (e.target === _this3.$lb && _this3.closeOnBlur) {
                     // user clicks off content bounds
-                    _this2.close();
+                    _this3.close();
                 } else if (e.target.classList.contains('lightbox__close')) {
                     // user clicks on a child element of the lightbox which has the classname "close"
-                    _this2.close();
+                    _this3.close();
                 } else if (e.target.classList.contains('lightbox__next')) {
-                    _this2.next();
+                    _this3.next();
                 } else if (e.target.classList.contains('lightbox__prev')) {
-                    _this2.prev();
+                    _this3.prev();
                 }
             });
 
@@ -3659,25 +3686,25 @@ var Lightbox = function () {
 
             // controls when swiping
             h.on('swiperight', function () {
-                _this2.prev();
+                _this3.prev();
             });
             h.on('swipeleft', function () {
-                _this2.next();
+                _this3.next();
             });
 
             // close on double tap
             h.on('tap', function () {
-                _this2.close();
+                _this3.close();
             });
 
             document.addEventListener('keydown', function (e) {
                 // user can close the lightbox when pressing the escape key
-                if (e.keyCode === 27 && _this2.closeOnEscape) {
-                    _this2.close();
-                } else if (e.keyCode === 37 && _this2.arrowKeyNavigation) {
-                    _this2.prev();
-                } else if (e.keyCode === 39 && _this2.arrowKeyNavigation) {
-                    _this2.next();
+                if (e.keyCode === 27 && _this3.closeOnEscape) {
+                    _this3.close();
+                } else if (e.keyCode === 37 && _this3.arrowKeyNavigation) {
+                    _this3.prev();
+                } else if (e.keyCode === 39 && _this3.arrowKeyNavigation) {
+                    _this3.next();
                 }
             });
 
@@ -3686,43 +3713,41 @@ var Lightbox = function () {
                 var elements = document.querySelectorAll('[data-lightbox]');
 
                 // index all elements / get lightbox gallery data
-                _this2.elements = Array.from(elements).map(function (node) {
+                _this3.elements = Array.from(elements).map(function (node) {
                     return {
-                        data: JSON.parse(node.dataset.lightbox),
+                        dataset: JSON.parse(node.dataset.lightbox),
                         key: (0, _uniqid2.default)(),
                         item: node
                     };
                 }).filter(function (element) {
-                    return element.data.group === _this2.UId;
+                    return element.dataset.group === _this3.UId;
                 }).map(function (element) {
                     var key = element.key,
-                        data = element.data,
+                        dataset = element.dataset,
                         item = element.item;
 
                     item.dataset.lightboxTarget = key;
 
                     element.item.addEventListener('click', function (e) {
                         e.preventDefault();
-                        _this2._loadByKey(element.key);
-                        _this2.open();
+                        _this3._loadByKey(element.key);
+                        _this3.open();
                     });
 
-                    // TODO: Enable custom types support
-                    switch (element.data.type) {
-                        case 'image':
-                            return new _LightboxItem.LightboxImage(_this2, key, data);
-
-                        case 'video':
-                            return new _LightboxItem.LightboxVideo(_this2, key, data);
-
-                        case 'youtube':
-                            return new _LightboxItem.LightboxYoutubeVideo(_this2, key, data);
-
-                        default:
-                            throw new Error('Invalid lightbox type');
+                    // check if type is registered
+                    if (!_this3._typeExists(element.dataset.type)) {
+                        throw new Error('Invalid lightbox type');
                     }
+
+                    var CustomType = _this3.types[element.dataset.type];
+                    return new CustomType(_this3, key, dataset);
                 });
             });
+        }
+    }, {
+        key: '_typeExists',
+        value: function _typeExists(name) {
+            return Object.hasOwnProperty.call(this.types, name);
         }
     }, {
         key: 'on',
@@ -3782,7 +3807,7 @@ var Lightbox = function () {
     }, {
         key: '_loadElement',
         value: function _loadElement(e) {
-            var _this3 = this;
+            var _this4 = this;
 
             var element = e;
             var prevElement = this.elements[this.currentIndex];
@@ -3817,12 +3842,12 @@ var Lightbox = function () {
                         the user had already closed the lightbox
                         and clicked on another element
                         */
-                        if (_this3.currentKey === element.key) {
-                            _this3._appendElement(element);
+                        if (_this4.currentKey === element.key) {
+                            _this4._appendElement(element);
                         }
                         element.loaded = true;
 
-                        _this3._loading = false;
+                        _this4._loading = false;
                     });
                 }
             }
@@ -3844,6 +3869,12 @@ var Lightbox = function () {
                 this._index = index;
 
                 this.$lbContent.innerHTML = '';
+
+                // check lb if inner content is valid
+                if (!(_typeof(element.data) === 'object')) {
+                    throw new Error('Lightbox item load function must return a valid Node object');
+                }
+
                 this.$lbContent.appendChild(element.data);
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
@@ -3874,15 +3905,15 @@ var Lightbox = function () {
     }, {
         key: 'open',
         value: function open() {
-            var _this4 = this;
+            var _this5 = this;
 
             return new Promise(function (resolve, reject) {
-                if (!_this4.openState) {
-                    _this4.openState = true;
-                    _this4.$lb.classList.add('active');
+                if (!_this5.openState) {
+                    _this5.openState = true;
+                    _this5.$lb.classList.add('active');
 
-                    if (_this4.observers[Lightbox.EVENT_ONOPEN] !== null) {
-                        _this4.observers[Lightbox.EVENT_ONOPEN]();
+                    if (_this5.observers[Lightbox.EVENT_ONOPEN] !== null) {
+                        _this5.observers[Lightbox.EVENT_ONOPEN]();
                     }
                     resolve();
                 }
@@ -3899,15 +3930,15 @@ var Lightbox = function () {
     }, {
         key: 'close',
         value: function close() {
-            var _this5 = this;
+            var _this6 = this;
 
             return new Promise(function (resolve, reject) {
-                if (_this5.openState) {
-                    _this5.openState = false;
-                    _this5.$lb.classList.remove('active');
+                if (_this6.openState) {
+                    _this6.openState = false;
+                    _this6.$lb.classList.remove('active');
 
-                    if (_this5.observers[Lightbox.EVENT_ONCLOSE] !== null) {
-                        _this5.observers[Lightbox.EVENT_ONCLOSE]();
+                    if (_this6.observers[Lightbox.EVENT_ONCLOSE] !== null) {
+                        _this6.observers[Lightbox.EVENT_ONCLOSE]();
                     }
                     resolve();
                 }
@@ -4060,13 +4091,58 @@ Lightbox.EVENT_ONCHANGE_AFTER = 'change.after';
 },{"uniqid":"../node_modules/uniqid/index.js","hammerjs":"../node_modules/hammerjs/hammer.js","./LightboxItem":"../src/LightboxItem.js","./LightboxUIElement":"../src/LightboxUIElement.js"}],"app.js":[function(require,module,exports) {
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 require('./sass/main');
 
 var _Lightbox = require('../src/Lightbox');
 
 var _Lightbox2 = _interopRequireDefault(_Lightbox);
 
+var _LightboxItem2 = require('../src/LightboxItem');
+
+var _LightboxItem3 = _interopRequireDefault(_LightboxItem2);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //eslint-disable-line
+
+var LightboxItemTest = function (_LightboxItem) {
+    _inherits(LightboxItemTest, _LightboxItem);
+
+    function LightboxItemTest(lightbox, key) {
+        _classCallCheck(this, LightboxItemTest);
+
+        var _this = _possibleConstructorReturn(this, (LightboxItemTest.__proto__ || Object.getPrototypeOf(LightboxItemTest)).call(this, lightbox, key));
+
+        _this.content = 'test';
+        return _this;
+    }
+
+    _createClass(LightboxItemTest, [{
+        key: 'load',
+        value: function load() {
+            var node = document.createElement('div');
+            node.style.display = 'flex';
+            node.style.alignItems = 'center';
+            node.style.justifyContent = 'center';
+            node.style.color = '#000';
+            node.style.width = '500px';
+            node.style.height = '500px';
+            node.style.backgroundColor = '#dadada';
+            node.textContent = this.content;
+            return node;
+        }
+    }]);
+
+    return LightboxItemTest;
+}(_LightboxItem3.default);
+
+LightboxItemTest.TYPE_NAME = 'test';
 
 // Lightbox gallery test
 
@@ -4080,9 +4156,9 @@ window.lb = new _Lightbox2.default({
         controls: true,
         pagination: true
     }
-}); //eslint-disable-line
+});
 
-window.lb.init();
+window.lb.init([LightboxItemTest]);
 
 window.lb.on('open', function () {
     console.info('OPEN');
@@ -4113,7 +4189,7 @@ new _Lightbox2.default({
         pagination: false
     }
 }).init();
-},{"./sass/main":"sass/main.scss","../src/Lightbox":"../src/Lightbox.js"}],"../../../.config/yarn/global/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./sass/main":"sass/main.scss","../src/Lightbox":"../src/Lightbox.js","../src/LightboxItem":"../src/LightboxItem.js"}],"../../../.config/yarn/global/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -4142,7 +4218,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '53669' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '64350' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 

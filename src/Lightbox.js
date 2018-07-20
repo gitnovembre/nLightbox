@@ -21,6 +21,12 @@ export default class Lightbox {
             [Lightbox.EVENT_ONCHANGE_AFTER]: null,
         };
 
+        this.types = {
+            [LightboxImage.TYPE_NAME]: LightboxImage,
+            [LightboxVideo.TYPE_NAME]: LightboxVideo,
+            [LightboxYoutubeVideo.TYPE_NAME]: LightboxYoutubeVideo,
+        };
+
         this.elements = [];
         this.currentKey = undefined;
         this.currentIndex = -1;
@@ -52,7 +58,18 @@ export default class Lightbox {
         this.$lbContent = null;
     }
 
-    init() {
+    init(customTypes = []) {
+        // register custom types
+        customTypes.forEach((typeClass) => {
+            if (!typeClass.TYPE_NAME) {
+                throw new Error(`Invalid Lightbox type : ${typeClass.TYPE_NAME}`);
+            }
+            if (this._typeExists(typeClass.TYPE_NAME)) {
+                throw new Error(`Cannot overwrite existing Lightbox type, ${typeClass.TYPE_NAME}`);
+            }
+            this.types[typeClass.TYPE_NAME] = typeClass;
+        });
+
         // lb creation
         this.$lb = document.createElement('div');
         this.$lb.classList.add('lightbox');
@@ -188,11 +205,11 @@ export default class Lightbox {
 
             // index all elements / get lightbox gallery data
             this.elements = Array.from(elements).map((node) => ({
-                data: JSON.parse(node.dataset.lightbox),
+                dataset: JSON.parse(node.dataset.lightbox),
                 key: uniqid(),
                 item: node,
-            })).filter((element) => element.data.group === this.UId).map((element) => {
-                const { key, data, item } = element;
+            })).filter((element) => element.dataset.group === this.UId).map((element) => {
+                const { key, dataset, item } = element;
                 item.dataset.lightboxTarget = key;
 
                 element.item.addEventListener('click', (e) => {
@@ -201,22 +218,19 @@ export default class Lightbox {
                     this.open();
                 });
 
-                // TODO: Enable custom types support
-                switch (element.data.type) {
-                case 'image':
-                    return new LightboxImage(this, key, data);
-
-                case 'video':
-                    return new LightboxVideo(this, key, data);
-
-                case 'youtube':
-                    return new LightboxYoutubeVideo(this, key, data);
-
-                default:
+                // check if type is registered
+                if (!this._typeExists(element.dataset.type)) {
                     throw new Error('Invalid lightbox type');
                 }
+
+                const CustomType = this.types[element.dataset.type];
+                return new CustomType(this, key, dataset);
             });
         });
+    }
+
+    _typeExists(name) {
+        return Object.hasOwnProperty.call(this.types, name);
     }
 
     on(eventName, callback) {
@@ -319,6 +333,12 @@ export default class Lightbox {
             this._index = index;
 
             this.$lbContent.innerHTML = '';
+
+            // check lb if inner content is valid
+            if (!(typeof element.data === 'object')) {
+                throw new Error('Lightbox item load function must return a valid Node object');
+            }
+
             this.$lbContent.appendChild(element.data);
 
             if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {

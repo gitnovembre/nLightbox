@@ -12,6 +12,8 @@ class LightboxItem {
     }
 }
 
+LightboxItem.TYPE_NAME = 'default';
+
 export class LightboxImage extends LightboxItem {
     /**
      * @param {Lightbox} lightbox
@@ -51,6 +53,8 @@ export class LightboxImage extends LightboxItem {
         });
     }
 }
+
+LightboxImage.TYPE_NAME = 'image';
 
 export class LightboxVideo extends LightboxItem {
     /**
@@ -92,6 +96,8 @@ export class LightboxVideo extends LightboxItem {
         });
     }
 }
+
+LightboxVideo.TYPE_NAME = 'video';
 
 export class LightboxYoutubeVideo extends LightboxItem {
     /**
@@ -140,5 +146,7 @@ export class LightboxYoutubeVideo extends LightboxItem {
         return iframe;
     }
 }
+
+LightboxYoutubeVideo.TYPE_NAME = 'youtube';
 
 export default LightboxItem;
