@@ -4128,6 +4128,7 @@ var LightboxItemTest = function (_LightboxItem) {
         value: function load() {
             var node = document.createElement('div');
             node.style.display = 'flex';
+            node.style.fontFamily = 'Arial';
             node.style.alignItems = 'center';
             node.style.justifyContent = 'center';
             node.style.color = '#000';
@@ -4158,7 +4159,7 @@ window.lb = new _Lightbox2.default({
     }
 });
 
-window.lb.init([LightboxItemTest]);
+window.lb.init();
 
 window.lb.on('open', function () {
     console.info('OPEN');
@@ -4188,7 +4189,7 @@ new _Lightbox2.default({
         controls: false,
         pagination: false
     }
-}).init();
+}).init([LightboxItemTest]);
 },{"./sass/main":"sass/main.scss","../src/Lightbox":"../src/Lightbox.js","../src/LightboxItem":"../src/LightboxItem.js"}],"../../../.config/yarn/global/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -4218,7 +4219,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '64350' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '54879' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
