@@ -1,4 +1,7 @@
+import uniqid from 'uniqid';
+
 import LightboxItem from './LightboxItem';
+import './YT';
 
 class LightboxYoutube extends LightboxItem {
     /**
@@ -28,6 +31,8 @@ class LightboxYoutube extends LightboxItem {
         this.allowFullscreen = allowFullscreen === true;
         this.width = parseInt(width, 10);
         this.height = parseInt(height, 10);
+
+        this.player = null;
     }
 
     /**
@@ -35,16 +40,32 @@ class LightboxYoutube extends LightboxItem {
      * @return {Promise}
      */
     load() {
-        const iframe = document.createElement('iframe');
-        if (this.width > 0) iframe.width = this.width;
-        if (this.height > 0)iframe.height = this.height;
+        const buffer = document.createElement('div');
+        buffer.style.display = 'none';
+        buffer.id = uniqid();
+        document.body.appendChild(buffer);
 
-        iframe.frameBorder = 0;
-        iframe.src = `https://www.youtube.com/embed/${this.videoId}?autoplay=${this.autoplay}&rel=${this.rel}&controls=${this.controls}&showinfo=${this.showinfo}&start=${this.start}`;
-        iframe.allow = 'autoplay; encrypted-media';
-        iframe.allowFullscreen = this.allowFullscreen;
-
-        return iframe;
+        return new Promise((resolve) => {
+            this.player = new YT.Player(buffer, { // eslint-disable-line
+                height: this.height,
+                width: this.width,
+                playerVars: {
+                    autoplay: this.autoplay,
+                    controls: this.controls,
+                    showinfo: this.showinfo,
+                    rel: this.rel,
+                    start: this.start,
+                },
+                videoId: this.videoId,
+                events: {
+                    onReady: (e) => {
+                        const node = e.target.a;
+                        node.style.display = 'block';
+                        resolve(node);
+                    },
+                },
+            });
+        });
     }
 }
 

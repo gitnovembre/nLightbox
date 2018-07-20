@@ -35,7 +35,7 @@ class LightboxImage extends LightboxItem {
                 resolve($figure);
             };
 
-            img.onerror = (e) => reject(e.message);
+            img.onerror = () => reject(new Error('Could not load image'));
         });
     }
 }

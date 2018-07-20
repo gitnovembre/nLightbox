@@ -8,6 +8,7 @@ class LightboxItem {
         this.key = key;
 
         this.loaded = false;
+        this.loading = false;
         this.data = null;
     }
 }
