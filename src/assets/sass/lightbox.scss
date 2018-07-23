@@ -1,0 +1,208 @@
+@import './config';
+@import './structure';
+
+.lightbox {
+    font-family:$lightbox-font;
+    position:fixed;
+    top:0; left:0;
+    z-index:500;
+    display:none;
+    font-size:15px;
+
+    justify-content:center;
+    align-items:center;
+    width:100vw;
+    height:100vh;
+    padding:32px 0;
+    box-sizing:border-box;
+
+    background:$lightbox-bgcolor;
+
+    &.active{
+        display:flex;
+    }
+
+    &__container {
+        display:none;
+        &.active {
+            display:block;
+        }
+    }
+
+    &__message{
+        color:#b4b4b4;
+        font-size:1em;
+        line-height:20px;
+        text-align:center;
+        display:flex;
+        flex-direction:column;
+        flex-wrap:nowrap;
+        align-items:center;
+        justify-content:center;
+
+        &_loader{
+            display:none;
+        }
+
+        &_error{
+            border:2px solid rgba(255, 255, 255, 0.15);
+            width:50vw;
+            height:50vh;
+            max-width:100%;
+            max-height:100%;
+            padding:32px 64px;
+            font-size:1.15em;
+            line-height:24px;
+
+            .error_message {
+                font-size:0.9em;
+                color:#807f7f;
+                display:block;
+            }
+        }
+    }
+
+    &.loading &__message{
+        &_loader{
+            display:block;
+        }
+    }
+
+
+    &__inner{
+        position:relative;
+    }
+
+    &__content{
+        overflow:hidden;
+        border-radius:2px;
+        img, video, canvas{
+            display:block;
+            max-width:100vw;
+            max-height:calc(100vh - 64px);
+            height:auto;
+            margin:0;
+        }
+        figure{
+            margin:0;
+        }
+    }
+
+    &__ui{
+        z-index:510;
+        &_element{
+            position:fixed;
+            width:64px;
+            height:32px;
+            line-height:32px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border:none;
+            outline:none;
+            text-align:center;
+            font-size:0.9em;
+            color:#fff;
+            background:transparent;
+            font-family:$lightbox-font;
+            border-radius:0;
+            cursor:pointer;
+
+            &:hover:not(.disabled){
+                background:rgba(255, 255, 255, 0.25);
+                transition:background ease 0.35s;
+            }
+
+            &_close{
+                width:48px;
+                top:0;
+                right:0;
+                font-size:1.25rem;
+            }
+
+            &_controls{
+                width:48px;
+                top:calc(100% - 32px);
+                padding:0;
+
+                &_next {
+                    right:0;
+                }
+                &_prev {
+                    left:0;
+                }
+
+                .icon{
+                    transform-origin:center;
+                    transform:scaleX(0.6);
+                    &_prev{
+                        transform:scaleX(0.6) rotate(180deg);
+                    }
+                }
+            }
+
+            &_pagination{
+                width:96px;
+                bottom:0;
+                left:calc((100% - 96px) / 2);
+                text-align:left;
+                cursor:default;
+            }
+
+            &.hidden{
+                display:none;
+            }
+            &.disabled{
+                opacity:0.25;
+                cursor:default;
+            }
+        }
+    }
+
+    &.loading &__ui{
+        display:none;
+    }
+
+    @media only screen and (min-device-width: 768px) {
+        padding:64px;
+        font-size:14px;
+
+        &__ui{
+            &_element{
+                position:absolute;
+                background:rgba(255, 255, 255, 0.15);
+                border-radius:32px;
+                &_close{
+                    width:32px;
+                    position:absolute;
+                    top:-48px;
+                    right:0;
+                }
+                &_controls{
+                    position:fixed;
+                    width:32px;
+                    top:calc((100% - 32px) / 2);
+                    &_next {
+                        right:64px / 2 - 16;
+                    }
+                    &_prev {
+                        left:64px / 2 - 16;
+                    }
+                }
+                &_pagination{
+                    background:transparent;
+                    width:fit-content;
+                    bottom:-32px;
+                    left:0;
+                }
+            }
+        }
+
+        &__content{
+            img, video, canvas{
+                max-width:calc(100vw - 128px);
+                max-height:calc(100vh - 128px);
+            }
+        }
+    }
+}
