@@ -285,6 +285,12 @@ export default class Lightbox {
                 this.observers[Lightbox.EVENT_ONCHANGE_BEFORE](prevElement, element);
             }
 
+            const beforeChange = () => {
+                if (prevElement && typeof prevElement.beforeChange === 'function') {
+                    prevElement.beforeChange();
+                }
+            };
+
             // hide all
             this.elements.forEach((k) => {
                 if (k.container) {
@@ -293,6 +299,7 @@ export default class Lightbox {
             });
 
             if (element.loaded) { // either the image is already loaded
+                beforeChange();
                 this._showElement(element);
             } else { // or we need to do it before showing it
                 // Load flags
@@ -335,6 +342,7 @@ export default class Lightbox {
                     and clicked on another element
                     */
                     if (this.currentLoadingKey === element.key) {
+                        beforeChange();
                         this._showElement(element);
                     }
                 });
