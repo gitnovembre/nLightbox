@@ -68,7 +68,7 @@ export class LightboxUIClose extends LightboxUIElement {
     constructor() {
         super('button');
         this._$root.classList.add('lightbox__ui_element_close');
-        this._$root.textContent = 'Close';
+        this._$root.innerHTML = '&times;';
     }
 }
 

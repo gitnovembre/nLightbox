@@ -215,13 +215,15 @@ export default class Lightbox {
         });
 
         document.addEventListener('keydown', (e) => {
-            // user can close the lightbox when pressing the escape key
-            if (e.keyCode === 27 && this.closeOnEscape) {
-                this.close();
-            } else if (e.keyCode === 37 && this.arrowKeyNavigation) {
-                this.prev();
-            } else if (e.keyCode === 39 && this.arrowKeyNavigation) {
-                this.next();
+            if (this.isOpen()) {
+                // user can close the lightbox when pressing the escape key
+                if (e.keyCode === 27 && this.closeOnEscape) {
+                    this.close();
+                } else if (e.keyCode === 37 && this.arrowKeyNavigation) {
+                    this.prev();
+                } else if (e.keyCode === 39 && this.arrowKeyNavigation) {
+                    this.next();
+                }
             }
         });
 
