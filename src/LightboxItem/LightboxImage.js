@@ -4,7 +4,11 @@ class LightboxImage extends LightboxItem {
     /**
      * @param {Lightbox} lightbox
      * @param {string} key
-     * @param {Object} options
+     * @param {Object} [options]
+     * @param {string} [options.src] - Source of the video
+     * @param {number} [options.width = -1]
+     * @param {number} [options.height = -1]
+     * @param {string} [options.alt]
      */
     constructor(lightbox, key, { src, width = -1, height = -1, alt = '' } = {}) { //eslint-disable-line
         super(lightbox, key);

@@ -1,13 +1,32 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 
-import LightboxImage from './LightboxImage';
-import LightboxVideo from './LightboxVideo';
-import LightboxYoutube from './LightboxYoutube';
+import LightboxImage from './LightboxItem/LightboxImage';
+import LightboxVideo from './LightboxItem/LightboxVideo';
+import LightboxYoutube from './LightboxItem/LightboxYoutube';
 
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUIElement'; //eslint-disable-line
+import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
+
+import './assets/sass/lightbox.scss';
 
 export default class Lightbox {
+    /**
+     * @param {object} [customOptions]
+     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox
+     * elements
+     * @param {boolean} [customOptions.closeOnBlur = true] - Toggle the action of closing the
+     * lightbox on clicking outside of the content
+     * @param {boolean} [customOptions.closeOnEscape = true] - Toggle the action of closing
+     * the lightbox on pressing escape
+     * @param {boolean} [customOptions.arrowKeyNavigation = true] - Toggle the use of arrow
+     * keys navigation < >
+     * @param {object} [customOptions.ui]
+     * @param {boolean} [customOptions.ui.close = true] - Toggle the display of the close button
+     * @param {boolean} [customOptions.ui.controls = true] - Toggle the display of the controls
+     * (previous / next) buttons
+     * @param {boolean} [customOptions.ui.pagination = true] - Toggle the display of the pagination
+     * information
+     */
     constructor(customOptions = {}) {
         const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
 
@@ -61,6 +80,10 @@ export default class Lightbox {
         this.$lbContent = null;
     }
 
+    /**
+     * Custom types object derived from LightboxItem
+     * @param {array} customTypes
+     */
     init(customTypes = []) {
         // register custom types
         customTypes.forEach((typeClass) => {
@@ -202,40 +225,77 @@ export default class Lightbox {
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // gathers all elements in the DOM that have the same group id as the lightbox
-            const elements = document.querySelectorAll('[data-lightbox]');
 
-            // index all elements / get lightbox gallery data
-            this.elements = Array.from(elements).map((node) => ({
-                dataset: JSON.parse(node.dataset.lightbox),
-                key: uniqid(),
-                item: node,
-            })).filter((element) => element.dataset.group === this.UId).map((protoElement) => {
-                const { key, dataset, item } = protoElement;
-                item.dataset.lightboxTarget = key;
+        // gathers all elements in the DOM that have the same group id as the lightbox
+        const elements = document.querySelectorAll('[data-lightbox]');
 
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this._loadByKey(key);
-                    this.open();
-                });
-
-                // check if type is registered
-                if (!this._typeExists(dataset.type)) {
-                    throw new Error('Invalid lightbox type');
-                }
-
-                const CustomType = this.types[dataset.type];
-                return new CustomType(this, key, dataset);
-            });
-        });
+        // index all elements / get lightbox gallery data
+        this.elements = Array.from(elements).map((node) => ({
+            dataset: JSON.parse(node.dataset.lightbox),
+            key: uniqid(),
+            item: node,
+        })).filter((element) => element.dataset.group === this.UId).map(
+            this.createElement.bind(this),
+        );
     }
 
+    /**
+     * Create a new lightbox element and appends it to the elements list
+     * @param {object} protoElement
+     * @param {string} protoElement.key - Unique identifier
+     * @param {object} protoElement.dataset - List of options depending on the type of item
+     * @param {Node} protoElement.item - Target DOM node element binded to the lightbox item
+     */
+    createElement(protoElement) {
+        const { key, dataset, item } = protoElement;
+        item.dataset.lightboxTarget = key;
+
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            this._loadByKey(key);
+            this.open();
+        });
+
+        // check if type is registered
+        if (!this._typeExists(dataset.type)) {
+            throw new Error('Invalid lightbox type');
+        }
+
+        const CustomType = this.types[dataset.type];
+        return new CustomType(this, key, dataset);
+    }
+
+    /**
+     * Feed raw data to the lightbox directly and initialize lightbox elements
+     * @param {array} data
+     * @param {string} data.target - Name of the target DOM element
+     * that will be binded to the lightbox item
+     * @param {object} data.dataset - List of options depending on the lightbox item
+     */
+    feed(data) {
+        const temp = data.map(({ target, ...dataset }) => this.createElement({
+            dataset,
+            key: uniqid(),
+            item: document.querySelector(target),
+        }));
+
+        this.elements = [...this.elements, ...temp];
+    }
+
+    /**
+     * Check if a lightbox type is registered
+     * @param {string} name
+     * @return {boolean}
+     */
     _typeExists(name) {
         return Object.hasOwnProperty.call(this.types, name);
     }
 
+    /**
+     * Hook a callback on a given event
+     * @param {string} eventName
+     * @return {function} callback
+     */
     on(eventName, callback) {
         if (typeof callback !== 'function') {
             throw new Error('Callback must be a function');
@@ -516,15 +576,26 @@ export default class Lightbox {
     }
 
     /**
-     * Get the current index
+     * Gets the current index
      * @return {number}
      */
     get _index() {
         return this.currentIndex;
     }
 
+    /**
+     * @return {boolean}
+     */
     isOpen() {
         return this.openState;
+    }
+
+    /**
+     * Returns the current count of elements
+     * @return {number}
+     */
+    count() {
+        return this.elements.length;
     }
 }
 
