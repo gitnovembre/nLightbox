@@ -78,11 +78,15 @@ class LightboxYoutube extends LightboxItem {
     }
 
     beforeClose() {
-        this.player.pauseVideo();
+        if (this.player) {
+            this.player.pauseVideo();
+        }
     }
 
     beforeChange() {
-        this.player.pauseVideo();
+        if (this.player) {
+            this.player.pauseVideo();
+        }
     }
 }
 

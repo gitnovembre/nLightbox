@@ -19,6 +19,8 @@ class LightboxVideo extends LightboxItem {
         this.controls = controls === true;
         this.width = parseInt(width, 10);
         this.height = parseInt(height, 10);
+
+        this.video = null;
     }
 
     /**
@@ -42,7 +44,21 @@ class LightboxVideo extends LightboxItem {
 
             video.oncanplay = () => resolve(video);
             video.onerror = (e) => reject(e.message);
+
+            this.video = video;
         });
+    }
+
+    beforeClose() {
+        if (this.video) {
+            this.video.pause();
+        }
+    }
+
+    beforeChange() {
+        if (this.video) {
+            this.video.pause();
+        }
     }
 }
 
