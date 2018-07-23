@@ -59,7 +59,7 @@ export class LightboxUIPrev extends LightboxUIElement {
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_prev');
-        icon.innerHTML = '&#9664;';
+        icon.innerHTML = '&#9658;';
         this._$root.appendChild(icon);
     }
 }

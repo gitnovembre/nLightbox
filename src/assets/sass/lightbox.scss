@@ -127,7 +127,11 @@
                 }
 
                 .icon{
+                    transform-origin:center;
                     transform:scaleX(0.6);
+                    &_prev{
+                        transform:scaleX(0.6) rotate(180deg);
+                    }
                 }
             }
 
