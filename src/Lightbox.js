@@ -377,6 +377,12 @@ export default class Lightbox {
     open() {
         return new Promise((resolve, reject) => {
             if (!this.openState) {
+                // open callback to active container
+                const element = this.elements[this.currentIndex];
+                if (element && typeof element.beforeOpen === 'function') {
+                    element.beforeOpen();
+                }
+
                 this.openState = true;
                 this.$lb.classList.add('active');
 
@@ -397,6 +403,12 @@ export default class Lightbox {
     close() {
         return new Promise((resolve, reject) => {
             if (this.openState) {
+                // close callback to active container
+                const element = this.elements[this.currentIndex];
+                if (element && typeof element.beforeClose === 'function') {
+                    element.beforeClose();
+                }
+
                 this.openState = false;
                 this.$lb.classList.remove('active');
 
