@@ -1,13 +1,22 @@
 import uniqid from 'uniqid';
 
 import LightboxItem from './LightboxItem';
-import './YT';
+import '../YT';
 
 class LightboxYoutube extends LightboxItem {
     /**
      * @param {Lightbox} lightbox
      * @param {string} key
-     * @param {Object} options
+     * @param {Object} [options]
+     * @param {string} [options.src] - Youtube link
+     * @param {number} [options.width = -1]
+     * @param {number} [options.height = -1]
+     * @param {boolean} [options.rel = true] - Toggle related videos
+     * @param {boolean} [options.autoplay = false] - Toggle autoplay
+     * @param {boolean} [options.controls = true] - Toggle controls
+     * @param {boolean} [options.showinfo = true]
+     * @param {number} [options.start = 0] - Start the video at a given timecode
+     * @param {boolean} [options.allowFullscreen = true]
      */
     constructor(lightbox, key, { src, width = 854, height = 480, rel = true, autoplay = false, controls = true, showinfo = true, start = 0, allowFullscreen = true } = {}) { //eslint-disable-line
         super(lightbox, key);

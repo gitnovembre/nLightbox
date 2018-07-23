@@ -59,7 +59,7 @@ export class LightboxUIPrev extends LightboxUIElement {
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_prev');
-        icon.innerHTML = '&#9668;';
+        icon.innerHTML = '&#9658;';
         this._$root.appendChild(icon);
     }
 }
@@ -68,7 +68,7 @@ export class LightboxUIClose extends LightboxUIElement {
     constructor() {
         super('button');
         this._$root.classList.add('lightbox__ui_element_close');
-        this._$root.textContent = 'Close';
+        this._$root.innerHTML = '&times;';
     }
 }
 

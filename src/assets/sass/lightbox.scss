@@ -1,3 +1,4 @@
+@import './config';
 @import './structure';
 
 .lightbox {
@@ -107,10 +108,16 @@
             border-radius:0;
             cursor:pointer;
 
+            &:hover:not(.disabled){
+                background:rgba(255, 255, 255, 0.25);
+                transition:background ease 0.35s;
+            }
+
             &_close{
-                width:100%;
+                width:48px;
                 top:0;
                 right:0;
+                font-size:1.25rem;
             }
 
             &_controls{
@@ -126,7 +133,11 @@
                 }
 
                 .icon{
+                    transform-origin:center;
                     transform:scaleX(0.6);
+                    &_prev{
+                        transform:scaleX(0.6) rotate(180deg);
+                    }
                 }
             }
 
@@ -162,9 +173,8 @@
                 background:rgba(255, 255, 255, 0.15);
                 border-radius:32px;
                 &_close{
-                    width:fit-content;
+                    width:32px;
                     position:absolute;
-                    padding:0 16px;
                     top:-48px;
                     right:0;
                 }

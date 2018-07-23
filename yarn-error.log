@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jeremiemetter-rothan/.nvm/versions/node/v8.11.3/bin/node /usr/local/Cellar/yarn/1.7.0/libexec/bin/yarn.js add main.scss
+  /Users/jeremiemetter-rothan/.nvm/versions/node/v8.11.3/bin/node /usr/local/Cellar/yarn/1.7.0/libexec/bin/yarn.js add transform-object-rest-spread
 
 PATH: 
   /Users/jeremiemetter-rothan/.nvm/versions/node/v8.11.3/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Wireshark.app/Contents/MacOS
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/main.scss: Not found
+  Error: https://registry.yarnpkg.com/transform-object-rest-spread: Not found
       at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.7.0/libexec/lib/cli.js:65656:18)
       at Request.self.callback (/usr/local/Cellar/yarn/1.7.0/libexec/lib/cli.js:134675:22)
       at emitTwo (events.js:126:13)
@@ -28,7 +28,7 @@ Trace:
 
 npm manifest: 
   {
-    "name": "lightbox-jmetterrothan",
+    "name": "lightbox-novembre",
     "version": "1.0.0",
     "main": "index.js",
     "repository": "git@github.com:gitnovembre/lightbox-novembre.git",
@@ -38,7 +38,8 @@ npm manifest:
       "@types/uniqid": "^4.1.2",
       "hammerjs": "^2.0.8",
       "node-sass": "^4.9.2",
-      "uniqid": "^5.0.3"
+      "uniqid": "^5.0.3",
+      "yt-player": "^3.1.0"
     },
     "devDependencies": {
       "eslint": "^4.19.1",
@@ -1873,6 +1874,10 @@ Lockfile:
       pify "^3.0.0"
       strip-bom "^3.0.0"
   
+  load-script2@^1.0.0:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/load-script2/-/load-script2-1.0.1.tgz#fd7d75987d0a7dbeab5b11f93581b9154a04eac1"
+  
   locate-path@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"
@@ -3566,3 +3571,9 @@ Lockfile:
       which-module "^1.0.0"
       y18n "^3.2.1"
       yargs-parser "^5.0.0"
+  
+  yt-player@^3.1.0:
+    version "3.1.0"
+    resolved "https://registry.yarnpkg.com/yt-player/-/yt-player-3.1.0.tgz#44031ff15eae36637534c6ada2e535274cbce02d"
+    dependencies:
+      load-script2 "^1.0.0"
