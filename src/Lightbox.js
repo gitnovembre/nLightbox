@@ -259,9 +259,16 @@ export default class Lightbox {
 
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            this._loadByKey(key);
-            this.direction = Lightbox.DIRECTION_NONE;
-            this.open();
+
+            const prevElement = this.elements[this.currentIndex];
+            if (prevElement) {
+                this._hideElement(prevElement);
+            }
+
+            this.open().then(() => {
+                this._loadByKey(key);
+                this.direction = Lightbox.DIRECTION_NONE;
+            });
         });
 
         // check if type is registered
@@ -471,7 +478,7 @@ export default class Lightbox {
                 } else {
                     txOffset = 0;
                 }
-                console.log(this.direction, txOffset)
+
                 // initial conditions
                 target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
                 target.style.transformOrigin = 'center';
@@ -536,16 +543,32 @@ export default class Lightbox {
                     element.beforeOpen();
                 }
 
-                this.openState = true;
                 this.$lb.classList.add('active');
+                this.$lb.classList.add('animating');
+                this.$lb.style.opacity = '0';
 
-                if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
-                    this.observers[Lightbox.EVENT_ONOPEN]();
-                }
-                resolve();
+                const animation = anime({
+                    targets: this.$lb,
+                    opacity: 1,
+                    duration: 500,
+                    delay: 0,
+                    easing: 'easeInOutQuart',
+                    autoplay: true,
+                });
+
+                animation.complete = () => {
+                    setTimeout(() => {
+                        if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
+                            this.observers[Lightbox.EVENT_ONOPEN]();
+                        }
+                        this.$lb.classList.remove('animating');
+                        this.openState = true;
+                        resolve();
+                    }, 200);
+                };
+            } else {
+                reject();
             }
-
-            reject();
         });
     }
 
@@ -556,22 +579,43 @@ export default class Lightbox {
     close() {
         return new Promise((resolve, reject) => {
             if (this.openState) {
+                this.$lb.classList.add('animating');
+
+                const animation = anime({
+                    targets: this.$lb,
+                    opacity: 0,
+                    duration: 300,
+                    delay: 150,
+                    easing: 'easeInSine',
+                    autoplay: true,
+                });
+
                 // close callback to active container
                 const element = this.elements[this.currentIndex];
-                if (element && typeof element.beforeClose === 'function') {
-                    element.beforeClose();
+                if (element) {
+                    if (typeof element.beforeClose === 'function') {
+                        element.beforeClose();
+                    }
+
+                    this._hideElement(element);
+                    this.currentIndex = -1;
                 }
 
-                this.openState = false;
-                this.$lb.classList.remove('active');
+                animation.complete = () => {
+                    this.$lb.classList.remove('active');
+                    this.$lb.classList.remove('animating');
 
-                if (this.observers[Lightbox.EVENT_ONCLOSE] !== null) {
-                    this.observers[Lightbox.EVENT_ONCLOSE]();
-                }
-                resolve();
+                    this.direction = Lightbox.DIRECTION_NONE;
+                    this.openState = false;
+
+                    if (this.observers[Lightbox.EVENT_ONCLOSE] !== null) {
+                        this.observers[Lightbox.EVENT_ONCLOSE]();
+                    }
+                    resolve();
+                };
+            } else {
+                reject();
             }
-
-            reject();
         });
     }
 

@@ -1,6 +1,10 @@
 @import './config';
 @import './structure';
 
+[data-lightbox] {
+    cursor: pointer;
+}
+
 .lightbox {
     font-family:$lightbox-font;
     position:fixed;
@@ -158,7 +162,7 @@
         }
     }
 
-    &.loading &__ui{
+    &.loading &__ui, &.animating &__ui{
         display:none;
     }
 
