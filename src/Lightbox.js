@@ -257,6 +257,7 @@ export default class Lightbox {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             this._loadByKey(key);
+            this.direction = Lightbox.DIRECTION_NONE;
             this.open();
         });
 
@@ -417,7 +418,6 @@ export default class Lightbox {
                 this._hideElement(prevElement);
             }
 
-
             if (element.loaded) { // either the image is already loaded
                 beforeChange();
                 this._showElement(element);
@@ -455,7 +455,6 @@ export default class Lightbox {
         // (it should always find a match)
         if (index !== -1) {
             this._index = index;
-            element.container.classList.add('active');
 
             const offsetValue = 25;
             let txOffset;
@@ -474,7 +473,8 @@ export default class Lightbox {
             target.style.transformOrigin = 'center';
             target.style.opacity = '0';
 
-            this.$lbContent.classList.add('animating');
+            this.$lb.classList.add('animating');
+            element.container.classList.add('active');
 
             const animation = anime({
                 targets: target,
@@ -487,13 +487,13 @@ export default class Lightbox {
                 autoplay: true,
             });
 
-            animation.finished.then(() => {
-                this.$lbContent.classList.remove('animating');
+            animation.complete = () => {
+                this.$lb.classList.remove('animating');
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
                     this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
                 }
-            });
+            };
         }
     }
 

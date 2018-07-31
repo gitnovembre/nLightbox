@@ -166,11 +166,21 @@
         display:none;
     }
 
+    &.animating &__ui{
+        visibility:hidden;
+        opacity:0;
+        transition:none;
+    }
+
     @media only screen and (min-device-width: 768px) {
         padding:64px;
         font-size:14px;
 
         &__ui{
+            visibility:visible;
+            opacity:1;
+            transition:opacity ease 0.25s;
+
             &_element{
                 position:absolute;
                 background:rgba(255, 255, 255, 0.15);
