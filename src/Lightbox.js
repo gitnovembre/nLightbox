@@ -345,6 +345,12 @@ export default class Lightbox {
 
         if (element && (element.loaded || !element.loading)) {
             const prevElement = this.elements[this.currentIndex];
+
+            // in case the element is already displayed
+            if (element === prevElement) {
+                return;
+            }
+
             if (this.observers[Lightbox.EVENT_ONCHANGE_BEFORE] !== null) {
                 this.observers[Lightbox.EVENT_ONCHANGE_BEFORE](prevElement, element);
             }
