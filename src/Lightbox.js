@@ -21,6 +21,8 @@ export default class Lightbox {
      * the lightbox on pressing escape
      * @param {boolean} [customOptions.arrowKeyNavigation = true] - Toggle the use of arrow
      * keys navigation < >
+     * @param {boolean} [customOptions.enableAnimation = true] - Disable / enable animation
+     * transitions
      * @param {object} [customOptions.ui]
      * @param {boolean} [customOptions.ui.close = true] - Toggle the display of the close button
      * @param {boolean} [customOptions.ui.controls = true] - Toggle the display of the controls
@@ -36,6 +38,7 @@ export default class Lightbox {
         this.closeOnBlur = options.closeOnBlur === true;
         this.closeOnEscape = options.closeOnEscape === true;
         this.arrowKeyNavigation = options.arrowKeyNavigation === true;
+        this.enableAnimation = options.enableAnimation === true;
 
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
@@ -455,45 +458,53 @@ export default class Lightbox {
         // (it should always find a match)
         if (index !== -1) {
             this._index = index;
-
-            const offsetValue = 25;
-            let txOffset;
-
-            if (this.direction === Lightbox.DIRECTION_LEFT) {
-                txOffset = -offsetValue;
-            } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
-                txOffset = offsetValue;
-            } else {
-                txOffset = 0;
-            }
-
             const target = element.container;
 
-            target.style.transform = `scale(0.5) translateX(${txOffset}%)`;
-            target.style.transformOrigin = 'center';
-            target.style.opacity = '0';
+            if (this.enableAnimation) {
+                this.$lb.classList.add('animating');
+                target.classList.add('active');
 
-            this.$lb.classList.add('animating');
-            element.container.classList.add('active');
+                const offsetValue = 20; // initial offset
+                let txOffset;
 
-            const animation = anime({
-                targets: target,
-                scale: 1,
-                translateX: 0,
-                opacity: 1,
-                duration: 800,
-                delay: 200,
-                easing: [0.45, 0.73, 0.3, 1.1],
-                autoplay: true,
-            });
+                if (this.direction === Lightbox.DIRECTION_LEFT) {
+                    txOffset = -offsetValue;
+                } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
+                    txOffset = offsetValue;
+                } else {
+                    txOffset = 0;
+                }
 
-            animation.complete = () => {
-                this.$lb.classList.remove('animating');
+                // initial conditions
+                target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
+                target.style.transformOrigin = 'center';
+                target.style.opacity = '0';
+
+                const animation = anime({
+                    targets: target,
+                    scale: 1,
+                    translateX: 0,
+                    opacity: 1,
+                    duration: 650,
+                    delay: 250,
+                    easing: [0.45, 0.73, 0.3, 1.0],
+                    autoplay: true,
+                });
+
+                animation.complete = () => {
+                    this.$lb.classList.remove('animating');
+
+                    if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
+                        this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+                    }
+                };
+            } else { // no animation
+                target.classList.add('active');
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
                     this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
                 }
-            };
+            }
         }
     }
 
@@ -502,7 +513,19 @@ export default class Lightbox {
      * @param {LightboxElement} element
      */
     _hideElement(element) { // eslint-disable-line
-        element.container.classList.remove('active');
+        const target = element.container;
+        const animation = anime({
+            targets: target,
+            opacity: 0,
+            duration: 200,
+            delay: 0,
+            easing: [0.45, 0.73, 0.3, 1.0],
+            autoplay: true,
+        });
+
+        animation.complete = () => {
+            target.classList.remove('active');
+        };
     }
 
     /**
@@ -683,6 +706,7 @@ Lightbox.DEFAULT_CONFIG = {
     closeOnBlur: true,
     closeOnEscape: true,
     arrowKeyNavigation: true,
+    enableAnimation: true,
     ui: {
         close: true,
         controls: true,
