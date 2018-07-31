@@ -455,6 +455,9 @@ export default class Lightbox {
             const target = element.container;
 
             if (this.enableAnimation) {
+                /**
+                 * ANIMATION
+                 */
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
@@ -468,7 +471,7 @@ export default class Lightbox {
                 } else {
                     txOffset = 0;
                 }
-
+                console.log(this.direction, txOffset)
                 // initial conditions
                 target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
                 target.style.transformOrigin = 'center';
