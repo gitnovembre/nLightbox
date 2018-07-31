@@ -5,6 +5,7 @@ import anime from 'animejs';
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
+import LightboxMap from './LightboxItem/LightboxMap';
 
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
@@ -51,6 +52,7 @@ export default class Lightbox {
             [LightboxImage.TYPE_NAME]: LightboxImage,
             [LightboxVideo.TYPE_NAME]: LightboxVideo,
             [LightboxYoutube.TYPE_NAME]: LightboxYoutube,
+            [LightboxMap.TYPE_NAME]: LightboxMap,
         };
 
         this.elements = [];
@@ -207,11 +209,15 @@ export default class Lightbox {
         h.get('tap').set({ taps: 2 });
 
         // controls when swiping
-        h.on('swiperight', () => {
-            this.prev();
+        h.on('swiperight', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.prev();
+            }
         });
-        h.on('swipeleft', () => {
-            this.next();
+        h.on('swipeleft', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.next();
+            }
         });
 
         // close on double tap
@@ -543,10 +549,12 @@ export default class Lightbox {
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
                 this.$lb.style.opacity = '0';
+                this.$lb.style.filter = 'grayscale(100%)';
 
                 const animation = anime({
                     targets: this.$lb,
                     opacity: 1,
+                    filter: 'grayscale(0%)',
                     duration: 500,
                     delay: 0,
                     easing: 'easeInOutQuart',
