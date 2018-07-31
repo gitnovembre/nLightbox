@@ -485,7 +485,7 @@ export default class Lightbox {
                     scale: 1,
                     translateX: 0,
                     opacity: 1,
-                    duration: 650,
+                    duration: 750,
                     delay: 250,
                     easing: [0.45, 0.73, 0.3, 1.0],
                     autoplay: true,
@@ -514,18 +514,7 @@ export default class Lightbox {
      */
     _hideElement(element) { // eslint-disable-line
         const target = element.container;
-        const animation = anime({
-            targets: target,
-            opacity: 0,
-            duration: 200,
-            delay: 0,
-            easing: [0.45, 0.73, 0.3, 1.0],
-            autoplay: true,
-        });
-
-        animation.complete = () => {
-            target.classList.remove('active');
-        };
+        target.classList.remove('active');
     }
 
     /**

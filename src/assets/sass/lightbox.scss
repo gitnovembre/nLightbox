@@ -22,11 +22,6 @@
         display:flex;
     }
 
-    &__content{
-        overflow:hidden;
-        border-radius:2px;
-    }
-
     &__container {
         display:none;
         transform:scale(0);
@@ -44,6 +39,8 @@
         }
         figure{
             margin:0;
+            overflow:hidden;
+            border-radius:2px;
         }
     }
 
