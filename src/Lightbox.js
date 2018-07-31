@@ -260,10 +260,7 @@ export default class Lightbox {
         item.addEventListener('click', (e) => {
             e.preventDefault();
 
-            const prevElement = this.elements[this.currentIndex];
-            if (prevElement) {
-                this._hideElement(prevElement);
-            }
+            this._reset();
 
             this.open().then(() => {
                 this._loadByKey(key);
@@ -418,9 +415,7 @@ export default class Lightbox {
             };
 
             // cleanup previous element
-            if (prevElement) {
-                this._hideElement(prevElement);
-            }
+            this._reset();
 
             if (element.loaded) { // either the image is already loaded
                 beforeChange();
@@ -517,8 +512,10 @@ export default class Lightbox {
      * @param {LightboxElement} element
      */
     _hideElement(element) { // eslint-disable-line
-        const target = element.container;
-        target.classList.remove('active');
+        if (element && element.container) {
+            const target = element.container;
+            target.classList.remove('active');
+        }
     }
 
     /**
@@ -557,14 +554,12 @@ export default class Lightbox {
                 });
 
                 animation.complete = () => {
-                    setTimeout(() => {
-                        if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
-                            this.observers[Lightbox.EVENT_ONOPEN]();
-                        }
-                        this.$lb.classList.remove('animating');
-                        this.openState = true;
-                        resolve();
-                    }, 200);
+                    if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
+                        this.observers[Lightbox.EVENT_ONOPEN]();
+                    }
+                    this.$lb.classList.remove('animating');
+                    this.openState = true;
+                    resolve();
                 };
             } else {
                 reject();
@@ -649,6 +644,15 @@ export default class Lightbox {
     jumpTo(i) {
         this.direction = Lightbox.DIRECTION_NONE;
         this._loadByIndex(i);
+    }
+
+    /**
+     * Hard reset, forces all elements' containers to be deactivated
+     */
+    _reset() {
+        this.elements.filter(({ container }) => container && container.classList.contains('active')).forEach((element) => {
+            this._hideElement(element);
+        });
     }
 
     /**
