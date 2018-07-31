@@ -1,5 +1,6 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
+import anime from 'animejs';
 
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
@@ -52,6 +53,7 @@ export default class Lightbox {
         this.elements = [];
         this.currentLoadingKey = undefined;
         this.currentIndex = -1;
+        this.direction = Lightbox.DIRECTION_NONE;
 
         this.openState = false;
         this.loadingState = false;
@@ -353,12 +355,11 @@ export default class Lightbox {
                 }
             };
 
-            // hide all
-            this.elements.forEach((k) => {
-                if (k.container) {
-                    k.container.classList.remove('active');
-                }
-            });
+            // cleanup previous element
+            if (prevElement) {
+                this._hideElement(prevElement);
+            }
+
 
             if (element.loaded) { // either the image is already loaded
                 beforeChange();
@@ -425,10 +426,52 @@ export default class Lightbox {
             this._index = index;
             element.container.classList.add('active');
 
-            if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
-                this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+            const offsetValue = 25;
+            let txOffset;
+
+            if (this.direction === Lightbox.DIRECTION_LEFT) {
+                txOffset = -offsetValue;
+            } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
+                txOffset = offsetValue;
+            } else {
+                txOffset = 0;
             }
+
+            const target = element.container;
+
+            target.style.transform = `scale(0.5) translateX(${txOffset}%)`;
+            target.style.transformOrigin = 'center';
+            target.style.opacity = '0';
+
+            this.$lbContent.classList.add('animating');
+
+            const animation = anime({
+                targets: target,
+                scale: 1,
+                translateX: 0,
+                opacity: 1,
+                duration: 800,
+                delay: 200,
+                easing: [0.45, 0.73, 0.3, 1.1],
+                autoplay: true,
+            });
+
+            animation.finished.then(() => {
+                this.$lbContent.classList.remove('animating');
+
+                if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
+                    this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+                }
+            });
         }
+    }
+
+    /**
+     * Hides content of the given element
+     * @param {LightboxElement} element
+     */
+    _hideElement(element) { // eslint-disable-line
+        element.container.classList.remove('active');
     }
 
     /**
@@ -504,6 +547,7 @@ export default class Lightbox {
      * Tries to load next item
      */
     next() {
+        this.direction = Lightbox.DIRECTION_RIGHT;
         this._loadByIndex(this.currentIndex + 1);
     }
 
@@ -511,6 +555,7 @@ export default class Lightbox {
      * Tries to load previous item
      */
     prev() {
+        this.direction = Lightbox.DIRECTION_LEFT;
         this._loadByIndex(this.currentIndex - 1);
     }
 
@@ -518,6 +563,7 @@ export default class Lightbox {
      * Tries to load an item based on its index
      */
     jumpTo(i) {
+        this.direction = Lightbox.DIRECTION_NONE;
         this._loadByIndex(i);
     }
 
@@ -618,3 +664,7 @@ Lightbox.EVENT_ONCLOSE = 'close';
 Lightbox.EVENT_ONOPEN = 'open';
 Lightbox.EVENT_ONCHANGE_BEFORE = 'change.before';
 Lightbox.EVENT_ONCHANGE_AFTER = 'change.after';
+
+Lightbox.DIRECTION_NONE = -1;
+Lightbox.DIRECTION_LEFT = 0;
+Lightbox.DIRECTION_RIGHT = 1;

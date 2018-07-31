@@ -24,6 +24,8 @@
 
     &__container {
         display:none;
+        transform:scale(0);
+
         &.active {
             display:block;
         }
@@ -76,6 +78,7 @@
     &__content{
         overflow:hidden;
         border-radius:2px;
+
         img, video, canvas{
             display:block;
             max-width:100vw;
