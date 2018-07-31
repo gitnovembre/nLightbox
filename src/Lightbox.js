@@ -549,15 +549,13 @@ export default class Lightbox {
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
                 this.$lb.style.opacity = '0';
-                this.$lb.style.filter = 'grayscale(100%)';
 
                 const animation = anime({
                     targets: this.$lb,
                     opacity: 1,
-                    filter: 'grayscale(0%)',
-                    duration: 500,
+                    duration: 350,
                     delay: 0,
-                    easing: 'easeInOutQuart',
+                    easing: 'easeOutSine',
                     autoplay: true,
                 });
 
@@ -587,9 +585,9 @@ export default class Lightbox {
                 const animation = anime({
                     targets: this.$lb,
                     opacity: 0,
-                    duration: 300,
-                    delay: 150,
-                    easing: 'easeInSine',
+                    duration: 350,
+                    delay: 100,
+                    easing: 'easeOutSine',
                     autoplay: true,
                 });
 
