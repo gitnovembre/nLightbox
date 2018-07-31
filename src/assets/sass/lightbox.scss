@@ -162,7 +162,7 @@
         }
     }
 
-    &.loading &__ui, &.animating &__ui{
+    &.loading &__ui {
         display:none;
     }
 
