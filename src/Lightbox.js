@@ -270,13 +270,7 @@ export default class Lightbox {
         }
 
         const CustomType = this.types[dataset.type];
-        const element = new CustomType(this, key, dataset);
-
-        if (dataset.preload === true) {
-            this._preloadElement(element).catch();
-        }
-
-        return element;
+        return new CustomType(this, key, dataset);
     }
 
     /**
