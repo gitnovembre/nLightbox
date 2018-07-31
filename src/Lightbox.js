@@ -1,9 +1,11 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
+import anime from 'animejs';
 
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
+import LightboxMap from './LightboxItem/LightboxMap';
 
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
@@ -20,6 +22,8 @@ export default class Lightbox {
      * the lightbox on pressing escape
      * @param {boolean} [customOptions.arrowKeyNavigation = true] - Toggle the use of arrow
      * keys navigation < >
+     * @param {boolean} [customOptions.enableAnimation = true] - Disable / enable animation
+     * transitions
      * @param {object} [customOptions.ui]
      * @param {boolean} [customOptions.ui.close = true] - Toggle the display of the close button
      * @param {boolean} [customOptions.ui.controls = true] - Toggle the display of the controls
@@ -35,6 +39,7 @@ export default class Lightbox {
         this.closeOnBlur = options.closeOnBlur === true;
         this.closeOnEscape = options.closeOnEscape === true;
         this.arrowKeyNavigation = options.arrowKeyNavigation === true;
+        this.enableAnimation = options.enableAnimation === true;
 
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
@@ -47,11 +52,13 @@ export default class Lightbox {
             [LightboxImage.TYPE_NAME]: LightboxImage,
             [LightboxVideo.TYPE_NAME]: LightboxVideo,
             [LightboxYoutube.TYPE_NAME]: LightboxYoutube,
+            [LightboxMap.TYPE_NAME]: LightboxMap,
         };
 
         this.elements = [];
         this.currentLoadingKey = undefined;
         this.currentIndex = -1;
+        this.direction = Lightbox.DIRECTION_NONE;
 
         this.openState = false;
         this.loadingState = false;
@@ -202,11 +209,15 @@ export default class Lightbox {
         h.get('tap').set({ taps: 2 });
 
         // controls when swiping
-        h.on('swiperight', () => {
-            this.prev();
+        h.on('swiperight', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.prev();
+            }
         });
-        h.on('swipeleft', () => {
-            this.next();
+        h.on('swipeleft', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.next();
+            }
         });
 
         // close on double tap
@@ -254,8 +265,13 @@ export default class Lightbox {
 
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            this._loadByKey(key);
-            this.open();
+
+            this._reset();
+
+            this.open().then(() => {
+                this._loadByKey(key);
+                this.direction = Lightbox.DIRECTION_NONE;
+            });
         });
 
         // check if type is registered
@@ -334,6 +350,51 @@ export default class Lightbox {
         this._loadElement(this.elements[index]);
     }
 
+    _preloadElement(e) {
+        return new Promise((resolve, reject) => {
+            const element = e;
+
+            if (!element) {
+                reject(new Error('Invalid element provided'));
+            }
+            if (element.loaded || element.loading) {
+                reject(new Error('Cannot preload element, it is either loading or already loaded'));
+            }
+
+            element.loading = true;
+
+            // Content container creation
+            const container = document.createElement('div');
+            container.classList.add('lightbox__container');
+            container.id = element.key;
+
+            Promise.resolve(element.load()).then((markup) => {
+                // check lb if inner content is valid
+                if (!(typeof markup === 'object')) {
+                    throw new Error('Lightbox item load function must return a valid Node object');
+                }
+                container.appendChild(markup);
+            }).catch((error) => {
+                const mess = document.createElement('p');
+                mess.classList.add('lightbox__message', 'lightbox__message_error');
+                mess.innerHTML = `
+                    Impossible de charger le contenu
+                    <span class="error_message">(${error instanceof Error ? error.message : error})</span>
+                `;
+                container.appendChild(mess);
+            }).finally(() => {
+                this.$lbContent.appendChild(container);
+                element.container = container;
+
+                // Remove loading flag
+                element.loaded = true;
+                element.loading = false;
+
+                resolve();
+            });
+        });
+    }
+
     /**
      * Retrieve an element and draws it
      * @param {LightboxItem} e
@@ -343,6 +404,12 @@ export default class Lightbox {
 
         if (element && (element.loaded || !element.loading)) {
             const prevElement = this.elements[this.currentIndex];
+
+            // in case the element is already displayed
+            if (element === prevElement) {
+                return;
+            }
+
             if (this.observers[Lightbox.EVENT_ONCHANGE_BEFORE] !== null) {
                 this.observers[Lightbox.EVENT_ONCHANGE_BEFORE](prevElement, element);
             }
@@ -353,12 +420,8 @@ export default class Lightbox {
                 }
             };
 
-            // hide all
-            this.elements.forEach((k) => {
-                if (k.container) {
-                    k.container.classList.remove('active');
-                }
-            });
+            // cleanup previous element
+            this._reset();
 
             if (element.loaded) { // either the image is already loaded
                 beforeChange();
@@ -367,34 +430,8 @@ export default class Lightbox {
                 // Load flags
                 this._loading = true;
                 this.currentLoadingKey = element.key;
-                element.loading = true;
 
-                // Content container creation
-                const container = document.createElement('div');
-                container.classList.add('lightbox__container');
-                container.id = element.key;
-
-                Promise.resolve(element.load()).then((markup) => {
-                    // check lb if inner content is valid
-                    if (!(typeof markup === 'object')) {
-                        throw new Error('Lightbox item load function must return a valid Node object');
-                    }
-                    container.appendChild(markup);
-                }).catch((error) => {
-                    const mess = document.createElement('p');
-                    mess.classList.add('lightbox__message', 'lightbox__message_error');
-                    mess.innerHTML = `
-                        Impossible de charger le contenu
-                        <span class="error_message">(${error instanceof Error ? error.message : error})</span>
-                    `;
-                    container.appendChild(mess);
-                }).finally(() => {
-                    this.$lbContent.appendChild(container);
-                    element.container = container;
-
-                    // Remove loading flag
-                    element.loaded = true;
-                    element.loading = false;
+                this._preloadElement(element).then(() => {
                     this._loading = false;
 
                     /*
@@ -423,11 +460,67 @@ export default class Lightbox {
         // (it should always find a match)
         if (index !== -1) {
             this._index = index;
-            element.container.classList.add('active');
+            const target = element.container;
 
-            if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
-                this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+            if (this.enableAnimation) {
+                /**
+                 * ANIMATION
+                 */
+                this.$lb.classList.add('animating');
+                target.classList.add('active');
+
+                const offsetValue = 20; // initial offset
+                let txOffset;
+
+                if (this.direction === Lightbox.DIRECTION_LEFT) {
+                    txOffset = -offsetValue;
+                } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
+                    txOffset = offsetValue;
+                } else {
+                    txOffset = 0;
+                }
+
+                // initial conditions
+                target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
+                target.style.transformOrigin = 'center';
+                target.style.opacity = '0';
+
+                const animation = anime({
+                    targets: target,
+                    scale: 1,
+                    translateX: 0,
+                    opacity: 1,
+                    duration: 750,
+                    delay: 250,
+                    easing: [0.45, 0.73, 0.3, 1.0],
+                    autoplay: true,
+                });
+
+                animation.complete = () => {
+                    this.$lb.classList.remove('animating');
+
+                    if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
+                        this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+                    }
+                };
+            } else { // no animation
+                target.classList.add('active');
+
+                if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
+                    this.observers[Lightbox.EVENT_ONCHANGE_AFTER](element);
+                }
             }
+        }
+    }
+
+    /**
+     * Hides content of the given element
+     * @param {LightboxElement} element
+     */
+    _hideElement(element) { // eslint-disable-line
+        if (element && element.container) {
+            const target = element.container;
+            target.classList.remove('active');
         }
     }
 
@@ -453,16 +546,32 @@ export default class Lightbox {
                     element.beforeOpen();
                 }
 
-                this.openState = true;
                 this.$lb.classList.add('active');
+                this.$lb.classList.add('animating');
+                this.$lb.style.opacity = '0';
+                this.$lb.style.filter = 'grayscale(100%)';
 
-                if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
-                    this.observers[Lightbox.EVENT_ONOPEN]();
-                }
-                resolve();
+                const animation = anime({
+                    targets: this.$lb,
+                    opacity: 1,
+                    filter: 'grayscale(0%)',
+                    duration: 500,
+                    delay: 0,
+                    easing: 'easeInOutQuart',
+                    autoplay: true,
+                });
+
+                animation.complete = () => {
+                    if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
+                        this.observers[Lightbox.EVENT_ONOPEN]();
+                    }
+                    this.$lb.classList.remove('animating');
+                    this.openState = true;
+                    resolve();
+                };
+            } else {
+                reject();
             }
-
-            reject();
         });
     }
 
@@ -473,22 +582,43 @@ export default class Lightbox {
     close() {
         return new Promise((resolve, reject) => {
             if (this.openState) {
+                this.$lb.classList.add('animating');
+
+                const animation = anime({
+                    targets: this.$lb,
+                    opacity: 0,
+                    duration: 300,
+                    delay: 150,
+                    easing: 'easeInSine',
+                    autoplay: true,
+                });
+
                 // close callback to active container
                 const element = this.elements[this.currentIndex];
-                if (element && typeof element.beforeClose === 'function') {
-                    element.beforeClose();
+                if (element) {
+                    if (typeof element.beforeClose === 'function') {
+                        element.beforeClose();
+                    }
+
+                    this._hideElement(element);
+                    this.currentIndex = -1;
                 }
 
-                this.openState = false;
-                this.$lb.classList.remove('active');
+                animation.complete = () => {
+                    this.$lb.classList.remove('active');
+                    this.$lb.classList.remove('animating');
 
-                if (this.observers[Lightbox.EVENT_ONCLOSE] !== null) {
-                    this.observers[Lightbox.EVENT_ONCLOSE]();
-                }
-                resolve();
+                    this.direction = Lightbox.DIRECTION_NONE;
+                    this.openState = false;
+
+                    if (this.observers[Lightbox.EVENT_ONCLOSE] !== null) {
+                        this.observers[Lightbox.EVENT_ONCLOSE]();
+                    }
+                    resolve();
+                };
+            } else {
+                reject();
             }
-
-            reject();
         });
     }
 
@@ -504,6 +634,7 @@ export default class Lightbox {
      * Tries to load next item
      */
     next() {
+        this.direction = Lightbox.DIRECTION_RIGHT;
         this._loadByIndex(this.currentIndex + 1);
     }
 
@@ -511,6 +642,7 @@ export default class Lightbox {
      * Tries to load previous item
      */
     prev() {
+        this.direction = Lightbox.DIRECTION_LEFT;
         this._loadByIndex(this.currentIndex - 1);
     }
 
@@ -518,7 +650,17 @@ export default class Lightbox {
      * Tries to load an item based on its index
      */
     jumpTo(i) {
+        this.direction = Lightbox.DIRECTION_NONE;
         this._loadByIndex(i);
+    }
+
+    /**
+     * Hard reset, forces all elements' containers to be deactivated
+     */
+    _reset() {
+        this.elements.filter(({ container }) => container && container.classList.contains('active')).forEach((element) => {
+            this._hideElement(element);
+        });
     }
 
     /**
@@ -606,6 +748,7 @@ Lightbox.DEFAULT_CONFIG = {
     closeOnBlur: true,
     closeOnEscape: true,
     arrowKeyNavigation: true,
+    enableAnimation: true,
     ui: {
         close: true,
         controls: true,
@@ -618,3 +761,7 @@ Lightbox.EVENT_ONCLOSE = 'close';
 Lightbox.EVENT_ONOPEN = 'open';
 Lightbox.EVENT_ONCHANGE_BEFORE = 'change.before';
 Lightbox.EVENT_ONCHANGE_AFTER = 'change.after';
+
+Lightbox.DIRECTION_NONE = -1;
+Lightbox.DIRECTION_LEFT = 0;
+Lightbox.DIRECTION_RIGHT = 1;
