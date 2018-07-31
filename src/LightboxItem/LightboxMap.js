@@ -14,8 +14,9 @@ class LightboxMap extends LightboxItem {
      * @param {number} [options.zoom = 8]
      * @param {number} [options.width = 1024]
      * @param {number} [options.height = 720]
+     * @param {string} [options.styles]
      */
-    constructor(lightbox, key, { API_KEY, lang = 'fr', lat = 0.0, lng = 0.0, zoom = 8, width = 1024, height = 720 }) { // eslint-disable-line
+    constructor(lightbox, key, { API_KEY, lang = 'fr', lat = 0.0, lng = 0.0, zoom = 8, width = 1024, height = 720, styles = [] }) { // eslint-disable-line
         super(lightbox, key);
 
         this.api_key = API_KEY;
@@ -25,6 +26,7 @@ class LightboxMap extends LightboxItem {
         this.zoom = parseInt(zoom, 10);
         this.width = parseInt(width, 10);
         this.height = parseInt(height, 10);
+        this.styles = styles;
     }
 
     /**
@@ -52,6 +54,7 @@ class LightboxMap extends LightboxItem {
                     center: { lat: this.lat, lng: this.lng },
                     zoom: this.zoom,
                     keyboardShortcuts: false,
+                    styles: this.styles,
                 });
 
                 resolve(node);
