@@ -1,31 +1,19 @@
 @import './config';
 @import './structure';
 
+[data-lightbox] {
+    cursor: pointer;
+}
+
 .lightbox {
-    font-family:$lightbox-font;
-    position:fixed;
-    top:0; left:0;
-    z-index:500;
-    display:none;
     font-size:15px;
-
-    justify-content:center;
-    align-items:center;
-    width:100vw;
-    height:100vh;
-    padding:32px 0;
-    box-sizing:border-box;
-
+    font-family:$lightbox-font;
     background:$lightbox-bgcolor;
-
-    &.active{
-        display:flex;
-    }
+    padding:32px 0;
 
     &__container {
-        display:none;
-        &.active {
-            display:block;
+        figure{
+            border-radius:2px;
         }
     }
 
@@ -34,57 +22,20 @@
         font-size:1em;
         line-height:20px;
         text-align:center;
-        display:flex;
-        flex-direction:column;
-        flex-wrap:nowrap;
-        align-items:center;
-        justify-content:center;
 
         &_loader{
             display:none;
         }
 
         &_error{
-            border:2px solid rgba(255, 255, 255, 0.15);
-            width:50vw;
-            height:50vh;
-            max-width:100%;
-            max-height:100%;
-            padding:32px 64px;
             font-size:1.15em;
             line-height:24px;
+            padding:32px 64px;
 
             .error_message {
                 font-size:0.9em;
                 color:#807f7f;
-                display:block;
             }
-        }
-    }
-
-    &.loading &__message{
-        &_loader{
-            display:block;
-        }
-    }
-
-
-    &__inner{
-        position:relative;
-    }
-
-    &__content{
-        overflow:hidden;
-        border-radius:2px;
-        img, video, canvas{
-            display:block;
-            max-width:100vw;
-            max-height:calc(100vh - 64px);
-            height:auto;
-            margin:0;
-        }
-        figure{
-            margin:0;
         }
     }
 
@@ -159,8 +110,14 @@
         }
     }
 
-    &.loading &__ui{
+    &.loading &__ui {
         display:none;
+    }
+
+    &.animating &__ui{
+        visibility:hidden;
+        opacity:0;
+        transition:none;
     }
 
     @media only screen and (min-device-width: 768px) {
@@ -168,6 +125,10 @@
         font-size:14px;
 
         &__ui{
+            visibility:visible;
+            opacity:1;
+            transition:opacity ease 0.25s;
+
             &_element{
                 position:absolute;
                 background:rgba(255, 255, 255, 0.15);
@@ -183,10 +144,10 @@
                     width:32px;
                     top:calc((100% - 32px) / 2);
                     &_next {
-                        right:64px / 2 - 16;
+                        right:64px / 2 - 16px;
                     }
                     &_prev {
-                        left:64px / 2 - 16;
+                        left:64px / 2 - 16px;
                     }
                 }
                 &_pagination{
@@ -195,13 +156,6 @@
                     bottom:-32px;
                     left:0;
                 }
-            }
-        }
-
-        &__content{
-            img, video, canvas{
-                max-width:calc(100vw - 128px);
-                max-height:calc(100vh - 128px);
             }
         }
     }

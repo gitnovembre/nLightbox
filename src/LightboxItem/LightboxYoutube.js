@@ -1,7 +1,7 @@
+import '../YT';
 import uniqid from 'uniqid';
 
 import LightboxItem from './LightboxItem';
-import '../YT';
 
 class LightboxYoutube extends LightboxItem {
     /**
