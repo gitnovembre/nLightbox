@@ -266,7 +266,13 @@ export default class Lightbox {
         }
 
         const CustomType = this.types[dataset.type];
-        return new CustomType(this, key, dataset);
+        const element = new CustomType(this, key, dataset);
+
+        if (dataset.preload === true) {
+            this._preloadElement(element).catch();
+        }
+
+        return element;
     }
 
     /**
@@ -336,6 +342,51 @@ export default class Lightbox {
         this._loadElement(this.elements[index]);
     }
 
+    _preloadElement(e) {
+        return new Promise((resolve, reject) => {
+            const element = e;
+
+            if (!element) {
+                reject(new Error('Invalid element provided'));
+            }
+            if (element.loaded || element.loading) {
+                reject(new Error('Cannot preload element, it is either loading or already loaded'));
+            }
+
+            element.loading = true;
+
+            // Content container creation
+            const container = document.createElement('div');
+            container.classList.add('lightbox__container');
+            container.id = element.key;
+
+            Promise.resolve(element.load()).then((markup) => {
+                // check lb if inner content is valid
+                if (!(typeof markup === 'object')) {
+                    throw new Error('Lightbox item load function must return a valid Node object');
+                }
+                container.appendChild(markup);
+            }).catch((error) => {
+                const mess = document.createElement('p');
+                mess.classList.add('lightbox__message', 'lightbox__message_error');
+                mess.innerHTML = `
+                    Impossible de charger le contenu
+                    <span class="error_message">(${error instanceof Error ? error.message : error})</span>
+                `;
+                container.appendChild(mess);
+            }).finally(() => {
+                this.$lbContent.appendChild(container);
+                element.container = container;
+
+                // Remove loading flag
+                element.loaded = true;
+                element.loading = false;
+
+                resolve();
+            });
+        });
+    }
+
     /**
      * Retrieve an element and draws it
      * @param {LightboxItem} e
@@ -374,34 +425,8 @@ export default class Lightbox {
                 // Load flags
                 this._loading = true;
                 this.currentLoadingKey = element.key;
-                element.loading = true;
 
-                // Content container creation
-                const container = document.createElement('div');
-                container.classList.add('lightbox__container');
-                container.id = element.key;
-
-                Promise.resolve(element.load()).then((markup) => {
-                    // check lb if inner content is valid
-                    if (!(typeof markup === 'object')) {
-                        throw new Error('Lightbox item load function must return a valid Node object');
-                    }
-                    container.appendChild(markup);
-                }).catch((error) => {
-                    const mess = document.createElement('p');
-                    mess.classList.add('lightbox__message', 'lightbox__message_error');
-                    mess.innerHTML = `
-                        Impossible de charger le contenu
-                        <span class="error_message">(${error instanceof Error ? error.message : error})</span>
-                    `;
-                    container.appendChild(mess);
-                }).finally(() => {
-                    this.$lbContent.appendChild(container);
-                    element.container = container;
-
-                    // Remove loading flag
-                    element.loaded = true;
-                    element.loading = false;
+                this._preloadElement(element).then(() => {
                     this._loading = false;
 
                     /*

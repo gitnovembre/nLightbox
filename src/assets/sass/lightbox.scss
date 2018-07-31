@@ -22,12 +22,28 @@
         display:flex;
     }
 
+    &__content{
+        overflow:hidden;
+        border-radius:2px;
+    }
+
     &__container {
         display:none;
         transform:scale(0);
 
         &.active {
             display:block;
+        }
+
+        img, video, canvas{
+            display:block;
+            max-width:100vw;
+            max-height:calc(100vh - 64px);
+            height:auto;
+            margin:0;
+        }
+        figure{
+            margin:0;
         }
     }
 
@@ -73,22 +89,6 @@
 
     &__inner{
         position:relative;
-    }
-
-    &__content{
-        overflow:hidden;
-        border-radius:2px;
-
-        img, video, canvas{
-            display:block;
-            max-width:100vw;
-            max-height:calc(100vh - 64px);
-            height:auto;
-            margin:0;
-        }
-        figure{
-            margin:0;
-        }
     }
 
     &__ui{
