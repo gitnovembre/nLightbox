@@ -9,7 +9,8 @@
     font-size:15px;
     font-family:$lightbox-font;
     background:$lightbox-bgcolor;
-    padding:32px 0;
+    padding:$lightbox-vspacing-mobile $lightbox-hspacing-mobile;
+    overflow:hidden;
 
     &__container {
         figure{
@@ -121,7 +122,7 @@
     }
 
     @media only screen and (min-device-width: 768px) {
-        padding:64px;
+        padding:$lightbox-vspacing $lightbox-hspacing;
         font-size:14px;
 
         &__ui{
@@ -144,10 +145,10 @@
                     width:32px;
                     top:calc((100% - 32px) / 2);
                     &_next {
-                        right:64px / 2 - 16px;
+                        right:$lightbox-hspacing / 2 - 16px;
                     }
                     &_prev {
-                        left:64px / 2 - 16px;
+                        left:$lightbox-hspacing / 2 - 16px;
                     }
                 }
                 &_pagination{
