@@ -469,8 +469,11 @@ export default class Lightbox {
                 }
                 container.appendChild(markup);
             }).catch((error) => {
+                // flag element error
+                element.failed = true;
+
                 const mess = document.createElement('p');
-                mess.classList.add('lightbox__message', 'lightbox__message_error');
+                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__close');
                 mess.innerHTML = `
                     Impossible de charger le contenu
                     <span class="error_message">(${error instanceof Error ? error.message : error})</span>
@@ -560,6 +563,7 @@ export default class Lightbox {
                 /**
                  * ANIMATION
                  */
+                this.ui = !element.failed;
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
@@ -598,6 +602,7 @@ export default class Lightbox {
                     }
                 };
             } else { // no animation
+                this.ui = !element.failed;
                 target.classList.add('active');
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
@@ -825,6 +830,26 @@ export default class Lightbox {
      */
     get _index() {
         return this.currentIndex;
+    }
+
+    /**
+     * Enable / disable lightbox UI
+     * @param {boolean} bool
+     */
+    set ui(bool) {
+        if (bool) {
+            this.$lb.classList.remove('no_ui');
+        } else {
+            this.$lb.classList.add('no_ui');
+        }
+    }
+
+    /**
+     * Return current lightbox UI state
+     * @return {boolean} bool
+     */
+    get ui() {
+        return this.$lb.classList.contains('no_ui');
     }
 
     /**

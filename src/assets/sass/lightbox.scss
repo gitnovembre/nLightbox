@@ -111,10 +111,6 @@
         }
     }
 
-    &.loading &__ui {
-        display:none;
-    }
-
     &.animating &__ui{
         visibility:hidden;
         opacity:0;

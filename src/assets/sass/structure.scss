@@ -15,6 +15,13 @@
         display:flex;
     }
 
+    &.no_ui &__ui {
+        display:none;
+    }
+    &.loading &__ui {
+        display:none;
+    }
+
     &__container {
         display:none;
 
@@ -47,12 +54,11 @@
             display:none;
         }
 
-        &_error{
-            width:50vw;
-            height:50vh;
-            max-width:100%;
-            max-height:100%;
+        &_nopointerevent {
+            pointer-events: none;
+        }
 
+        &_error{
             .error_message {
                 display:block;
             }
