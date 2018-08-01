@@ -64,22 +64,17 @@ export default class Lightbox {
         this.loadingState = false;
 
         this.UI = {
-            close: {
-                element: null,
-                active: options.ui.close === true,
-            },
-            next: {
-                element: null,
-                active: options.ui.controls === true,
-            },
-            prev: {
-                element: null,
-                active: options.ui.controls === true,
-            },
-            pagination: {
-                element: null,
-                active: options.ui.pagination === true,
-            },
+            close: null,
+            next: null,
+            prev: null,
+            pagination: null,
+        };
+
+        this.UIConfig = {
+            close: options.ui.close === true,
+            next: options.ui.controls === true,
+            prev: options.ui.controls === true,
+            pagination: options.ui.pagination === true,
         };
 
         this.$lb = null;
@@ -198,11 +193,11 @@ export default class Lightbox {
         if (!this.isOpen()) {
             this.open().then(() => {
                 this.direction = Lightbox.DIRECTION_NONE;
-                this._loadByKey(key);
+                this._loadAndDisplayByKey(key);
             });
         } else if (force) {
             this.direction = Lightbox.DIRECTION_NONE;
-            this._loadByKey(key);
+            this._loadAndDisplayByKey(key);
         }
     }
 
@@ -215,10 +210,10 @@ export default class Lightbox {
             this.close();
         });
 
-        if (!this.UI.close.active) {
+        if (!this.UIConfig.close) {
             closeBtn.hide();
         }
-        this.UI.close.element = closeBtn;
+        this.UI.close = closeBtn;
 
 
         const prevBtn = new LightboxUIPrev();
@@ -227,10 +222,10 @@ export default class Lightbox {
             e.preventDefault();
             this.prev();
         });
-        if (!this.UI.prev.active) {
+        if (!this.UIConfig.prev) {
             prevBtn.hide();
         }
-        this.UI.prev.element = prevBtn;
+        this.UI.prev = prevBtn;
 
 
         const nextBtn = new LightboxUINext();
@@ -239,19 +234,19 @@ export default class Lightbox {
             e.preventDefault();
             this.next();
         });
-        if (!this.UI.next.active) {
+        if (!this.UIConfig.next) {
             nextBtn.hide();
         }
-        this.UI.next.element = nextBtn;
+        this.UI.next = nextBtn;
 
 
         // pagination creation
         const paginationEl = new LightboxUIPagination();
         paginationEl.appendTo(this.$lbUI);
-        if (!this.UI.pagination.active) {
+        if (!this.UIConfig.pagination) {
             paginationEl.hide();
         }
-        this.UI.pagination.element = paginationEl;
+        this.UI.pagination = paginationEl;
 
 
         // loader creation
@@ -356,7 +351,7 @@ export default class Lightbox {
 
             this.open().then(() => {
                 this.direction = Lightbox.DIRECTION_NONE;
-                this._loadByKey(key);
+                this._loadAndDisplayByKey(key);
             });
         });
 
@@ -415,8 +410,8 @@ export default class Lightbox {
      * Retrieve an element by key and draws it
      * @param {string} element
      */
-    _loadByKey(key) {
-        this._loadElement(this.elements.find((e) => e.key === key));
+    _loadAndDisplayByKey(key) {
+        this._loadAndDisplayElement(this.elements.find((e) => e.key === key));
     }
 
     /**
@@ -432,7 +427,7 @@ export default class Lightbox {
      * Retrieve an element by index and draws it
      * @param {int} i
      */
-    _loadByIndex(i) {
+    _loadAndDisplayByIndex(i) {
         let index = i;
 
         if (index < 0) {
@@ -442,9 +437,13 @@ export default class Lightbox {
             index = this.elements.length - 1;
         }
 
-        this._loadElement(this.elements[index]);
+        this._loadAndDisplayElement(this.elements[index]);
     }
 
+    /**
+     * Loads an element without displaying it after
+     * @param {LightboxItem} e
+     */
     _preloadElement(e) {
         return new Promise((resolve, reject) => {
             const element = e;
@@ -491,10 +490,10 @@ export default class Lightbox {
     }
 
     /**
-     * Retrieve an element and draws it
+     * Retrieve an element and displays it
      * @param {LightboxItem} e
      */
-    _loadElement(e) {
+    _loadAndDisplayElement(e) {
         const element = e;
 
         if (element && (element.loaded || !element.loading)) {
@@ -728,7 +727,7 @@ export default class Lightbox {
      */
     next() {
         this.direction = Lightbox.DIRECTION_RIGHT;
-        this._loadByIndex(this.currentIndex + 1);
+        this._loadAndDisplayByIndex(this.currentIndex + 1);
     }
 
     /**
@@ -736,15 +735,23 @@ export default class Lightbox {
      */
     prev() {
         this.direction = Lightbox.DIRECTION_LEFT;
-        this._loadByIndex(this.currentIndex - 1);
+        this._loadAndDisplayByIndex(this.currentIndex - 1);
     }
 
     /**
      * Tries to load an item based on its index
      */
-    jumpTo(i) {
+    jumpToIndex(i) {
         this.direction = Lightbox.DIRECTION_NONE;
-        this._loadByIndex(i);
+        this._loadAndDisplayByIndex(i);
+    }
+
+    /**
+     * Tries to load an item based on its key
+     */
+    jumpToKey(key) {
+        this.direction = Lightbox.DIRECTION_NONE;
+        this._loadAndDisplayByKey(key);
     }
 
     /**
@@ -791,24 +798,24 @@ export default class Lightbox {
             this.currentIndex = index;
         }
 
-        if (this.UI.prev.active) {
+        if (this.UIConfig.prev) {
             if (this.currentIndex === 0) {
-                this.UI.prev.element.disable();
+                this.UI.prev.disable();
             } else {
-                this.UI.prev.element.enable();
+                this.UI.prev.enable();
             }
         }
 
-        if (this.UI.next.active) {
+        if (this.UIConfig.next) {
             if (this.currentIndex === this.elements.length - 1) {
-                this.UI.next.element.disable();
+                this.UI.next.disable();
             } else {
-                this.UI.next.element.enable();
+                this.UI.next.enable();
             }
         }
 
-        if (this.UI.pagination.active) {
-            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span>&nbsp;/&nbsp;<span>${this.elements.length}</span>`;
+        if (this.UIConfig.pagination) {
+            this.UI.pagination.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
         }
     }
 
