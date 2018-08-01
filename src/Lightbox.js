@@ -9,8 +9,6 @@ import LightboxMap from './LightboxItem/LightboxMap';
 
 import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
-import './assets/sass/lightbox.scss';
-
 export default class Lightbox {
     /**
      * @param {object} [customOptions]
@@ -833,6 +831,13 @@ export default class Lightbox {
         return this.elements.length;
     }
 
+
+    /**
+     * Show an element animation
+     * @param {Element} node
+     * @param {number} Direction (left/right/none)
+     * @return {Object} Valid animejs object
+     */
     static showElementAnimation(node, direction) {
         const target = node;
         const offsetValue = { x: 20, y: 10 }; // initial offset
@@ -866,6 +871,11 @@ export default class Lightbox {
         });
     }
 
+    /**
+     * Close animation
+     * @param {Element} node
+     * @return {Object} Valid animejs object
+     */
     static closeAnimation(node) {
         const target = node;
 
@@ -878,6 +888,11 @@ export default class Lightbox {
         });
     }
 
+    /**
+     * Open animation
+     * @param {Element} node
+     * @return {Object} Valid animejs object
+     */
     static openAnimation(node) {
         const target = node;
         target.style.opacity = '0';
