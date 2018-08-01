@@ -34,7 +34,7 @@ export default class Lightbox {
     constructor(customOptions = {}) {
         const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
 
-        this.UId = parseInt(options.uid, 10) || 1;
+        this.uid = options.uid || 1;
 
         this.closeOnBlur = options.closeOnBlur === true;
         this.closeOnEscape = options.closeOnEscape === true;
@@ -106,7 +106,7 @@ export default class Lightbox {
         // lb creation
         this.$lb = document.createElement('div');
         this.$lb.classList.add('lightbox');
-        this.$lb.setAttribute('id', uniqid());
+        this.$lb.setAttribute('id', this.uid);
 
         // inner box creation
         this.$lbInner = document.createElement('div');
@@ -123,6 +123,87 @@ export default class Lightbox {
         this._initEvents();
 
         document.body.appendChild(this.$lb);
+
+
+        this._autoOpenDetect();
+    }
+
+    /**
+     * Detect in fragment URL parameters to trigger the lightbox automatically
+     * #####################
+     * # Parameters list : #
+     * #####################
+     * g : Lightbox UID
+     * k : key - Target key element
+     * d : delay - Wait X ms after the lightbox has been initialized
+     * s : scroll - Wait for a specific scroll height
+     * f : force - Force the lightbox to switch to the target element even
+     * if it is already open
+     *
+     * Example localhost:80/#g:l1+k:test+d:200
+     */
+    _autoOpenDetect() {
+        /**
+         * Hashmark detection
+         */
+        const hashmark = window.location.hash.substr(1);
+        const regex = /\+?([a-z]):(\w{0,})/g;
+
+        const result = {};
+
+        // read URL fragment
+        let match = regex.exec(hashmark);
+        while (match != null) {
+            const key = match[1] || undefined;
+            const value = match[2] || undefined;
+
+            if (key && value) {
+                result[key] = value;
+            }
+            match = regex.exec(hashmark);
+        }
+
+        // try to load the element if it exists
+        if (result.g === this.uid && this.keyExists(result.k)) {
+            const delay = parseInt(result.d || -1, 10);
+            const scrollTop = parseInt(result.s || -1, 10);
+            const force = parseInt(result.f || 1, 10) === 1;
+
+            if (scrollTop > 0) {
+                // if scroll paramter is present, handle scroll then delay
+                const scrollFunc = () => {
+                    const maxScrollableHeight = document.body.clientHeight - window.innerHeight;
+
+                    if (window.scrollY >= result.s || window.scrollY >= maxScrollableHeight) {
+                        if (delay > 0) {
+                            setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+                        } else {
+                            this._safeOpenThenLoad(result.k, force);
+                        }
+                        window.removeEventListener('scroll', scrollFunc);
+                    }
+                };
+
+                window.addEventListener('scroll', scrollFunc);
+            } else if (delay > 0) {
+                // handle delay
+                setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+            } else {
+                this._safeOpenThenLoad(result.k, force);
+            }
+        }
+    }
+
+    _safeOpenThenLoad(key, force) {
+        if (!this.isOpen()) {
+            this.open().then(() => {
+                this.direction = Lightbox.DIRECTION_NONE;
+                this._loadByKey(key);
+            });
+        } else if (force) {
+            this.direction = Lightbox.DIRECTION_NONE;
+            this._loadByKey(key);
+        }
     }
 
     _initUI() {
@@ -221,8 +302,10 @@ export default class Lightbox {
         });
 
         // close on double tap
-        h.on('tap', () => {
-            this.close();
+        h.on('tap', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.close();
+            }
         });
 
         document.addEventListener('keydown', (e) => {
@@ -243,11 +326,14 @@ export default class Lightbox {
         const elements = document.querySelectorAll('[data-lightbox]');
 
         // index all elements / get lightbox gallery data
-        this.elements = Array.from(elements).map((node) => ({
-            dataset: JSON.parse(node.dataset.lightbox),
-            key: uniqid(),
-            item: node,
-        })).filter((element) => element.dataset.group === this.UId).map(
+        this.elements = Array.from(elements).map((node) => {
+            const { key, ...dataset } = JSON.parse(node.dataset.lightbox);
+            return {
+                dataset,
+                key: (key || uniqid()),
+                item: node,
+            };
+        }).filter((element) => element.dataset.group === this.uid).map(
             this.createElement.bind(this),
         );
     }
@@ -269,8 +355,8 @@ export default class Lightbox {
             this._reset();
 
             this.open().then(() => {
-                this._loadByKey(key);
                 this.direction = Lightbox.DIRECTION_NONE;
+                this._loadByKey(key);
             });
         });
 
@@ -291,9 +377,9 @@ export default class Lightbox {
      * @param {object} data.dataset - List of options depending on the lightbox item
      */
     feed(data) {
-        const temp = data.map(({ target, ...dataset }) => this.createElement({
+        const temp = data.map(({ target, key, ...dataset }) => this.createElement({
             dataset,
-            key: uniqid(),
+            key: (key || uniqid()),
             item: document.querySelector(target),
         }));
 
@@ -331,6 +417,15 @@ export default class Lightbox {
      */
     _loadByKey(key) {
         this._loadElement(this.elements.find((e) => e.key === key));
+    }
+
+    /**
+     * Retrieve an element by key and draws it
+     * @param {string} key
+     * @return {boolean}
+     */
+    keyExists(key) {
+        return this.elements.find((e) => e.key === key) !== undefined;
     }
 
     /**
