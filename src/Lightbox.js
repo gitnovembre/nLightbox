@@ -34,12 +34,18 @@ export default class Lightbox {
     constructor(customOptions = {}) {
         const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
 
-        this.uid = options.uid || 1;
+        this.uid = options.uid || uniqid();
 
         this.closeOnBlur = options.closeOnBlur === true;
         this.closeOnEscape = options.closeOnEscape === true;
         this.arrowKeyNavigation = options.arrowKeyNavigation === true;
         this.enableAnimation = options.enableAnimation === true;
+
+        this.animations = {
+            open: typeof options.animations.open === 'function' ? options.animations.open : Lightbox.openAnimation,
+            close: typeof options.animations.close === 'function' ? options.animations.close : Lightbox.closeAnimation,
+            showElement: typeof options.animations.showElement === 'function' ? options.animations.showElement : Lightbox.showElementAnimation,
+        };
 
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
@@ -473,7 +479,7 @@ export default class Lightbox {
                 element.failed = true;
 
                 const mess = document.createElement('p');
-                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__close');
+                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__message_nopointerevent');
                 mess.innerHTML = `
                     Impossible de charger le contenu
                     <span class="error_message">(${error instanceof Error ? error.message : error})</span>
@@ -567,32 +573,7 @@ export default class Lightbox {
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
-                const offsetValue = 20; // initial offset
-                let txOffset;
-
-                if (this.direction === Lightbox.DIRECTION_LEFT) {
-                    txOffset = -offsetValue;
-                } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
-                    txOffset = offsetValue;
-                } else {
-                    txOffset = 0;
-                }
-
-                // initial conditions
-                target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
-                target.style.transformOrigin = 'center';
-                target.style.opacity = '0';
-
-                const animation = anime({
-                    targets: target,
-                    scale: 1,
-                    translateX: 0,
-                    opacity: 1,
-                    duration: 750,
-                    delay: 250,
-                    easing: [0.45, 0.73, 0.3, 1.0],
-                    autoplay: true,
-                });
+                const animation = this.animations.showElement(target, this.direction);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('animating');
@@ -647,16 +628,8 @@ export default class Lightbox {
 
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
-                this.$lb.style.opacity = '0';
 
-                const animation = anime({
-                    targets: this.$lb,
-                    opacity: 1,
-                    duration: 350,
-                    delay: 0,
-                    easing: 'easeOutSine',
-                    autoplay: true,
-                });
+                const animation = this.animations.open(this.$lb);
 
                 animation.complete = () => {
                     if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
@@ -681,25 +654,7 @@ export default class Lightbox {
             if (this.openState) {
                 this.$lb.classList.add('animating');
 
-                const animation = anime({
-                    targets: this.$lb,
-                    opacity: 0,
-                    duration: 350,
-                    delay: 100,
-                    easing: 'easeOutSine',
-                    autoplay: true,
-                });
-
-                // close callback to active container
-                const element = this.elements[this.currentIndex];
-                if (element) {
-                    if (typeof element.beforeClose === 'function') {
-                        element.beforeClose();
-                    }
-
-                    this._hideElement(element);
-                    this.currentIndex = -1;
-                }
+                const animation = this.animations.close(this.$lb);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('active');
@@ -713,6 +668,17 @@ export default class Lightbox {
                     }
                     resolve();
                 };
+
+                // close callback to active container
+                const element = this.elements[this.currentIndex];
+                if (element) {
+                    if (typeof element.beforeClose === 'function') {
+                        element.beforeClose();
+                    }
+
+                    this._hideElement(element);
+                    this.currentIndex = -1;
+                }
             } else {
                 reject();
             }
@@ -866,10 +832,69 @@ export default class Lightbox {
     count() {
         return this.elements.length;
     }
+
+    static showElementAnimation(node, direction) {
+        const target = node;
+        const offsetValue = { x: 20, y: 10 }; // initial offset
+        const tOffset = { x: 0, y: 0 };
+
+        if (direction === Lightbox.DIRECTION_LEFT) {
+            tOffset.x = -offsetValue.x;
+            tOffset.y = 0;
+        } else if (direction === Lightbox.DIRECTION_RIGHT) {
+            tOffset.x = offsetValue.x;
+            tOffset.y = 0;
+        } else {
+            tOffset.x = 0;
+            tOffset.y = -offsetValue.y;
+        }
+
+        // initial conditions
+        target.style.transform = `scale(0.9) translateX(${tOffset.x}%) translateY(${tOffset.y}%)`;
+        target.style.transformOrigin = 'center';
+        target.style.opacity = '0';
+
+        return anime({
+            targets: target,
+            scale: 1,
+            translateX: 0,
+            translateY: 0,
+            opacity: 1,
+            duration: 750,
+            delay: 250,
+            easing: [0.45, 0.73, 0.3, 1.0],
+        });
+    }
+
+    static closeAnimation(node) {
+        const target = node;
+
+        return anime({
+            targets: target,
+            opacity: 0,
+            duration: 350,
+            delay: 100,
+            easing: 'easeOutSine',
+        });
+    }
+
+    static openAnimation(node) {
+        const target = node;
+        target.style.opacity = '0';
+        target.style.transform = 'scale(1)';
+
+        return anime({
+            targets: target,
+            opacity: 1,
+            duration: 350,
+            delay: 0,
+            easing: 'easeOutSine',
+        });
+    }
 }
 
 Lightbox.DEFAULT_CONFIG = {
-    uid: 1,
+    uid: uniqid(),
     closeOnBlur: true,
     closeOnEscape: true,
     arrowKeyNavigation: true,
