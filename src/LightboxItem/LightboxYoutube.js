@@ -9,8 +9,8 @@ class LightboxYoutube extends LightboxItem {
      * @param {string} key
      * @param {Object} [options]
      * @param {string} [options.src] - Youtube link
-     * @param {number} [options.width = -1]
-     * @param {number} [options.height = -1]
+     * @param {number} [options.width = 854]
+     * @param {number} [options.height = 480]
      * @param {boolean} [options.rel = true] - Toggle related videos
      * @param {boolean} [options.autoplay = false] - Toggle autoplay
      * @param {boolean} [options.controls = true] - Toggle controls

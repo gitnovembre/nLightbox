@@ -16,10 +16,10 @@ class LightboxMap extends LightboxItem {
      * @param {number} [options.height = 720]
      * @param {string} [options.styles]
      */
-    constructor(lightbox, key, { API_KEY, lang = 'fr', lat = 0.0, lng = 0.0, zoom = 8, width = 1024, height = 720, styles = [] }) { // eslint-disable-line
+    constructor(lightbox, key, { api_key, lang = 'fr', lat = 0.0, lng = 0.0, zoom = 8, width = 1024, height = 720, styles = [] }) { // eslint-disable-line
         super(lightbox, key);
 
-        this.api_key = API_KEY;
+        this.api_key = api_key; // eslint-disable-line
         this.lang = lang;
         this.lat = parseFloat(lat);
         this.lng = parseFloat(lng);
