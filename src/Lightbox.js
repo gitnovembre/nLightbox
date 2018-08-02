@@ -7,7 +7,7 @@ import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
 import LightboxMap from './LightboxItem/LightboxMap';
 
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
+import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination, LightboxUIBulletlist } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
     /**
@@ -72,6 +72,7 @@ export default class Lightbox {
             next: null,
             prev: null,
             pagination: null,
+            bulletlist: null,
         };
 
         this.UIConfig = {
@@ -79,6 +80,7 @@ export default class Lightbox {
             next: options.ui.controls === true,
             prev: options.ui.controls === true,
             pagination: options.ui.pagination === true,
+            bulletlist: options.ui.bulletlist === true,
         };
 
         this.$lb = null;
@@ -207,7 +209,7 @@ export default class Lightbox {
 
     _initUI() {
         // UI elements creation
-        const closeBtn = new LightboxUIClose();
+        const closeBtn = new LightboxUIClose(this);
         closeBtn.appendTo(this.$lbUI);
         closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -220,7 +222,7 @@ export default class Lightbox {
         this.UI.close = closeBtn;
 
 
-        const prevBtn = new LightboxUIPrev();
+        const prevBtn = new LightboxUIPrev(this);
         prevBtn.appendTo(this.$lbUI);
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -232,7 +234,7 @@ export default class Lightbox {
         this.UI.prev = prevBtn;
 
 
-        const nextBtn = new LightboxUINext();
+        const nextBtn = new LightboxUINext(this);
         nextBtn.appendTo(this.$lbUI);
         nextBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -245,12 +247,21 @@ export default class Lightbox {
 
 
         // pagination creation
-        const paginationEl = new LightboxUIPagination();
+        const paginationEl = new LightboxUIPagination(this);
         paginationEl.appendTo(this.$lbUI);
         if (!this.UIConfig.pagination) {
             paginationEl.hide();
         }
         this.UI.pagination = paginationEl;
+
+
+        // pagination creation
+        const bulletlistEl = new LightboxUIBulletlist(this);
+        bulletlistEl.appendTo(this.$lbUI);
+        if (!this.UIConfig.bulletlist) {
+            bulletlistEl.hide();
+        }
+        this.UI.bulletlist = bulletlistEl;
 
 
         // loader creation
@@ -786,6 +797,10 @@ export default class Lightbox {
         if (this.UIConfig.pagination) {
             this.UI.pagination.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
         }
+
+        if (this.UIConfig.bulletlist) {
+            this.UI.bulletlist.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
+        }
     }
 
     /**
@@ -918,6 +933,7 @@ Lightbox.DEFAULT_CONFIG = {
         close: true,
         controls: true,
         pagination: true,
+        bulletlist: true,
     },
 };
 
