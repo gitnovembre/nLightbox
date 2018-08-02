@@ -397,12 +397,18 @@ export default class Lightbox {
 
     /**
      * Feed raw data to the lightbox directly and initialize lightbox elements
-     * @param {array} data
+     * @param {array|string} userData
      * @param {string} data.target - Name of the target DOM element
      * that will be binded to the lightbox item
      * @param {object} data.dataset - List of options depending on the lightbox item
      */
-    feed(data) {
+    feed(userData) {
+        let data = userData;
+
+        if (typeof userData === 'string') {
+            data = JSON.parse(userData);
+        }
+
         const temp = data.map(({ target, key, ...dataset }) => this._createElement({
             dataset,
             key: (key || uniqid()),
@@ -740,6 +746,7 @@ export default class Lightbox {
 
     /**
      * Tries to load an item based on its index
+     * @param {number} i
      */
     jumpToIndex(i) {
         this.direction = Lightbox.DIRECTION_NONE;
@@ -748,6 +755,7 @@ export default class Lightbox {
 
     /**
      * Tries to load an item based on its key
+     * @param {string} key
      */
     jumpToKey(key) {
         this.direction = Lightbox.DIRECTION_NONE;
