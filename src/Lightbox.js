@@ -16,6 +16,12 @@ import {
     LightboxUIBulletlist,
 } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
+const randomInt = (a, b) => {
+    const min = Math.ceil(a);
+    const max = Math.floor(b);
+    return Math.floor(Math.random() * (max - min)) + min;
+};
+
 export default class Lightbox {
     /**
      * @param {object} [customOptions]
@@ -129,7 +135,8 @@ export default class Lightbox {
      * # Parameters list : #
      * #####################
      * g : Lightbox UID
-     * k : key - Target key element
+     * k : key - Target an element by key
+     * i : index - Target an element by index
      * d : delay - Wait X ms after the lightbox has been initialized
      * s : scroll - Wait for a specific scroll height
      * f : force - Force the lightbox to switch to the target element even
@@ -142,7 +149,7 @@ export default class Lightbox {
          * Hashmark detection
          */
         const hashmark = window.location.hash.substr(1);
-        const regex = /\+?([a-z]):(\w{0,})/g;
+        const regex = /&?([a-z])=(\w{0,})/g;
 
         const result = {};
 
@@ -160,11 +167,23 @@ export default class Lightbox {
 
         // try to load the element if it exists
         if (result.g === this.options.uid) {
-            const index = this.keyExists(result.k) ? this._findIndex(result.k) : 0;
+            let index;
+            if (result.k) {
+                index = this.keyExists(result.k) ? this._findIndex(result.k) : 0;
+            } else if (result.i === 'first') {
+                index = 0;
+            } else if (result.i === 'last') {
+                index = this.count() - 1;
+            } else if (result.i === 'random') {
+                index = randomInt(0, this.count());
+            } else {
+                index = parseInt(result.i || 0, 10);
+            }
+
             const delay = parseInt(result.d || -1, 10);
             const scrollTop = parseInt(result.s || -1, 10);
             const force = parseInt(result.f || 1, 10) === 1;
-            console.log(index);
+
             if (scrollTop > 0) {
                 // if scroll paramter is present, handle scroll then delay
                 const scrollFunc = () => {
