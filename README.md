@@ -37,10 +37,12 @@ const lightbox = new Lightbox({
 });
 ```
 
+---
+
 ## API
 
 ### init(customTypes = `[]`) 
-Initilize lightbox creation, events, and fragment detection
+> Initilize lightbox creation, events, and fragment detection
 
 | Parameter | Type | Info |
 | :--- | :--- | :--- |
@@ -88,7 +90,7 @@ lightbox.feed(json);
 
 
 ### on(eventName, callback)
-Register a global lightbox event listener
+> Register a global lightbox event listener
 
 | Parameter | Type | Info |
 | :--- | :--- | :--- |
@@ -103,7 +105,7 @@ lightbox.on('open', () => {
 
 
 ### keyExists(key) => `boolean`
-Returns true if the given element key exists
+> Returns true if the given element key exists
 
 | Parameter | Type | Info |
 | :--- | :--- | :--- |
@@ -117,7 +119,7 @@ if (lightbox.keyExists('test')) {
 
 
 ### open() => `Promise`
-Opens the lightbox and returns a `Promise`
+> Opens the lightbox and returns a `Promise`
 
 ```javascript
 lightbox.open().then(() => {
@@ -127,36 +129,39 @@ lightbox.open().then(() => {
 
 
 ### close() => `Promise`
-Closes the lightbox and returns a `Promise`
+> Closes the lightbox and returns a `Promise`
 
 
 ### toggle() => `Promise`
-Toggles open/close actions and returns a `Promise` 
+> Toggles open/close actions and returns a `Promise` 
 
 
 ### next()
-Loads (if not loaded yet) and displays the next element
+> Loads (if not loaded yet) and displays the next element
 
 ```javascript
 lightbox.next();
 ```
 
 ### prev()
-Loads (if not loaded yet) and displays the previous element
+> Loads (if not loaded yet) and displays the previous element
 
 
 ### jumpToIndex(i)
-Loads (if not loaded yet) and displays the element at the given index (0 to n-1)
-Lightbox has to be already opened.
+> Loads (if not loaded yet) and displays the element at the given index (0 to n-1)
+> Lightbox has to be already opened.
 
 | Parameter | Type | Info |
 | :--- | :--- | :--- |
 | i | `number` | Element index |
 
+```javascript
+lightbox.jumpToIndex(0);
+```
 
 ### jumpToKey(key)
-Loads (if not loaded yet) and displays the element with the given key
-Lightbox has to be already opened.
+> Loads (if not loaded yet) and displays the element with the given key
+> Lightbox has to be already opened.
 
 | Parameter | Type | Info |
 | :--- | :--- | :--- |
@@ -164,24 +169,162 @@ Lightbox has to be already opened.
 
 
 ### isOpen() => `boolean`
-Returns true if the lightbox is open
+> Returns true if the lightbox is open
 
+```javascript
+if (lightbox.isOpen()) {
+    console.info('OPEN');
+}
+```
 
 ### disableUI()
-Turns the UI off
+> Turns the UI off
 
+```javascript
+lightbox.disableUI();
+```
 
 ### enableUI()
-Turns the UI on
+> Turns the UI on
 
 
 ### toggleUI()
-Toggles the UI on/off
+> Toggles the UI on/off
 
 
 ### count() => `number`
-Returns the current number of elements
+> Returns the current number of elements
 
+```javascript
+lightbox.count(); // 2
+```
+
+---
+
+## Default types
+
+#### Global options 
+
+| Name | Type | Default value | Description |
+| :--- | :---: | :---: | :--- |
+| group | `string` | - | Lightbox UID |
+| type | `number` | - | Element type should be either `image`, `video`, `youtube`, `map` or any registered custom type |
+
+
+### Image - `image`
+> Display a regular image
+
+#### Options
+
+| Name | Type | Default value | Description |
+| :--- | :---: | :---: | :--- |
+| src | `string` | - | Image URL |
+| * width | `number`| `-1` | Width in px, by default `-1` it uses native width |
+| * height | `number`| `-1` | Height in px, by default `-1` it uses native height |
+| * alt | `string` | - | Alternate text |
+
+#### Example
+
+```json
+{
+    "type": "image",
+    "group": "lightbox-1", 
+    "src": "./img/poney.jpg",       
+    "alt": ""
+}
+```
+
+
+### Google Map - `map`
+> Display a Google Map within the lightbox
+
+#### Options
+
+| Name | Type | Default value | Description |
+| :--- | :---: | :---: | :--- |
+| api_key | `string` | - | Google Map API key |
+| lat | `number` | `0.0` | Latitude |
+| lng | `number` | `0.0` | Longitude |
+| * zoom | `number` | `8` | Zoom level |
+| * width | `number` | `1024` | Width in px |
+| * height | `number` | `720` | Height in px |
+| * lang | `string` | `fr` | Language |
+| * styles | `Array` | - | Map styles objects https://mapstyle.withgoogle.com |
+
+#### Example
+
+```json
+{ 
+    "type": "map", 
+    "group": "lightbox-1", 
+    "api_key": "YOUR_API_KEY", 
+    "lat": 48.5692059, 
+    "lng": 7.692055, 
+    "zoom": 15, 
+    "width": 1600, 
+    "height": 900,
+}
+```
+
+
+### Youtube video player - `youtube`
+> Display a Youtube video with the iframe API
+
+#### Options
+
+| Name | Type | Default value | Description |
+| :--- | :---: | :---: | :--- |
+| src | `string` | - | URL to a youtube video |
+| * width | `number` | `854` | Width in px |
+| * height | `number` | `480` | Height in px |
+| * rel | `boolean` | `true` | Toggle related videos |
+| * autoplay | `boolean` | `false` | Toggle autoplay |
+| * controls | `boolean` | `true` | Toggle controls |
+| * showinfo | `boolean` | `true` | Toggle video information |
+| * start | `number` | `0` | Start the video at a given timecode |
+| * allowFullscreen | `boolean` | `true` | Allow/disallow fullscreen |
+
+#### Example
+
+```json
+{ 
+    "type": "youtube", 
+    "group": "lightbox-1",
+    "src": "https://www.youtube.com/watch?v=9rIy0xY99a0", 
+    "autoplay": false, 
+    "rel": false, 
+    "showinfo": false,
+    "controls": true, 
+    "allowFullscreen": false,
+}
+```
+
+### HTML5 video player - `video`
+> Display a video with the HTML5 API
+
+#### Options
+
+| Name | Type | Default value | Description |
+| :--- | :---: | :---: | :--- |
+| src | `string` | - | Source of the video |
+| * width | `number` | `854` | Width in px |
+| * height | `number` | `480` | Height in px |
+| * autoplay | `boolean` | `false` | Toggle autoplay |
+| * controls | `boolean` | `true` | Toggle controls |
+
+#### Example
+
+```json
+{ 
+    "type": "video", 
+    "group": "lightbox-1",
+    "src": "./video/poney.mp4", 
+    "autoplay": false,
+    "controls": true,
+}
+```
+
+---
 
 ## Fragment URL
 
@@ -192,9 +335,9 @@ Options to control the lightbox directly from the URL fragment. Parameters are w
 | g | `string` | | Target lightbox UID |
 | k | `string` | | Target element by UID (has priority over the index parameter if present) |
 | i | `number`, `string` | `0` | Target element by index or keywords (`first`, `last` or `random`) |
-| s | `number` | `-1` | Target lightbox element UID |
-| d | `number` | `-1` | Target lightbox element UID |
-| f | `number` | `1` | Target lightbox element UID |
+| * s | `number` | `-1` | Target lightbox element UID |
+| * d | `number` | `-1` | Target lightbox element UID |
+| * f | `number` | `1` | Target lightbox element UID |
 
 ### Example
 ```

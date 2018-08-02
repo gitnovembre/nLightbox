@@ -19,7 +19,7 @@ class LightboxMap extends LightboxItem {
     constructor(lightbox, key, { api_key, lang = 'fr', lat = 0.0, lng = 0.0, zoom = 8, width = 1024, height = 720, styles = [] }) { // eslint-disable-line
         super(lightbox, key);
 
-        this.api_key = api_key;
+        this.api_key = api_key; // eslint-disable-line
         this.lang = lang;
         this.lat = parseFloat(lat);
         this.lng = parseFloat(lng);
