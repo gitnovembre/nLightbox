@@ -19,7 +19,7 @@ import {
 export default class Lightbox {
     /**
      * @param {object} [customOptions]
-     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox elements
+     * @param {number} [customOptions.uid] - Unique identifier that is used to group lightbox elements
      * @param {boolean} [customOptions.enableCloseOnBlur = true] - Toggle the action of closing the lightbox on clicking outside of the content
      * @param {boolean} [customOptions.enableCloseOnEscape = true] - Toggle the action of closing the lightbox on pressing escape
      * @param {boolean} [customOptions.enableArrowKey = true] - Toggle the use of arrow keys navigation < >
@@ -159,11 +159,12 @@ export default class Lightbox {
         }
 
         // try to load the element if it exists
-        if (result.g === this.options.uid && this.keyExists(result.k)) {
+        if (result.g === this.options.uid) {
+            const index = this.keyExists(result.k) ? this._findIndex(result.k) : 0;
             const delay = parseInt(result.d || -1, 10);
             const scrollTop = parseInt(result.s || -1, 10);
             const force = parseInt(result.f || 1, 10) === 1;
-
+            console.log(index);
             if (scrollTop > 0) {
                 // if scroll paramter is present, handle scroll then delay
                 const scrollFunc = () => {
@@ -171,9 +172,9 @@ export default class Lightbox {
 
                     if (window.scrollY >= result.s || window.scrollY >= maxScrollableHeight) {
                         if (delay > 0) {
-                            setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+                            setTimeout(() => this._safeOpenThenLoad(index, force), delay);
                         } else {
-                            this._safeOpenThenLoad(result.k, force);
+                            this._safeOpenThenLoad(index, force);
                         }
                         window.removeEventListener('scroll', scrollFunc);
                     }
@@ -182,22 +183,22 @@ export default class Lightbox {
                 window.addEventListener('scroll', scrollFunc);
             } else if (delay > 0) {
                 // handle delay
-                setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+                setTimeout(() => this._safeOpenThenLoad(index, force), delay);
             } else {
-                this._safeOpenThenLoad(result.k, force);
+                this._safeOpenThenLoad(index, force);
             }
         }
     }
 
-    _safeOpenThenLoad(key, force) {
+    _safeOpenThenLoad(index, force) {
         if (!this.isOpen()) {
             this.open().then(() => {
                 this.direction = Lightbox.DIRECTION_NONE;
-                this._loadAndDisplayByKey(key);
+                this._loadAndDisplayByIndex(index);
             });
         } else if (force) {
             this.direction = Lightbox.DIRECTION_NONE;
-            this._loadAndDisplayByKey(key);
+            this._loadAndDisplayByIndex(index);
         }
     }
 
