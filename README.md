@@ -3,7 +3,7 @@
 ## Options
 
 | Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
+| :--- | :---: | :---: | :--- |
 | uid | `string` | `unidid()` | Unique lightbox identifier |
 | enableCloseOnBlur | `boolean` | `true` | Close on click outside of the content |
 | enableCloseOnEscape | `boolean` | `true` | Close on pressing the escape key |
@@ -13,14 +13,14 @@
 | enableNavUI | `boolean` | `true` | Display the navigation buttons |
 | enablePaginationUI | `boolean` | `true` | Display the pagination information |
 | enableBulletlistUI | `boolean` | `true` | Display a bulletlist navigation |
-| animation.open | `function` | `Lightbox.openAnimation` | Lightbox opening animation |
-| animation.close | `function` | `Lightbox.closeAnimation` | Lightbox closing animation |
-| animation.showElement | `function` | `Lightbox.showElementAnimation` | Lightbox displaying element animation |
+| animation.open | `function` |  | Lightbox opening animation |
+| animation.close | `function` | | Lightbox closing animation |
+| animation.showElement | `function` | | Lightbox displaying element animation |
 
 ### Example
 ```javascript
 const lightbox = new Lightbox({
-    uid: 'lightbox-1',
+    uid: "lightbox-1",
     enableCloseOnBlur: true,
     enableCloseOnEscape: true,
     enableArrowKey: false,
@@ -36,6 +36,9 @@ const lightbox = new Lightbox({
     }
 });
 ```
+
+## API
+
 
 ## Fragment URL
 

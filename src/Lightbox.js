@@ -360,7 +360,7 @@ export default class Lightbox {
                 item: node,
             };
         }).filter((element) => element.dataset.group === this.options.uid).map(
-            this.createElement.bind(this),
+            this._createElement.bind(this),
         );
     }
 
@@ -371,7 +371,7 @@ export default class Lightbox {
      * @param {object} protoElement.dataset - List of options depending on the type of item
      * @param {Node} protoElement.item - Target DOM node element binded to the lightbox item
      */
-    createElement(protoElement) {
+    _createElement(protoElement) {
         const { key, dataset, item } = protoElement;
         item.dataset.lightboxTarget = key;
 
@@ -403,7 +403,7 @@ export default class Lightbox {
      * @param {object} data.dataset - List of options depending on the lightbox item
      */
     feed(data) {
-        const temp = data.map(({ target, key, ...dataset }) => this.createElement({
+        const temp = data.map(({ target, key, ...dataset }) => this._createElement({
             dataset,
             key: (key || uniqid()),
             item: document.querySelector(target),
@@ -869,7 +869,7 @@ export default class Lightbox {
      * @param {number} Direction (left/right/none)
      * @return {Object} Valid animejs object
      */
-    static showElementAnimation(node, direction) {
+    static _showElementAnimation(node, direction) {
         const target = node;
         const offsetValue = { x: 20, y: 10 }; // initial offset
         const tOffset = { x: 0, y: 0 };
@@ -907,7 +907,7 @@ export default class Lightbox {
      * @param {Element} node
      * @return {Object} Valid animejs object
      */
-    static closeAnimation(node) {
+    static _closeAnimation(node) {
         const target = node;
 
         return anime({
@@ -924,7 +924,7 @@ export default class Lightbox {
      * @param {Element} node
      * @return {Object} Valid animejs object
      */
-    static openAnimation(node) {
+    static _openAnimation(node) {
         const target = node;
         target.style.opacity = '0';
         target.style.transform = 'scale(1)';
@@ -950,9 +950,9 @@ Lightbox.DEFAULT_CONFIG = {
     enablePaginationUI: true,
     enableBulletlistUI: true,
     animations: {
-        open: Lightbox.openAnimation,
-        close: Lightbox.closeAnimation,
-        showElement: Lightbox.showElementAnimation,
+        open: Lightbox._openAnimation,
+        close: Lightbox._closeAnimation,
+        showElement: Lightbox._showElementAnimation,
     },
 };
 
