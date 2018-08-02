@@ -209,6 +209,12 @@ export default class Lightbox {
         }
     }
 
+    /**
+     * Open then load the element by index
+     * @param {number} index
+     * @param {boolean} force - If false and the lightbox is already open
+     * it cancels loading the new element
+     */
     _safeOpenThenLoad(index, force) {
         if (!this.isOpen()) {
             this.open().then(() => {
@@ -373,18 +379,21 @@ export default class Lightbox {
      */
     _createElement(protoElement) {
         const { key, dataset, item } = protoElement;
-        item.dataset.lightboxTarget = key;
 
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
+        if (item) {
+            item.dataset.lightboxTarget = key;
 
-            this._reset();
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
 
-            this.open().then(() => {
-                this.direction = Lightbox.DIRECTION_NONE;
-                this._loadAndDisplayByKey(key);
+                this._reset();
+
+                this.open().then(() => {
+                    this.direction = Lightbox.DIRECTION_NONE;
+                    this._loadAndDisplayByKey(key);
+                });
             });
-        });
+        }
 
         // check if type is registered
         if (!this._typeExists(dataset.type)) {
