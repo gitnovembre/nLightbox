@@ -1,49 +1,51 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 import anime from 'animejs';
+import ObjectAssignDeep from 'object-assign-deep';
 
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
 import LightboxMap from './LightboxItem/LightboxMap';
 
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination, LightboxUIBulletlist } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
+import {
+    LightboxUIClose,
+    LightboxUINext,
+    LightboxUIPrev,
+    LightboxUIPagination,
+    LightboxUIBulletlist,
+} from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
     /**
      * @param {object} [customOptions]
-     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox
-     * elements
-     * @param {boolean} [customOptions.closeOnBlur = true] - Toggle the action of closing the
-     * lightbox on clicking outside of the content
-     * @param {boolean} [customOptions.closeOnEscape = true] - Toggle the action of closing
-     * the lightbox on pressing escape
-     * @param {boolean} [customOptions.arrowKeyNavigation = true] - Toggle the use of arrow
-     * keys navigation < >
-     * @param {boolean} [customOptions.enableAnimation = true] - Disable / enable animation
-     * transitions
-     * @param {object} [customOptions.ui]
-     * @param {boolean} [customOptions.ui.close = true] - Toggle the display of the close button
-     * @param {boolean} [customOptions.ui.controls = true] - Toggle the display of the controls
-     * (previous / next) buttons
-     * @param {boolean} [customOptions.ui.pagination = true] - Toggle the display of the pagination
-     * information
+     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox elements
+     * @param {boolean} [customOptions.enableCloseOnBlur = true] - Toggle the action of closing the lightbox on clicking outside of the content
+     * @param {boolean} [customOptions.enableCloseOnEscape = true] - Toggle the action of closing the lightbox on pressing escape
+     * @param {boolean} [customOptions.enableArrowKey = true] - Toggle the use of arrow keys navigation < >
+     * @param {boolean} [customOptions.enableAnimations = true] - Disable / enable animation transitions
+     * @param {boolean} [customOptions.enableCloseUI = true] - Toggle the display of the close button
+     * @param {boolean} [customOptions.enableNavUI = true] - Toggle the display of the controls (previous / next) buttons
+     * @param {boolean} [customOptions.enablePaginationUI = true] - Toggle the display of the pagination information
+     * @param {boolean} [customOptions.enableBulletlistUI = true] - Toggle the display of the bullelist nav
+     * @param {object} [customOptions.animations = {}]
+     * @param {object} [customOptions.animations.open] - Open animation
+     * @param {object} [customOptions.animations.close] - Close animation
+     * @param {object} [customOptions.animations.showElement] - Element display animation
      */
     constructor(customOptions = {}) {
-        const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
+        // deep copy
+        this.options = ObjectAssignDeep.noMutate(Lightbox.DEFAULT_CONFIG, customOptions);
 
-        this.uid = options.uid || uniqid();
-
-        this.closeOnBlur = options.closeOnBlur === true;
-        this.closeOnEscape = options.closeOnEscape === true;
-        this.arrowKeyNavigation = options.arrowKeyNavigation === true;
-        this.enableAnimation = options.enableAnimation === true;
-
-        this.animations = {
-            open: typeof options.animations.open === 'function' ? options.animations.open : Lightbox.openAnimation,
-            close: typeof options.animations.close === 'function' ? options.animations.close : Lightbox.closeAnimation,
-            showElement: typeof options.animations.showElement === 'function' ? options.animations.showElement : Lightbox.showElementAnimation,
-        };
+        if (typeof this.options.animations.open !== 'function') {
+            throw new Error('Invalid open animation');
+        }
+        if (typeof this.options.animations.close !== 'function') {
+            throw new Error('Invalid open animation');
+        }
+        if (typeof this.options.animations.showElement !== 'function') {
+            throw new Error('Invalid open animation');
+        }
 
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
@@ -75,14 +77,6 @@ export default class Lightbox {
             bulletlist: null,
         };
 
-        this.UIConfig = {
-            close: options.ui.close === true,
-            next: options.ui.controls === true,
-            prev: options.ui.controls === true,
-            pagination: options.ui.pagination === true,
-            bulletlist: options.ui.bulletlist === true,
-        };
-
         this.$lb = null;
         this.$lbInner = null;
         this.$lbContent = null;
@@ -107,7 +101,7 @@ export default class Lightbox {
         // lb creation
         this.$lb = document.createElement('div');
         this.$lb.classList.add('lightbox');
-        this.$lb.setAttribute('id', this.uid);
+        this.$lb.setAttribute('id', this.options.uid);
 
         // inner box creation
         this.$lbInner = document.createElement('div');
@@ -165,7 +159,7 @@ export default class Lightbox {
         }
 
         // try to load the element if it exists
-        if (result.g === this.uid && this.keyExists(result.k)) {
+        if (result.g === this.options.uid && this.keyExists(result.k)) {
             const delay = parseInt(result.d || -1, 10);
             const scrollTop = parseInt(result.s || -1, 10);
             const force = parseInt(result.f || 1, 10) === 1;
@@ -216,7 +210,7 @@ export default class Lightbox {
             this.close();
         });
 
-        if (!this.UIConfig.close) {
+        if (!this.options.enableCloseUI) {
             closeBtn.hide();
         }
         this.UI.close = closeBtn;
@@ -228,7 +222,7 @@ export default class Lightbox {
             e.preventDefault();
             this.prev();
         });
-        if (!this.UIConfig.prev) {
+        if (!this.options.enableNavUI) {
             prevBtn.hide();
         }
         this.UI.prev = prevBtn;
@@ -240,7 +234,7 @@ export default class Lightbox {
             e.preventDefault();
             this.next();
         });
-        if (!this.UIConfig.next) {
+        if (!this.options.enableNavUI) {
             nextBtn.hide();
         }
         this.UI.next = nextBtn;
@@ -249,7 +243,7 @@ export default class Lightbox {
         // pagination creation
         const paginationEl = new LightboxUIPagination(this);
         paginationEl.appendTo(this.$lbUI);
-        if (!this.UIConfig.pagination) {
+        if (!this.options.enablePaginationUI) {
             paginationEl.hide();
         }
         this.UI.pagination = paginationEl;
@@ -258,7 +252,7 @@ export default class Lightbox {
         // pagination creation
         const bulletlistEl = new LightboxUIBulletlist(this);
         bulletlistEl.appendTo(this.$lbUI);
-        if (!this.UIConfig.bulletlist) {
+        if (!this.options.enableBulletlistUI) {
             bulletlistEl.hide();
         }
         this.UI.bulletlist = bulletlistEl;
@@ -282,9 +276,11 @@ export default class Lightbox {
             e.preventDefault();
             e.stopPropagation();
 
-            if (e.target === this.$lb && this.closeOnBlur) { // user clicks off content bounds
+            if (e.target === this.$lb && this.options.enableCloseOnBlur) {
+                // user clicks off content bounds
                 this.close();
-            } else if (e.target.classList.contains('lightbox__close')) { // user clicks on a child element of the lightbox which has the classname "close"
+            } else if (e.target.classList.contains('lightbox__close')) {
+                // user clicks on a child element of the lightbox which has the classname "close"
                 this.close();
             } else if (e.target.classList.contains('lightbox__next')) {
                 this.next();
@@ -321,11 +317,11 @@ export default class Lightbox {
         document.addEventListener('keydown', (e) => {
             if (this.isOpen()) {
                 // user can close the lightbox when pressing the escape key
-                if (e.keyCode === 27 && this.closeOnEscape) {
+                if (e.keyCode === 27 && this.options.enableCloseOnEscape) {
                     this.close();
-                } else if (e.keyCode === 37 && this.arrowKeyNavigation) {
+                } else if (e.keyCode === 37 && this.options.enableArrowKey) {
                     this.prev();
-                } else if (e.keyCode === 39 && this.arrowKeyNavigation) {
+                } else if (e.keyCode === 39 && this.options.enableArrowKey) {
                     this.next();
                 }
             }
@@ -343,7 +339,7 @@ export default class Lightbox {
                 key: (key || uniqid()),
                 item: node,
             };
-        }).filter((element) => element.dataset.group === this.uid).map(
+        }).filter((element) => element.dataset.group === this.options.uid).map(
             this.createElement.bind(this),
         );
     }
@@ -574,7 +570,7 @@ export default class Lightbox {
             this._index = index;
             const target = element.container;
 
-            if (this.enableAnimation) {
+            if (this.options.enableAnimations) {
                 /**
                  * ANIMATION
                  */
@@ -582,7 +578,7 @@ export default class Lightbox {
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
-                const animation = this.animations.showElement(target, this.direction);
+                const animation = this.options.animations.showElement(target, this.direction);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('animating');
@@ -638,7 +634,7 @@ export default class Lightbox {
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
 
-                const animation = this.animations.open(this.$lb);
+                const animation = this.options.animations.open(this.$lb);
 
                 animation.complete = () => {
                     if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
@@ -663,7 +659,7 @@ export default class Lightbox {
             if (this.openState) {
                 this.$lb.classList.add('animating');
 
-                const animation = this.animations.close(this.$lb);
+                const animation = this.options.animations.close(this.$lb);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('active');
@@ -778,7 +774,7 @@ export default class Lightbox {
             this.currentIndex = index;
         }
 
-        if (this.UIConfig.prev) {
+        if (this.options.enableNavUI) {
             if (this.currentIndex === 0) {
                 this.UI.prev.disable();
             } else {
@@ -786,7 +782,7 @@ export default class Lightbox {
             }
         }
 
-        if (this.UIConfig.next) {
+        if (this.options.enableNavUI) {
             if (this.currentIndex === this.elements.length - 1) {
                 this.UI.next.disable();
             } else {
@@ -794,11 +790,11 @@ export default class Lightbox {
             }
         }
 
-        if (this.UIConfig.pagination) {
+        if (this.options.enablePaginationUI) {
             this.UI.pagination.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
         }
 
-        if (this.UIConfig.bulletlist) {
+        if (this.options.enableBulletlistUI) {
             this.UI.bulletlist.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
         }
     }
@@ -925,15 +921,18 @@ export default class Lightbox {
 
 Lightbox.DEFAULT_CONFIG = {
     uid: uniqid(),
-    closeOnBlur: true,
-    closeOnEscape: true,
-    arrowKeyNavigation: true,
-    enableAnimation: true,
-    ui: {
-        close: true,
-        controls: true,
-        pagination: true,
-        bulletlist: true,
+    enableCloseOnBlur: true,
+    enableCloseOnEscape: true,
+    enableArrowKey: true,
+    enableAnimations: true,
+    enableCloseUI: true,
+    enableNavUI: true,
+    enablePaginationUI: true,
+    enableBulletlistUI: true,
+    animations: {
+        open: Lightbox.openAnimation,
+        close: Lightbox.closeAnimation,
+        showElement: Lightbox.showElementAnimation,
     },
 };
 

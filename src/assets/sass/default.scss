@@ -133,18 +133,18 @@
                         height:9px;
                         width:9px;
                         border-radius:50%;
-                        background:#d4d4d4;
+                        background:#414141;
                     }
 
                     &:hover{
                         &::after {
-                            background:#a5a5a5;
+                            background:#919191;
                         }       
                     }
 
                     &.active, &.active:hover {
                         &::after {
-                            background: #414141;
+                            background: #d4d4d4;
                         }
                     }
                 }
