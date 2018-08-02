@@ -9,6 +9,7 @@ class LightboxItem {
 
         this.loaded = false;
         this.loading = false;
+        this.failed = false;
         this.data = null;
     }
 }

@@ -1,45 +1,51 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 import anime from 'animejs';
+import ObjectAssignDeep from 'object-assign-deep';
 
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
 import LightboxMap from './LightboxItem/LightboxMap';
 
-import { LightboxUIClose, LightboxUINext, LightboxUIPrev, LightboxUIPagination } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
-
-import './assets/sass/lightbox.scss';
+import {
+    LightboxUIClose,
+    LightboxUINext,
+    LightboxUIPrev,
+    LightboxUIPagination,
+    LightboxUIBulletlist,
+} from './LightboxUI/LightboxUIElement'; //eslint-disable-line
 
 export default class Lightbox {
     /**
      * @param {object} [customOptions]
-     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox
-     * elements
-     * @param {boolean} [customOptions.closeOnBlur = true] - Toggle the action of closing the
-     * lightbox on clicking outside of the content
-     * @param {boolean} [customOptions.closeOnEscape = true] - Toggle the action of closing
-     * the lightbox on pressing escape
-     * @param {boolean} [customOptions.arrowKeyNavigation = true] - Toggle the use of arrow
-     * keys navigation < >
-     * @param {boolean} [customOptions.enableAnimation = true] - Disable / enable animation
-     * transitions
-     * @param {object} [customOptions.ui]
-     * @param {boolean} [customOptions.ui.close = true] - Toggle the display of the close button
-     * @param {boolean} [customOptions.ui.controls = true] - Toggle the display of the controls
-     * (previous / next) buttons
-     * @param {boolean} [customOptions.ui.pagination = true] - Toggle the display of the pagination
-     * information
+     * @param {number} [customOptions.uid = 1] - Unique identifier that is used to group lightbox elements
+     * @param {boolean} [customOptions.enableCloseOnBlur = true] - Toggle the action of closing the lightbox on clicking outside of the content
+     * @param {boolean} [customOptions.enableCloseOnEscape = true] - Toggle the action of closing the lightbox on pressing escape
+     * @param {boolean} [customOptions.enableArrowKey = true] - Toggle the use of arrow keys navigation < >
+     * @param {boolean} [customOptions.enableAnimations = true] - Disable / enable animation transitions
+     * @param {boolean} [customOptions.enableCloseUI = true] - Toggle the display of the close button
+     * @param {boolean} [customOptions.enableNavUI = true] - Toggle the display of the controls (previous / next) buttons
+     * @param {boolean} [customOptions.enablePaginationUI = true] - Toggle the display of the pagination information
+     * @param {boolean} [customOptions.enableBulletlistUI = true] - Toggle the display of the bullelist nav
+     * @param {object} [customOptions.animations = {}]
+     * @param {object} [customOptions.animations.open] - Open animation
+     * @param {object} [customOptions.animations.close] - Close animation
+     * @param {object} [customOptions.animations.showElement] - Element display animation
      */
     constructor(customOptions = {}) {
-        const options = Object.assign(Lightbox.DEFAULT_CONFIG, customOptions);
+        // deep copy
+        this.options = ObjectAssignDeep.noMutate(Lightbox.DEFAULT_CONFIG, customOptions);
 
-        this.UId = parseInt(options.uid, 10) || 1;
-
-        this.closeOnBlur = options.closeOnBlur === true;
-        this.closeOnEscape = options.closeOnEscape === true;
-        this.arrowKeyNavigation = options.arrowKeyNavigation === true;
-        this.enableAnimation = options.enableAnimation === true;
+        if (typeof this.options.animations.open !== 'function') {
+            throw new Error('Invalid open animation');
+        }
+        if (typeof this.options.animations.close !== 'function') {
+            throw new Error('Invalid open animation');
+        }
+        if (typeof this.options.animations.showElement !== 'function') {
+            throw new Error('Invalid open animation');
+        }
 
         this.observers = {
             [Lightbox.EVENT_ONCLOSE]: null,
@@ -64,22 +70,11 @@ export default class Lightbox {
         this.loadingState = false;
 
         this.UI = {
-            close: {
-                element: null,
-                active: options.ui.close === true,
-            },
-            next: {
-                element: null,
-                active: options.ui.controls === true,
-            },
-            prev: {
-                element: null,
-                active: options.ui.controls === true,
-            },
-            pagination: {
-                element: null,
-                active: options.ui.pagination === true,
-            },
+            close: null,
+            next: null,
+            prev: null,
+            pagination: null,
+            bulletlist: null,
         };
 
         this.$lb = null;
@@ -106,7 +101,7 @@ export default class Lightbox {
         // lb creation
         this.$lb = document.createElement('div');
         this.$lb.classList.add('lightbox');
-        this.$lb.setAttribute('id', uniqid());
+        this.$lb.setAttribute('id', this.options.uid);
 
         // inner box creation
         this.$lbInner = document.createElement('div');
@@ -123,54 +118,144 @@ export default class Lightbox {
         this._initEvents();
 
         document.body.appendChild(this.$lb);
+
+
+        this._autoOpenDetect();
+    }
+
+    /**
+     * Detect in fragment URL parameters to trigger the lightbox automatically
+     * #####################
+     * # Parameters list : #
+     * #####################
+     * g : Lightbox UID
+     * k : key - Target key element
+     * d : delay - Wait X ms after the lightbox has been initialized
+     * s : scroll - Wait for a specific scroll height
+     * f : force - Force the lightbox to switch to the target element even
+     * if it is already open
+     *
+     * Example localhost:80/#g:l1+k:test+d:200
+     */
+    _autoOpenDetect() {
+        /**
+         * Hashmark detection
+         */
+        const hashmark = window.location.hash.substr(1);
+        const regex = /\+?([a-z]):(\w{0,})/g;
+
+        const result = {};
+
+        // read URL fragment
+        let match = regex.exec(hashmark);
+        while (match != null) {
+            const key = match[1] || undefined;
+            const value = match[2] || undefined;
+
+            if (key && value) {
+                result[key] = value;
+            }
+            match = regex.exec(hashmark);
+        }
+
+        // try to load the element if it exists
+        if (result.g === this.options.uid && this.keyExists(result.k)) {
+            const delay = parseInt(result.d || -1, 10);
+            const scrollTop = parseInt(result.s || -1, 10);
+            const force = parseInt(result.f || 1, 10) === 1;
+
+            if (scrollTop > 0) {
+                // if scroll paramter is present, handle scroll then delay
+                const scrollFunc = () => {
+                    const maxScrollableHeight = document.body.clientHeight - window.innerHeight;
+
+                    if (window.scrollY >= result.s || window.scrollY >= maxScrollableHeight) {
+                        if (delay > 0) {
+                            setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+                        } else {
+                            this._safeOpenThenLoad(result.k, force);
+                        }
+                        window.removeEventListener('scroll', scrollFunc);
+                    }
+                };
+
+                window.addEventListener('scroll', scrollFunc);
+            } else if (delay > 0) {
+                // handle delay
+                setTimeout(() => this._safeOpenThenLoad(result.k, force), delay);
+            } else {
+                this._safeOpenThenLoad(result.k, force);
+            }
+        }
+    }
+
+    _safeOpenThenLoad(key, force) {
+        if (!this.isOpen()) {
+            this.open().then(() => {
+                this.direction = Lightbox.DIRECTION_NONE;
+                this._loadAndDisplayByKey(key);
+            });
+        } else if (force) {
+            this.direction = Lightbox.DIRECTION_NONE;
+            this._loadAndDisplayByKey(key);
+        }
     }
 
     _initUI() {
         // UI elements creation
-        const closeBtn = new LightboxUIClose();
+        const closeBtn = new LightboxUIClose(this);
         closeBtn.appendTo(this.$lbUI);
         closeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.close();
         });
 
-        if (!this.UI.close.active) {
+        if (!this.options.enableCloseUI) {
             closeBtn.hide();
         }
-        this.UI.close.element = closeBtn;
+        this.UI.close = closeBtn;
 
 
-        const prevBtn = new LightboxUIPrev();
+        const prevBtn = new LightboxUIPrev(this);
         prevBtn.appendTo(this.$lbUI);
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.prev();
         });
-        if (!this.UI.prev.active) {
+        if (!this.options.enableNavUI) {
             prevBtn.hide();
         }
-        this.UI.prev.element = prevBtn;
+        this.UI.prev = prevBtn;
 
 
-        const nextBtn = new LightboxUINext();
+        const nextBtn = new LightboxUINext(this);
         nextBtn.appendTo(this.$lbUI);
         nextBtn.addEventListener('click', (e) => {
             e.preventDefault();
             this.next();
         });
-        if (!this.UI.next.active) {
+        if (!this.options.enableNavUI) {
             nextBtn.hide();
         }
-        this.UI.next.element = nextBtn;
+        this.UI.next = nextBtn;
 
 
         // pagination creation
-        const paginationEl = new LightboxUIPagination();
+        const paginationEl = new LightboxUIPagination(this);
         paginationEl.appendTo(this.$lbUI);
-        if (!this.UI.pagination.active) {
+        if (!this.options.enablePaginationUI) {
             paginationEl.hide();
         }
-        this.UI.pagination.element = paginationEl;
+        this.UI.pagination = paginationEl;
+
+
+        // pagination creation
+        const bulletlistEl = new LightboxUIBulletlist(this);
+        bulletlistEl.appendTo(this.$lbUI);
+        if (!this.options.enableBulletlistUI) {
+            bulletlistEl.hide();
+        }
+        this.UI.bulletlist = bulletlistEl;
 
 
         // loader creation
@@ -191,9 +276,11 @@ export default class Lightbox {
             e.preventDefault();
             e.stopPropagation();
 
-            if (e.target === this.$lb && this.closeOnBlur) { // user clicks off content bounds
+            if (e.target === this.$lb && this.options.enableCloseOnBlur) {
+                // user clicks off content bounds
                 this.close();
-            } else if (e.target.classList.contains('lightbox__close')) { // user clicks on a child element of the lightbox which has the classname "close"
+            } else if (e.target.classList.contains('lightbox__close')) {
+                // user clicks on a child element of the lightbox which has the classname "close"
                 this.close();
             } else if (e.target.classList.contains('lightbox__next')) {
                 this.next();
@@ -221,18 +308,20 @@ export default class Lightbox {
         });
 
         // close on double tap
-        h.on('tap', () => {
-            this.close();
+        h.on('tap', (e) => {
+            if (e.pointerType !== 'mouse') {
+                this.close();
+            }
         });
 
         document.addEventListener('keydown', (e) => {
             if (this.isOpen()) {
                 // user can close the lightbox when pressing the escape key
-                if (e.keyCode === 27 && this.closeOnEscape) {
+                if (e.keyCode === 27 && this.options.enableCloseOnEscape) {
                     this.close();
-                } else if (e.keyCode === 37 && this.arrowKeyNavigation) {
+                } else if (e.keyCode === 37 && this.options.enableArrowKey) {
                     this.prev();
-                } else if (e.keyCode === 39 && this.arrowKeyNavigation) {
+                } else if (e.keyCode === 39 && this.options.enableArrowKey) {
                     this.next();
                 }
             }
@@ -243,11 +332,14 @@ export default class Lightbox {
         const elements = document.querySelectorAll('[data-lightbox]');
 
         // index all elements / get lightbox gallery data
-        this.elements = Array.from(elements).map((node) => ({
-            dataset: JSON.parse(node.dataset.lightbox),
-            key: uniqid(),
-            item: node,
-        })).filter((element) => element.dataset.group === this.UId).map(
+        this.elements = Array.from(elements).map((node) => {
+            const { key, ...dataset } = JSON.parse(node.dataset.lightbox);
+            return {
+                dataset,
+                key: (key || uniqid()),
+                item: node,
+            };
+        }).filter((element) => element.dataset.group === this.options.uid).map(
             this.createElement.bind(this),
         );
     }
@@ -269,8 +361,8 @@ export default class Lightbox {
             this._reset();
 
             this.open().then(() => {
-                this._loadByKey(key);
                 this.direction = Lightbox.DIRECTION_NONE;
+                this._loadAndDisplayByKey(key);
             });
         });
 
@@ -291,9 +383,9 @@ export default class Lightbox {
      * @param {object} data.dataset - List of options depending on the lightbox item
      */
     feed(data) {
-        const temp = data.map(({ target, ...dataset }) => this.createElement({
+        const temp = data.map(({ target, key, ...dataset }) => this.createElement({
             dataset,
-            key: uniqid(),
+            key: (key || uniqid()),
             item: document.querySelector(target),
         }));
 
@@ -329,15 +421,24 @@ export default class Lightbox {
      * Retrieve an element by key and draws it
      * @param {string} element
      */
-    _loadByKey(key) {
-        this._loadElement(this.elements.find((e) => e.key === key));
+    _loadAndDisplayByKey(key) {
+        this._loadAndDisplayElement(this.elements.find((e) => e.key === key));
+    }
+
+    /**
+     * Retrieve an element by key and draws it
+     * @param {string} key
+     * @return {boolean}
+     */
+    keyExists(key) {
+        return this.elements.find((e) => e.key === key) !== undefined;
     }
 
     /**
      * Retrieve an element by index and draws it
      * @param {int} i
      */
-    _loadByIndex(i) {
+    _loadAndDisplayByIndex(i) {
         let index = i;
 
         if (index < 0) {
@@ -347,9 +448,13 @@ export default class Lightbox {
             index = this.elements.length - 1;
         }
 
-        this._loadElement(this.elements[index]);
+        this._loadAndDisplayElement(this.elements[index]);
     }
 
+    /**
+     * Loads an element without displaying it after
+     * @param {LightboxItem} e
+     */
     _preloadElement(e) {
         return new Promise((resolve, reject) => {
             const element = e;
@@ -375,8 +480,11 @@ export default class Lightbox {
                 }
                 container.appendChild(markup);
             }).catch((error) => {
+                // flag element error
+                element.failed = true;
+
                 const mess = document.createElement('p');
-                mess.classList.add('lightbox__message', 'lightbox__message_error');
+                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__message_nopointerevent');
                 mess.innerHTML = `
                     Impossible de charger le contenu
                     <span class="error_message">(${error instanceof Error ? error.message : error})</span>
@@ -396,10 +504,10 @@ export default class Lightbox {
     }
 
     /**
-     * Retrieve an element and draws it
+     * Retrieve an element and displays it
      * @param {LightboxItem} e
      */
-    _loadElement(e) {
+    _loadAndDisplayElement(e) {
         const element = e;
 
         if (element && (element.loaded || !element.loading)) {
@@ -462,39 +570,15 @@ export default class Lightbox {
             this._index = index;
             const target = element.container;
 
-            if (this.enableAnimation) {
+            if (this.options.enableAnimations) {
                 /**
                  * ANIMATION
                  */
+                this.ui = !element.failed;
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
-                const offsetValue = 20; // initial offset
-                let txOffset;
-
-                if (this.direction === Lightbox.DIRECTION_LEFT) {
-                    txOffset = -offsetValue;
-                } else if (this.direction === Lightbox.DIRECTION_RIGHT) {
-                    txOffset = offsetValue;
-                } else {
-                    txOffset = 0;
-                }
-
-                // initial conditions
-                target.style.transform = `scale(0.9) translateX(${txOffset}%)`;
-                target.style.transformOrigin = 'center';
-                target.style.opacity = '0';
-
-                const animation = anime({
-                    targets: target,
-                    scale: 1,
-                    translateX: 0,
-                    opacity: 1,
-                    duration: 750,
-                    delay: 250,
-                    easing: [0.45, 0.73, 0.3, 1.0],
-                    autoplay: true,
-                });
+                const animation = this.options.animations.showElement(target, this.direction);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('animating');
@@ -504,6 +588,7 @@ export default class Lightbox {
                     }
                 };
             } else { // no animation
+                this.ui = !element.failed;
                 target.classList.add('active');
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
@@ -548,16 +633,8 @@ export default class Lightbox {
 
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
-                this.$lb.style.opacity = '0';
 
-                const animation = anime({
-                    targets: this.$lb,
-                    opacity: 1,
-                    duration: 350,
-                    delay: 0,
-                    easing: 'easeOutSine',
-                    autoplay: true,
-                });
+                const animation = this.options.animations.open(this.$lb);
 
                 animation.complete = () => {
                     if (this.observers[Lightbox.EVENT_ONOPEN] !== null) {
@@ -582,25 +659,7 @@ export default class Lightbox {
             if (this.openState) {
                 this.$lb.classList.add('animating');
 
-                const animation = anime({
-                    targets: this.$lb,
-                    opacity: 0,
-                    duration: 350,
-                    delay: 100,
-                    easing: 'easeOutSine',
-                    autoplay: true,
-                });
-
-                // close callback to active container
-                const element = this.elements[this.currentIndex];
-                if (element) {
-                    if (typeof element.beforeClose === 'function') {
-                        element.beforeClose();
-                    }
-
-                    this._hideElement(element);
-                    this.currentIndex = -1;
-                }
+                const animation = this.options.animations.close(this.$lb);
 
                 animation.complete = () => {
                     this.$lb.classList.remove('active');
@@ -614,6 +673,17 @@ export default class Lightbox {
                     }
                     resolve();
                 };
+
+                // close callback to active container
+                const element = this.elements[this.currentIndex];
+                if (element) {
+                    if (typeof element.beforeClose === 'function') {
+                        element.beforeClose();
+                    }
+
+                    this._hideElement(element);
+                    this.currentIndex = -1;
+                }
             } else {
                 reject();
             }
@@ -633,7 +703,7 @@ export default class Lightbox {
      */
     next() {
         this.direction = Lightbox.DIRECTION_RIGHT;
-        this._loadByIndex(this.currentIndex + 1);
+        this._loadAndDisplayByIndex(this.currentIndex + 1);
     }
 
     /**
@@ -641,15 +711,23 @@ export default class Lightbox {
      */
     prev() {
         this.direction = Lightbox.DIRECTION_LEFT;
-        this._loadByIndex(this.currentIndex - 1);
+        this._loadAndDisplayByIndex(this.currentIndex - 1);
     }
 
     /**
      * Tries to load an item based on its index
      */
-    jumpTo(i) {
+    jumpToIndex(i) {
         this.direction = Lightbox.DIRECTION_NONE;
-        this._loadByIndex(i);
+        this._loadAndDisplayByIndex(i);
+    }
+
+    /**
+     * Tries to load an item based on its key
+     */
+    jumpToKey(key) {
+        this.direction = Lightbox.DIRECTION_NONE;
+        this._loadAndDisplayByKey(key);
     }
 
     /**
@@ -696,24 +774,28 @@ export default class Lightbox {
             this.currentIndex = index;
         }
 
-        if (this.UI.prev.active) {
+        if (this.options.enableNavUI) {
             if (this.currentIndex === 0) {
-                this.UI.prev.element.disable();
+                this.UI.prev.disable();
             } else {
-                this.UI.prev.element.enable();
+                this.UI.prev.enable();
             }
         }
 
-        if (this.UI.next.active) {
+        if (this.options.enableNavUI) {
             if (this.currentIndex === this.elements.length - 1) {
-                this.UI.next.element.disable();
+                this.UI.next.disable();
             } else {
-                this.UI.next.element.enable();
+                this.UI.next.enable();
             }
         }
 
-        if (this.UI.pagination.active) {
-            this.UI.pagination.element.innerHTML = `<span>${this.currentIndex + 1}</span>&nbsp;/&nbsp;<span>${this.elements.length}</span>`;
+        if (this.options.enablePaginationUI) {
+            this.UI.pagination.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
+        }
+
+        if (this.options.enableBulletlistUI) {
+            this.UI.bulletlist.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
         }
     }
 
@@ -723,6 +805,26 @@ export default class Lightbox {
      */
     get _index() {
         return this.currentIndex;
+    }
+
+    /**
+     * Enable / disable lightbox UI
+     * @param {boolean} bool
+     */
+    set ui(bool) {
+        if (bool) {
+            this.$lb.classList.remove('no_ui');
+        } else {
+            this.$lb.classList.add('no_ui');
+        }
+    }
+
+    /**
+     * Return current lightbox UI state
+     * @return {boolean} bool
+     */
+    get ui() {
+        return this.$lb.classList.contains('no_ui');
     }
 
     /**
@@ -739,18 +841,98 @@ export default class Lightbox {
     count() {
         return this.elements.length;
     }
+
+
+    /**
+     * Show an element animation
+     * @param {Element} node
+     * @param {number} Direction (left/right/none)
+     * @return {Object} Valid animejs object
+     */
+    static showElementAnimation(node, direction) {
+        const target = node;
+        const offsetValue = { x: 20, y: 10 }; // initial offset
+        const tOffset = { x: 0, y: 0 };
+
+        if (direction === Lightbox.DIRECTION_LEFT) {
+            tOffset.x = -offsetValue.x;
+            tOffset.y = 0;
+        } else if (direction === Lightbox.DIRECTION_RIGHT) {
+            tOffset.x = offsetValue.x;
+            tOffset.y = 0;
+        } else {
+            tOffset.x = 0;
+            tOffset.y = -offsetValue.y;
+        }
+
+        // initial conditions
+        target.style.transform = `scale(0.9) translateX(${tOffset.x}%) translateY(${tOffset.y}%)`;
+        target.style.transformOrigin = 'center';
+        target.style.opacity = '0';
+
+        return anime({
+            targets: target,
+            scale: 1,
+            translateX: 0,
+            translateY: 0,
+            opacity: 1,
+            duration: 750,
+            delay: 250,
+            easing: [0.45, 0.73, 0.3, 1.0],
+        });
+    }
+
+    /**
+     * Close animation
+     * @param {Element} node
+     * @return {Object} Valid animejs object
+     */
+    static closeAnimation(node) {
+        const target = node;
+
+        return anime({
+            targets: target,
+            opacity: 0,
+            duration: 350,
+            delay: 100,
+            easing: 'easeOutSine',
+        });
+    }
+
+    /**
+     * Open animation
+     * @param {Element} node
+     * @return {Object} Valid animejs object
+     */
+    static openAnimation(node) {
+        const target = node;
+        target.style.opacity = '0';
+        target.style.transform = 'scale(1)';
+
+        return anime({
+            targets: target,
+            opacity: 1,
+            duration: 350,
+            delay: 0,
+            easing: 'easeOutSine',
+        });
+    }
 }
 
 Lightbox.DEFAULT_CONFIG = {
-    uid: 1,
-    closeOnBlur: true,
-    closeOnEscape: true,
-    arrowKeyNavigation: true,
-    enableAnimation: true,
-    ui: {
-        close: true,
-        controls: true,
-        pagination: true,
+    uid: uniqid(),
+    enableCloseOnBlur: true,
+    enableCloseOnEscape: true,
+    enableArrowKey: true,
+    enableAnimations: true,
+    enableCloseUI: true,
+    enableNavUI: true,
+    enablePaginationUI: true,
+    enableBulletlistUI: true,
+    animations: {
+        open: Lightbox.openAnimation,
+        close: Lightbox.closeAnimation,
+        showElement: Lightbox.showElementAnimation,
     },
 };
 
