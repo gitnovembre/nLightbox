@@ -584,6 +584,12 @@ export default class Lightbox {
     _showElement(element) {
         const index = this._findIndex(element.key);
 
+        if (element.failed) {
+            this.disableUI();
+        } else {
+            this.enableUI();
+        }
+
         // if the index could not be found, someone messed w/ the element list
         // (it should always find a match)
         if (index !== -1) {
@@ -594,7 +600,6 @@ export default class Lightbox {
                 /**
                  * ANIMATION
                  */
-                this.ui = !element.failed;
                 this.$lb.classList.add('animating');
                 target.classList.add('active');
 
@@ -608,7 +613,6 @@ export default class Lightbox {
                     }
                 };
             } else { // no animation
-                this.ui = !element.failed;
                 target.classList.add('active');
 
                 if (this.observers[Lightbox.EVENT_ONCHANGE_AFTER] !== null) {
@@ -827,24 +831,28 @@ export default class Lightbox {
         return this.currentIndex;
     }
 
-    /**
-     * Enable / disable lightbox UI
-     * @param {boolean} bool
-     */
-    set ui(bool) {
-        if (bool) {
-            this.$lb.classList.remove('no_ui');
+    disableUI() {
+        this.$lb.classList.add('no_ui');
+    }
+
+    enableUI() {
+        this.$lb.classList.remove('no_ui');
+    }
+
+    toggleUI() {
+        if (this.isUIEnabled()) {
+            this.disableUI();
         } else {
-            this.$lb.classList.add('no_ui');
+            this.enableUI();
         }
     }
 
     /**
      * Return current lightbox UI state
-     * @return {boolean} bool
+     * @return {boolean}
      */
-    get ui() {
-        return this.$lb.classList.contains('no_ui');
+    isUIEnabled() {
+        return this.$lb.classList.contains('no_ui') !== true;
     }
 
     /**
