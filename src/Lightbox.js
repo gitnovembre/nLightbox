@@ -353,21 +353,34 @@ export default class Lightbox {
             }
         });
 
+        const fetchDOMcontent = () => {
+            // gathers all elements in the DOM that have the same group id as the lightbox
+            const elements = document.querySelectorAll('[data-lightbox]');
 
-        // gathers all elements in the DOM that have the same group id as the lightbox
-        const elements = document.querySelectorAll('[data-lightbox]');
+            // index all elements / get lightbox gallery data
+            this.elements = Array.from(elements).map((node) => {
+                const { key, ...dataset } = JSON.parse(node.dataset.lightbox);
+                return {
+                    dataset,
+                    key: (key || uniqid()),
+                    item: node,
+                };
+            }).filter((element) => element.dataset.group === this.options.uid).map(
+                this._createElement.bind(this),
+            );
+        };
 
-        // index all elements / get lightbox gallery data
-        this.elements = Array.from(elements).map((node) => {
-            const { key, ...dataset } = JSON.parse(node.dataset.lightbox);
-            return {
-                dataset,
-                key: (key || uniqid()),
-                item: node,
-            };
-        }).filter((element) => element.dataset.group === this.options.uid).map(
-            this._createElement.bind(this),
-        );
+        // fetch DOM elements with data-lightbox content
+
+        if (document.readyState === 'complete') {
+            fetchDOMcontent();
+        } else {
+            document.addEventListener('readystatechange', (e) => {
+                if (e.target.readyState === 'complete') {
+                    fetchDOMcontent();
+                }
+            });
+        }
     }
 
     /**
