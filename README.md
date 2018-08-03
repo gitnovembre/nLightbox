@@ -7,3 +7,4 @@
 5. [Fragment URL](https://github.com/gitnovembre/lightbox-novembre/wiki/5.-Fragment-URL)
 6. [Custom style](https://github.com/gitnovembre/lightbox-novembre/wiki/6.-Custom-style)
 7. [Custom types](https://github.com/gitnovembre/lightbox-novembre/wiki/7.-Custom-types)
+8. [Custom animations](https://github.com/gitnovembre/lightbox-novembre/wiki/8.-Custom-animations)
