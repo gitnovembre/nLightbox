@@ -341,6 +341,8 @@ export default class Lightbox {
         });
 
         document.addEventListener('keydown', (e) => {
+            e.stopPropagation();
+
             if (this.isOpen()) {
                 // user can close the lightbox when pressing the escape key
                 if (e.keyCode === 27 && this.options.enableCloseOnEscape) {
@@ -351,6 +353,7 @@ export default class Lightbox {
                     this.next();
                 }
             }
+            return false;
         });
 
         const fetchDOMcontent = () => {
