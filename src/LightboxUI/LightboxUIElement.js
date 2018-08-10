@@ -42,7 +42,6 @@ export class LightboxUINext extends LightboxUIElement {
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_next');
-        icon.innerHTML = '&#9658;';
         this.$root.appendChild(icon);
     }
 }
@@ -54,7 +53,6 @@ export class LightboxUIPrev extends LightboxUIElement {
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_prev');
-        icon.innerHTML = '&#9658;';
         this.$root.appendChild(icon);
     }
 }
@@ -63,7 +61,10 @@ export class LightboxUIClose extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'button');
         this.$root.classList.add('lightbox__ui_element_close');
-        this.$root.innerHTML = '&times;';
+
+        const icon = document.createElement('i');
+        icon.classList.add('icon', 'icon_close');
+        this.$root.appendChild(icon);
     }
 }
 
