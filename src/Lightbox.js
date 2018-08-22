@@ -86,6 +86,8 @@ export default class Lightbox {
         this.$lb = null;
         this.$lbInner = null;
         this.$lbContent = null;
+
+        this.count = 0;
     }
 
     /**
@@ -371,6 +373,8 @@ export default class Lightbox {
             }).filter((element) => element.dataset.group === this.options.uid).map(
                 this._createElement.bind(this),
             );
+
+            this.count = this.elements.length;
         };
 
         // fetch DOM elements with data-lightbox content
@@ -441,6 +445,7 @@ export default class Lightbox {
         }));
 
         this.elements = [...this.elements, ...temp];
+        this.count = this.elements.length;
     }
 
     /**
@@ -495,8 +500,8 @@ export default class Lightbox {
         if (index < 0) {
             index = 0;
         }
-        if (index >= this.elements.length) {
-            index = this.elements.length - 1;
+        if (index >= this.count) {
+            index = this.count - 1;
         }
 
         this._loadAndDisplayElement(this.elements[index]);
@@ -827,7 +832,7 @@ export default class Lightbox {
             return;
         }
 
-        if (index >= 0 && index < this.elements.length) {
+        if (index >= 0 && index < this.count) {
             this.currentIndex = index;
         }
 
@@ -840,7 +845,7 @@ export default class Lightbox {
         }
 
         if (this.options.enableNavUI) {
-            if (this.currentIndex === this.elements.length - 1) {
+            if (this.currentIndex === this.count - 1) {
                 this.UI.next.disable();
             } else {
                 this.UI.next.enable();
@@ -848,11 +853,11 @@ export default class Lightbox {
         }
 
         if (this.options.enablePaginationUI) {
-            this.UI.pagination.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
+            this.UI.pagination.update(this.currentIndex + 1, this.count); // eslint-disable-line
         }
 
         if (this.options.enableBulletlistUI) {
-            this.UI.bulletlist.update(this.currentIndex + 1, this.elements.length); // eslint-disable-line
+            this.UI.bulletlist.update(this.currentIndex + 1, this.count); // eslint-disable-line
         }
     }
 
@@ -893,14 +898,6 @@ export default class Lightbox {
      */
     isOpen() {
         return this.openState;
-    }
-
-    /**
-     * Returns the current count of elements
-     * @return {number}
-     */
-    count() {
-        return this.elements.length;
     }
 
 
