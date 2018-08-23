@@ -1,0 +1,21 @@
+.lightbox .ui-message {
+    font-size: 1em;
+    line-height: 20px;
+    color: $white;
+    text-align: center;
+
+    &_loader {
+        display: none;
+    }
+
+    &_error {
+        padding: 32px 64px;
+        font-size: 1.15em;
+        line-height: 24px;
+
+        .error_message {
+            font-size: .9em;
+            color: $bittersweet;
+        }
+    }
+}
