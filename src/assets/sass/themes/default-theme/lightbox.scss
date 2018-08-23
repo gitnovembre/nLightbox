@@ -1,0 +1,72 @@
+[data-lightbox] {
+    cursor: pointer;
+}
+
+.lightbox {
+    background: $lightbox-bgcolor;
+    font-family: $lightbox-font;
+    font-size: 15px;
+
+    .icon {
+        font-style: normal;
+        vertical-align: middle;
+    }
+
+    &__container {
+        figure {
+            border-radius: 2px;
+        }
+    }
+
+    &__ui {
+        z-index: 510;
+
+        &_element {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 64px;
+            height: 32px;
+            position: fixed;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            font-family: $lightbox-font;
+            font-size: .9em;
+            line-height: 32px;
+            color: #ffffff;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+
+            &.hidden {
+                display: none;
+            }
+
+            &.disabled {
+                cursor: default;
+                opacity: .25;
+            }
+        }
+    }
+
+    &.animating &__ui {
+        opacity: 0;
+        visibility: hidden;
+        transition: none;
+    }
+
+    @media only screen and (min-device-width: 768px) {
+        font-size: 14px;
+
+        &__ui {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity ease .25s;
+
+            &_element {
+                position: absolute;
+            }
+        }
+    }
+}

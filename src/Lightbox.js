@@ -288,7 +288,7 @@ export default class Lightbox {
 
         // loader creation
         const $loader = document.createElement('p');
-        $loader.className = 'lightbox__message lightbox__message_loader';
+        $loader.className = 'ui-message ui-message_loader';
         $loader.innerHTML = 'Chargement en cours ...';
         this.$lbInner.appendChild($loader);
 
@@ -368,7 +368,6 @@ export default class Lightbox {
                     item: node,
                 };
             }).filter((element) => element.dataset.group === this.options.uid);
-
 
             const uniqueElements = [];
             const cloneElements = [];
@@ -565,7 +564,7 @@ export default class Lightbox {
                 element.failed = true;
 
                 const mess = document.createElement('p');
-                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__message_nopointerevent');
+                mess.classList.add('ui-message', 'ui-message_error', 'ui-message_nopointerevent');
                 mess.innerHTML = `
                     Impossible de charger le contenu
                     <span class="error_message">(${error instanceof Error ? error.message : error})</span>

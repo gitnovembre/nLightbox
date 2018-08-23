@@ -1,0 +1,133 @@
+.lightbox .ui-element {
+    &_close {
+        width: 48px;
+        top: 0;
+        right: 0;
+        font-size: 1.25rem;
+
+        .icon::after {
+            content: 'x';
+        }
+
+        &:hover:not(.disabled) { // stylelint-disable-line
+            background: rgba(255, 255, 255, .25);
+            transition: background ease .35s;
+        }
+    }
+
+    &_controls {
+        width: 48px;
+        top: calc(100% - 32px);
+        padding: 0;
+
+        &:hover:not(.disabled) {
+            background: rgba(255, 255, 255, .25);
+            transition: background ease .35s;
+        }
+
+        &-next {
+            right: 0;
+
+            .icon::after {
+                content: '>';
+            }
+        }
+
+        &-prev {
+            left: 0;
+
+            .icon::after {
+                content: '<';
+            }
+        }
+    }
+
+    &_pagination {
+        width: 96px;
+        bottom: 0;
+        left: calc((100% - 96px) / 2);
+        text-align: left;
+        cursor: default;
+    }
+
+    &_bulletlist {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        bottom: -32px;
+        left: 0;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border-radius: 0;
+        list-style-type: none;
+
+        li {
+            display: flex;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+
+            &::after {
+                display: block;
+                width: 9px;
+                height: 9px;
+                background: #414141;
+                border-radius: 50%;
+                content: '';
+            }
+
+            &:hover {
+                &::after {
+                    background: #919191;
+                }
+            }
+
+            &.active,
+            &.active:hover { // stylelint-disable-line
+                &::after { // stylelint-disable-line
+                    background: #d4d4d4;
+                }
+            }
+        }
+    }
+
+    @media only screen and (min-device-width: 768px) {
+        &_close {
+            width: 32px;
+            position: absolute;
+            top: -48px;
+            right: 0;
+            background: rgba(255, 255, 255, .15);
+            border-radius: 32px;
+        }
+
+        &_controls {
+            width: 32px;
+            position: fixed;
+            top: calc((100% - 32px) / 2);
+            background: rgba(255, 255, 255, .15);
+            border-radius: 32px;
+
+            &-next {
+                right: $lightbox-hspacing / 2 - 16px;
+            }
+
+            &-prev {
+                left: $lightbox-hspacing / 2 - 16px;
+            }
+        }
+
+        &_pagination {
+            width: fit-content;
+            bottom: -32px;
+            left: 0;
+            background: transparent;
+        }
+    }
+}
