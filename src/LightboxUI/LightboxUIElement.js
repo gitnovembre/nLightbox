@@ -8,6 +8,7 @@ class LightboxUIElement {
 
         this.$root = document.createElement(tag);
         this.$root.classList.add('lightbox__ui_element');
+        this.$root.classList.add('ui-element');
     }
 
     hide() {
@@ -38,7 +39,7 @@ class LightboxUIElement {
 export class LightboxUINext extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'button');
-        this.$root.classList.add('lightbox__ui_element_controls', 'lightbox__ui_element_controls_next');
+        this.$root.classList.add('ui-element_controls', 'ui-element_controls-next');
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_next');
@@ -49,7 +50,7 @@ export class LightboxUINext extends LightboxUIElement {
 export class LightboxUIPrev extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'button');
-        this.$root.classList.add('lightbox__ui_element_controls', 'lightbox__ui_element_controls_prev');
+        this.$root.classList.add('ui-element_controls', 'ui-element_controls-prev');
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_prev');
@@ -60,7 +61,7 @@ export class LightboxUIPrev extends LightboxUIElement {
 export class LightboxUIClose extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'button');
-        this.$root.classList.add('lightbox__ui_element_close');
+        this.$root.classList.add('ui-element_close');
 
         const icon = document.createElement('i');
         icon.classList.add('icon', 'icon_close');
@@ -71,7 +72,7 @@ export class LightboxUIClose extends LightboxUIElement {
 export class LightboxUIPagination extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'div');
-        this.$root.classList.add('lightbox__ui_element_pagination');
+        this.$root.classList.add('ui-element_pagination');
     }
 
     update(current, total) {
@@ -83,7 +84,7 @@ export class LightboxUIBulletlist extends LightboxUIElement {
     constructor(lightbox) {
         super(lightbox, 'ul');
 
-        this.$root.classList.add('lightbox__ui_element_bulletlist');
+        this.$root.classList.add('ui-element_bulletlist');
     }
 
     update(current, total) {

@@ -1,90 +1,105 @@
 .lightbox {
-    position:fixed;
-    top:0; 
-    left:0;
-    z-index:500;
-    display:none;
-    padding:$lightbox-vspacing-mobile $lightbox-hspacing-mobile;
-    overflow:hidden;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 500;
+    padding: $lightbox-vspacing-mobile $lightbox-hspacing-mobile;
+    overflow: hidden;
+    box-sizing: border-box;
 
-    justify-content:center;
-    align-items:center;
-    width:100vw;
-    height:100vh;
-    box-sizing:border-box;
-
-    &.active{
-        display:flex;
+    &.active {
+        display: flex;
     }
 
     &.no_ui &__ui {
-        display:none;
+        display: none;
     }
+
     &.loading &__ui {
-        display:none;
+        display: none;
     }
 
     &__container {
-        display:none;
+        display: none;
+        max-height: 100%;
 
         &.active {
-            display:block;
+            display: block;
         }
 
-        img, video, canvas, .map{
-            display:block;
-            max-width:100vw;
-            max-height:calc(100vh - #{$lightbox-vspacing});
-            height:auto;
-            margin:0;
+        img,
+        video,
+        canvas,
+        .map {
+            display: block;
+            height: auto;
+            max-width: 100vw;
+            max-height: calc(100vh - #{$lightbox-vspacing-mobile * 2});
+            margin: 0;
         }
-        figure{
-            margin:0;
-            overflow:hidden;
+
+        figure {
+            margin: 0;
+            overflow: hidden;
         }
     }
 
-    &__message{
-        margin:0;
-        display:flex;
-        flex-direction:column;
-        flex-wrap:nowrap;
-        align-items:center;
-        justify-content:center;
+    &__content {
+        max-height: 100%;
+    }
 
-        &_loader{
-            display:none;
+    .ui-message {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+
+        &_loader {
+            display: none;
         }
 
         &_nopointerevent {
             pointer-events: none;
         }
 
-        &_error{
+        &_error {
             .error_message {
-                display:block;
+                display: block;
             }
         }
     }
 
-    &.loading &__message{
-        &_loader{
-            display:block;
+    &.loading .ui-message {
+        &_loader {
+            display: block;
         }
     }
 
-
-    &__inner{
-        position:relative;
+    &__inner {
+        max-height: calc(100vh - #{$lightbox-vspacing-mobile * 2});
+        position: relative;
     }
 
     @media only screen and (min-device-width: 768px) {
-        padding:$lightbox-vspacing $lightbox-hspacing;
-        
-        &__container{
-            img, video, canvas, .map{
-                max-width:calc(100vw - #{$lightbox-hspacing * 2});
-                max-height:calc(100vh - #{$lightbox-vspacing * 2});
+        padding: $lightbox-vspacing $lightbox-hspacing;
+
+        &__inner {
+            max-height: calc(100vh - #{$lightbox-vspacing * 2});
+        }
+
+        &__container {
+            img,
+            video,
+            canvas,
+            .map {
+                max-width: calc(100vw - #{$lightbox-hspacing * 2});
+                max-height: calc(100vh - #{$lightbox-vspacing * 2});
             }
         }
     }
