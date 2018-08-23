@@ -171,7 +171,7 @@ export default class Lightbox {
         if (result.g === this.options.uid) {
             let index;
             if (result.k) {
-                index = this.keyExists(result.k) ? this._findIndex(result.k) : 0;
+                index = Lightbox.keyExists(this.elements, result.k) ? this._findIndex(result.k) : 0;
             } else if (result.i === 'first') {
                 index = 0;
             } else if (result.i === 'last') {
@@ -360,25 +360,39 @@ export default class Lightbox {
 
         const fetchDOMcontent = () => {
             // gathers all elements in the DOM that have the same group id as the lightbox
-            const elements = document.querySelectorAll('[data-lightbox]');
-
-            // index all elements / get lightbox gallery data
-            this.elements = Array.from(elements).map((node) => {
+            const elements = Array.from(document.querySelectorAll('[data-lightbox]')).map((node) => {
                 const { key, ...dataset } = JSON.parse(node.dataset.lightbox);
                 return {
                     dataset,
                     key: (key || uniqid()),
                     item: node,
                 };
-            }).filter((element) => element.dataset.group === this.options.uid).map(
-                this._createElement.bind(this),
-            );
+            }).filter((element) => element.dataset.group === this.options.uid);
 
+
+            const uniqueElements = [];
+            const cloneElements = [];
+
+            // Filter all the elements that have the same KEY (it can happen if the lightbox elements are cloned)
+            elements.forEach((element) => {
+                if (!Lightbox.keyExists(uniqueElements, element.key)) {
+                    uniqueElements.push(element);
+                } else {
+                    cloneElements.push(element);
+                }
+            });
+
+            // Create all new UNIQUE elements
+            this.elements = uniqueElements.map(this._createElement.bind(this));
+
+            // Clones need just to trigger the original element
+            cloneElements.map(this._createClickEvent.bind(this));
+
+            // Update our count var to keep track of the new elements
             this.count = this.elements.length;
         };
 
         // fetch DOM elements with data-lightbox content
-
         if (document.readyState === 'complete') {
             fetchDOMcontent();
         } else {
@@ -398,11 +412,30 @@ export default class Lightbox {
      * @param {Node} protoElement.item - Target DOM node element binded to the lightbox item
      */
     _createElement(protoElement) {
-        const { key, dataset, item } = protoElement;
+        const { key, dataset } = protoElement;
+
+        this._createClickEvent(protoElement);
+
+        // check if type is registered
+        if (!this._typeExists(dataset.type)) {
+            throw new Error(`Unregistered lightbox type "${dataset.type}"`);
+        }
+
+        const TypeClass = this.types[dataset.type];
+        return new TypeClass(this, key, dataset);
+    }
+
+    /**
+     * Binds a click event that opens the lightbox w/ the current element
+     * @param {object} protoElement
+     * @param {string} protoElement.key - Unique identifier
+     * @param {object} protoElement.dataset - List of options depending on the type of item
+     * @param {Node} protoElement.item - Target DOM node element binded to the lightbox item
+     */
+    _createClickEvent(protoElement) {
+        const { key, item } = protoElement;
 
         if (item) {
-            item.dataset.lightboxTarget = key;
-
             item.addEventListener('click', (e) => {
                 e.preventDefault();
 
@@ -414,14 +447,6 @@ export default class Lightbox {
                 });
             });
         }
-
-        // check if type is registered
-        if (!this._typeExists(dataset.type)) {
-            throw new Error('Invalid lightbox type');
-        }
-
-        const CustomType = this.types[dataset.type];
-        return new CustomType(this, key, dataset);
     }
 
     /**
@@ -486,8 +511,8 @@ export default class Lightbox {
      * @param {string} key
      * @return {boolean}
      */
-    keyExists(key) {
-        return this.elements.find((e) => e.key === key) !== undefined;
+    static keyExists(haystack, key) {
+        return haystack.find((e) => e.key === key);
     }
 
     /**
