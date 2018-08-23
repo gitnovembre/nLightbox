@@ -468,7 +468,10 @@ export default class Lightbox {
             item: document.querySelector(target),
         }));
 
+        // Merge new elements
         this.elements = [...this.elements, ...temp];
+
+        // Update current count
         this.count = this.elements.length;
     }
 
@@ -522,10 +525,10 @@ export default class Lightbox {
         let index = i;
 
         if (index < 0) {
-            index = 0;
+            index = (this.options.rewind) ? (this.count - 1) : 0;
         }
         if (index >= this.count) {
-            index = this.count - 1;
+            index = (this.options.rewind) ? 0 : (this.count - 1);
         }
 
         this._loadAndDisplayElement(this.elements[index]);
@@ -861,7 +864,7 @@ export default class Lightbox {
         }
 
         if (this.options.enableNavUI) {
-            if (this.currentIndex === 0) {
+            if (this.currentIndex === 0 && !this.options.rewind) {
                 this.UI.prev.disable();
             } else {
                 this.UI.prev.enable();
@@ -869,7 +872,7 @@ export default class Lightbox {
         }
 
         if (this.options.enableNavUI) {
-            if (this.currentIndex === this.count - 1) {
+            if (this.currentIndex === this.count - 1 && !this.options.rewind) {
                 this.UI.next.disable();
             } else {
                 this.UI.next.enable();
@@ -1011,6 +1014,7 @@ Lightbox.DEFAULT_CONFIG = {
     enableNavUI: true,
     enablePaginationUI: true,
     enableBulletlistUI: true,
+    rewind: true,
     animations: {
         open: Lightbox._openAnimation,
         close: Lightbox._closeAnimation,
