@@ -934,7 +934,7 @@ export default class Lightbox {
      */
     static _showElementAnimation(node, direction) {
         const target = node;
-        const offsetValue = { x: 20, y: 10 }; // initial offset
+        const offsetValue = { x: 10, y: 5 }; // initial offset
         const tOffset = { x: 0, y: 0 };
 
         if (direction === Lightbox.DIRECTION_LEFT) {
