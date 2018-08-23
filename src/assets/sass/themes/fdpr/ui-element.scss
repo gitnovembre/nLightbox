@@ -3,11 +3,15 @@
         width: 48px;
         top: 0;
         right: 0;
-        font-size: 1.25rem;
+        font-size: 2rem;
 
-        &:hover:not(.disabled) { // stylelint-disable-line
-            background: rgba(255, 255, 255, .25);
-            transition: background ease .35s;
+        .icon {
+            color: $white;
+            opacity: .5;
+        }
+
+        &:hover .icon {
+            opacity: 1;
         }
     }
 
@@ -15,20 +19,27 @@
         width: 48px;
         top: calc(100% - 32px);
         padding: 0;
-
-        &:hover:not(.disabled) {
-            background: rgba(255, 255, 255, .25);
-            transition: background ease .35s;
-        }
+        font-size: 1.85rem;
 
         &-next {
             right: 0;
+            margin-left: 16px;
             order: 3;
         }
 
         &-prev {
             left: 0;
+            margin-right: 16px;
             order: 1;
+        }
+
+        .icon {
+            color: $white;
+            opacity: .5;
+        }
+
+        &:hover .icon {
+            opacity: 1;
         }
     }
 
@@ -52,7 +63,6 @@
         left: 0;
         padding: 0;
         margin: 0;
-        margin-top: calc(#{$lightbox-vspacing-mobile} / 2 - 16px);
         background: transparent;
         border-radius: 0;
         list-style-type: none;
@@ -101,10 +111,6 @@
 
         &_pagination {
             bottom: -($lightbox-vspacing / 2 + 16px);
-        }
-
-        &_bulletlist {
-            margin-top: calc(#{$lightbox-vspacing} / 2 - 16px);
         }
 
         &_controls {
