@@ -1,0 +1,13 @@
+$lightbox-vspacing-mobile : 32px;
+$lightbox-hspacing-mobile : 16px;
+
+$lightbox-vspacing : 64px;
+$lightbox-hspacing : 96px;
+
+$lightbox-bgcolor : rgba(20, 20, 20, .925);
+$lightbox-font : 'Arial', sans-serif;
+
+@import '../../core';
+@import './lightbox';
+@import './ui-element';
+@import './ui-message';

@@ -288,7 +288,7 @@ export default class Lightbox {
 
         // loader creation
         const $loader = document.createElement('p');
-        $loader.className = 'lightbox__message lightbox__message_loader';
+        $loader.className = 'ui-message ui-message_loader';
         $loader.innerHTML = 'Chargement en cours ...';
         this.$lbInner.appendChild($loader);
 
@@ -369,7 +369,6 @@ export default class Lightbox {
                 };
             }).filter((element) => element.dataset.group === this.options.uid);
 
-
             const uniqueElements = [];
             const cloneElements = [];
 
@@ -382,8 +381,8 @@ export default class Lightbox {
                 }
             });
 
-            // Create all new UNIQUE elements
-            this.elements = uniqueElements.map(this._createElement.bind(this));
+            // Merge all newly created UNIQUE elements
+            this.elements = [...this.elements, ...uniqueElements.map(this._createElement.bind(this))];
 
             // Clones need just to trigger the original element
             cloneElements.map(this._createClickEvent.bind(this));
@@ -469,7 +468,10 @@ export default class Lightbox {
             item: document.querySelector(target),
         }));
 
+        // Merge new elements
         this.elements = [...this.elements, ...temp];
+
+        // Update current count
         this.count = this.elements.length;
     }
 
@@ -523,10 +525,10 @@ export default class Lightbox {
         let index = i;
 
         if (index < 0) {
-            index = 0;
+            index = (this.options.rewind) ? (this.count - 1) : 0;
         }
         if (index >= this.count) {
-            index = this.count - 1;
+            index = (this.options.rewind) ? 0 : (this.count - 1);
         }
 
         this._loadAndDisplayElement(this.elements[index]);
@@ -565,7 +567,7 @@ export default class Lightbox {
                 element.failed = true;
 
                 const mess = document.createElement('p');
-                mess.classList.add('lightbox__message', 'lightbox__message_error', 'lightbox__message_nopointerevent');
+                mess.classList.add('ui-message', 'ui-message_error', 'ui-message_nopointerevent');
                 mess.innerHTML = `
                     Impossible de charger le contenu
                     <span class="error_message">(${error instanceof Error ? error.message : error})</span>
@@ -862,7 +864,7 @@ export default class Lightbox {
         }
 
         if (this.options.enableNavUI) {
-            if (this.currentIndex === 0) {
+            if (this.currentIndex === 0 && !this.options.rewind) {
                 this.UI.prev.disable();
             } else {
                 this.UI.prev.enable();
@@ -870,7 +872,7 @@ export default class Lightbox {
         }
 
         if (this.options.enableNavUI) {
-            if (this.currentIndex === this.count - 1) {
+            if (this.currentIndex === this.count - 1 && !this.options.rewind) {
                 this.UI.next.disable();
             } else {
                 this.UI.next.enable();
@@ -1012,6 +1014,7 @@ Lightbox.DEFAULT_CONFIG = {
     enableNavUI: true,
     enablePaginationUI: true,
     enableBulletlistUI: true,
+    rewind: true,
     animations: {
         open: Lightbox._openAnimation,
         close: Lightbox._closeAnimation,
