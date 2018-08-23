@@ -382,8 +382,8 @@ export default class Lightbox {
                 }
             });
 
-            // Create all new UNIQUE elements
-            this.elements = uniqueElements.map(this._createElement.bind(this));
+            // Merge all newly created UNIQUE elements
+            this.elements = [...this.elements, ...uniqueElements.map(this._createElement.bind(this))];
 
             // Clones need just to trigger the original element
             cloneElements.map(this._createClickEvent.bind(this));
