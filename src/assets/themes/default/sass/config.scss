@@ -15,6 +15,9 @@ $lightbox-message-loader-color : #b4b4b4;
 $lightbox-message-error-color : #807f7f;
 
 $lightbox-ui-element-color : #ffffff;
+$lightbox-ui-close-content : 'x'; // url('./../../icons/cross.svg');
+$lightbox-ui-next-content : '>';
+$lightbox-ui-prev-content : '<';
 
 $lightbox-bulletlist-bgcolor : #414141;
 $lightbox-bulletlist-bgcolor-active : #d4d4d4;
