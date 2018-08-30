@@ -23,7 +23,7 @@
         z-index: 510;
     }
 
-    &.animating.smooth-transition &__ui {
+    &.animating.smooth-ui-transition &__ui {
         opacity: 0;
         visibility: hidden;
         transition: none;

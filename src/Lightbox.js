@@ -34,8 +34,8 @@ export default class Lightbox {
      * @param {boolean} [customOptions.enableNavUI = true] - Toggle the display of the controls (previous / next) buttons
      * @param {boolean} [customOptions.enablePaginationUI = true] - Toggle the display of the pagination information
      * @param {boolean} [customOptions.enableBulletlistUI = true] - Toggle the display of the bullelist nav
+     * @param {boolean} [customOptions.enableTransition = true] - Add a UI transition effect on navigation
      * @param {boolean} [customOptions.rewind = true] - Navigation loop
-     * @param {boolean} [customOptions.transition = true] - Add a transition effect on navigation
      * @param {object} [customOptions.animations = {}]
      * @param {object} [customOptions.animations.open] - Open animation
      * @param {object} [customOptions.animations.close] - Close animation
@@ -113,8 +113,8 @@ export default class Lightbox {
         this.$lb.classList.add('lightbox');
         this.$lb.setAttribute('id', this.options.uid);
 
-        if (this.options.transition) {
-            this.$lb.classList.add('smooth-transition');
+        if (this.options.enableTransition) {
+            this.$lb.classList.add('smooth-ui-transition');
         }
 
         // inner box creation
