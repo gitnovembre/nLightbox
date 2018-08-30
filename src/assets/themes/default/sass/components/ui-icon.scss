@@ -1,0 +1,38 @@
+.lightbox .ui-element {
+    .ui-icon {
+        font-size: 1.5em;
+        font-style: normal;
+        color: $lightbox-ui-icon-color;
+        vertical-align: middle;
+        opacity: 1;
+
+        &_close {
+            &::after {
+                content: 'x';
+                // content: url('../icons/cross.svg');
+            }
+        }
+
+        &_next {
+            &::after {
+                content: '>';
+                // content: url('../icons/arrow.svg');
+            }
+        }
+
+        &_prev {
+            &::after {
+                content: '<';
+                // content: url('../icons/arrow.svg');
+            }
+        }
+    }
+
+    &:not(.disabled):hover {
+        .ui-icon {
+            color: $lightbox-ui-icon-color-hover;
+            opacity: .5;
+            transition: opacity ease .35s;
+        }
+    }
+}

@@ -1,0 +1,39 @@
+[data-lightbox] {
+    cursor: pointer;
+}
+
+.lightbox {
+    background: $lightbox-bgcolor;
+    font-family: $lightbox-font;
+    font-size: $lightbox-fontsize;
+
+    *,
+    *::after,
+    *::before {
+        box-sizing: border-box;
+    }
+
+    &__container {
+        figure {
+            border-radius: 2px;
+        }
+    }
+
+    &__ui {
+        z-index: 510;
+    }
+
+    &.animating.smooth-transition &__ui {
+        opacity: 0;
+        visibility: hidden;
+        transition: none;
+    }
+
+    @media only screen and (min-device-width: $lightbox-mobile-breakpoint) {
+        &__ui {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity ease .25s;
+        }
+    }
+}
