@@ -727,6 +727,10 @@ export default class Lightbox {
                 this.$lb.classList.add('active');
                 this.$lb.classList.add('animating');
 
+                if (this.currentIndex === -1) {
+                    this.disableUI();
+                }
+
                 const animation = this.options.animations.open(this.$lb);
 
                 animation.complete = () => {
