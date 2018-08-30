@@ -1,13 +1,22 @@
 .lightbox .ui-bulletlist {
     display: flex;
     flex-flow: row nowrap;
-    justify-content: center;
     align-items: center;
-    padding: 0;
+    padding: 0 $lightbox-hspacing-mobile / 2;
     margin: 0;
     background: transparent;
     border-radius: 0;
     list-style-type: none;
+
+    @if $lightbox-ui-bulletlist-x == center {
+        justify-content: center;
+    }
+    @elseif $lightbox-ui-bulletlist-x == left {
+        justify-content: flex-start;
+    }
+    @else {
+        justify-content: flex-end;
+    }
 
     li {
         display: flex;
@@ -39,5 +48,9 @@
                 background: $lightbox-bulletlist-bgcolor-active;
             }
         }
+    }
+
+    @include breakpoint-mobile() {
+        padding: 0 $lightbox-hspacing / 2;
     }
 }

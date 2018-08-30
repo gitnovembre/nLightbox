@@ -1,17 +1,102 @@
+@mixin positionElement ($position, $x, $y, $w, $h, $insetX: true, $insetY: true) {
+    width: $w;
+    height: $h;
+    position: $position;
+
+    @if $position == fixed {
+        @if type-of($w) == number and unit($w) == px {
+            @if $x == left {
+                left: calc($lightbox-hspacing-mobile / 2 - $w / 2);
+
+                @include breakpoint-mobile() {
+                    left: calc($lightbox-hspacing / 2 - $w / 2);
+                }
+            }
+            @elseif $x == right {
+                right: calc($lightbox-hspacing-mobile / 2 - $w / 2);
+
+                @include breakpoint-mobile() {
+                    right: calc($lightbox-hspacing / 2 - $w / 2);
+                }
+            }
+            @else {
+                left: calc((100% - #{$w}) / 2);
+            }
+        }
+        @else {
+            @if $x == right {
+                right: 0;
+            }
+            @else {
+                left: 0;
+            }
+        }
+
+        @if $y == top {
+            top: $lightbox-vspacing-mobile / 2 - $h / 2;
+
+            @include breakpoint-mobile() {
+                top: $lightbox-vspacing / 2 - $h / 2;
+            }
+        }
+        @elseif $y == bottom {
+            bottom: $lightbox-vspacing-mobile / 2 - $h / 2;
+
+            @include breakpoint-mobile() {
+                bottom: $lightbox-vspacing / 2 - $h / 2;
+            }
+        }
+        @else {
+            top: calc((100% - #{$h}) / 2);
+        }
+    }
+    @else {
+        $offsetX : 0;
+
+        @if $insetX != true and type-of($w) == number {
+            $offsetX : -$w;
+        }
+
+        $offsetY : 0;
+
+        @if $insetY != true and type-of($h) == number {
+            $offsetY : -$h;
+        }
+
+        @if $x == left {
+            left: $offsetX;
+        }
+        @elseif $x == right {
+            right: $offsetX;
+        }
+        @else {
+            left: calc((100% - #{$w}) / 2);
+        }
+
+        @if $y == top {
+            top: $offsetY;
+        }
+        @elseif $y == bottom {
+            bottom: $offsetY;
+        }
+        @else {
+            top: calc((100% - #{$h}) / 2);
+        }
+    }
+}
+
 .lightbox .ui-element {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 64px;
-    height: 32px;
-    position: fixed;
+    max-width: 100%;
+    z-index: 510;
     padding: 0;
     background: transparent;
     border: none;
     border-radius: 0;
     font-family: $lightbox-font;
     font-size: .9em;
-    line-height: 32px;
     color: $lightbox-ui-element-color;
     text-align: center;
     cursor: pointer;
@@ -27,63 +112,64 @@
     }
 
     &_close {
-        width: 48px;
-        top: 0;
-        right: 0;
+        @include positionElement(
+            $lightbox-ui-close-position,
+            $lightbox-ui-close-x,
+            $lightbox-ui-close-y,
+            $lightbox-ui-close-width,
+            $lightbox-ui-close-height,
+            $lightbox-ui-close-inset-x,
+            $lightbox-ui-close-inset-y,
+        );
     }
 
     &_controls {
-        width: 48px;
-        top: calc(100% - 32px);
-
         &-next {
-            right: 0;
+            @include positionElement(
+                $lightbox-ui-next-position,
+                $lightbox-ui-next-x,
+                $lightbox-ui-next-y,
+                $lightbox-ui-next-width,
+                $lightbox-ui-next-height,
+                $lightbox-ui-next-inset-x,
+                $lightbox-ui-next-inset-y,
+            );
         }
 
         &-prev {
-            left: 0;
+            @include positionElement(
+                $lightbox-ui-prev-position,
+                $lightbox-ui-prev-x,
+                $lightbox-ui-prev-y,
+                $lightbox-ui-prev-width,
+                $lightbox-ui-prev-height,
+                $lightbox-ui-prev-inset-x,
+                $lightbox-ui-prev-inset-y,
+            );
         }
     }
 
     &_pagination {
-        width: 96px;
-        bottom: 0;
-        left: calc((100% - 96px) / 2);
+        @include positionElement(
+            $lightbox-ui-pagination-position,
+            $lightbox-ui-pagination-x,
+            $lightbox-ui-pagination-y,
+            $lightbox-ui-pagination-width,
+            $lightbox-ui-pagination-height,
+            $lightbox-ui-pagination-inset-x,
+            $lightbox-ui-pagination-inset-y,
+        );
     }
 
     &_bulletlist {
-        width: 100%;
-        bottom: -32px;
-        left: 0;
-    }
-
-    @media only screen and (min-device-width: $lightbox-mobile-breakpoint) {
-        position: absolute;
-
-        &_close {
-            width: 32px;
-            top: -48px;
-            right: 0;
-        }
-
-        &_controls {
-            width: 32px;
-            position: fixed;
-            top: calc((100% - 32px) / 2);
-
-            &-next {
-                right: $lightbox-hspacing / 2 - 16px;
-            }
-
-            &-prev {
-                left: $lightbox-hspacing / 2 - 16px;
-            }
-        }
-
-        &_pagination {
-            width: fit-content;
-            bottom: -32px;
-            left: 0;
-        }
+        @include positionElement(
+            $lightbox-ui-bulletlist-position,
+            $lightbox-ui-bulletlist-x,
+            $lightbox-ui-bulletlist-y,
+            $lightbox-ui-bulletlist-width,
+            $lightbox-ui-bulletlist-height,
+            $lightbox-ui-bulletlist-inset-x,
+            $lightbox-ui-bulletlist-inset-y,
+        );
     }
 }

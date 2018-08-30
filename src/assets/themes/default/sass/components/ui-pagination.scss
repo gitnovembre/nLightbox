@@ -1,6 +1,15 @@
 .lightbox .ui-pagination {
     font-size: .9em;
     color: $lightbox-pagination-color;
-    text-align: left;
     cursor: default;
+
+    @if $lightbox-ui-pagination-x == center {
+        justify-content: center;
+    }
+    @elseif $lightbox-ui-pagination-x == left {
+        justify-content: flex-start;
+    }
+    @else {
+        justify-content: flex-end;
+    }
 }
