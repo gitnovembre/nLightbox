@@ -4,6 +4,7 @@ import anime from 'animejs';
 import ObjectAssignDeep from 'object-assign-deep';
 
 import Utils from './Utils';
+import LightboxError from './LightboxError';
 
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
@@ -42,13 +43,13 @@ export default class Lightbox {
         this.options = ObjectAssignDeep.noMutate(Lightbox.DEFAULT_CONFIG, customOptions);
 
         if (typeof this.options.animations.open !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
         if (typeof this.options.animations.close !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
         if (typeof this.options.animations.showElement !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
 
         this.observers = {
@@ -96,10 +97,10 @@ export default class Lightbox {
         // register custom types
         customTypes.forEach((typeClass) => {
             if (!typeClass.TYPE_NAME) {
-                throw new Error(`Invalid Lightbox type : ${typeClass.TYPE_NAME}`);
+                throw new LightboxError(`Invalid Lightbox type : ${typeClass.TYPE_NAME} @ ${this.options.uid}`);
             }
             if (this._typeExists(typeClass.TYPE_NAME)) {
-                throw new Error(`Cannot overwrite existing Lightbox type, ${typeClass.TYPE_NAME}`);
+                throw new LightboxError(`Cannot overwrite existing Lightbox type, ${typeClass.TYPE_NAME} @ ${this.options.uid}`);
             }
             this.types[typeClass.TYPE_NAME] = typeClass;
         });
@@ -399,7 +400,7 @@ export default class Lightbox {
 
         // check if type is registered
         if (!this._typeExists(dataset.type)) {
-            throw new Error(`Unregistered lightbox type "${dataset.type}"`);
+            throw new LightboxError(`Unregistered lightbox type "${dataset.type}" @ ${this.options.uid}`);
         }
 
         const TypeClass = this.types[dataset.type];
@@ -473,10 +474,10 @@ export default class Lightbox {
      */
     on(eventName, callback) {
         if (typeof callback !== 'function') {
-            throw new Error('Callback must be a function');
+            throw new LightboxError(`Callback must be a function @ ${this.options.uid}`);
         }
         if (!Object.prototype.hasOwnProperty.call(this.observers, eventName)) {
-            throw new Error(`Undefined event name : ${eventName}`);
+            throw new LightboxError(`Undefined event name : ${eventName} @ ${this.options.uid}`);
         }
 
         this.observers[eventName] = callback;
@@ -525,10 +526,10 @@ export default class Lightbox {
             const element = e;
 
             if (!element) {
-                reject(new Error('Invalid element provided'));
+                reject(new LightboxError(`Invalid element provided @ ${this.options.uid}`));
             }
             if (element.loaded || element.loading) {
-                reject(new Error('Cannot preload element, it is either loading or already loaded'));
+                reject(new LightboxError(`Cannot preload element, it is either loading or already loaded @ ${this.options.uid}`));
             }
 
             element.loading = true;
@@ -541,7 +542,7 @@ export default class Lightbox {
             Promise.resolve(element.load()).then((markup) => {
                 // check lb if inner content is valid
                 if (!(typeof markup === 'object')) {
-                    throw new Error('Lightbox item load function must return a valid Node object');
+                    throw new LightboxError(`Lightbox item load function must return a valid Node object @ ${this.options.uid}`);
                 }
                 container.appendChild(markup);
             }).catch((error) => {
