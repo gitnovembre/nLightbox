@@ -1,7 +1,8 @@
-@import './default-config';
-@import '../../../sass/core';
+// DEFAULT THEME
 
-// Default theme
+@import './config';
+@import './utils';
+@import './core';
 @import './components/layout';
 @import './components/ui-element';
 @import './components/ui-pagination';
