@@ -3,6 +3,9 @@ import Hammer from 'hammerjs';
 import anime from 'animejs';
 import ObjectAssignDeep from 'object-assign-deep';
 
+import Utils from './Utils';
+import LightboxError from './LightboxError';
+
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
@@ -15,12 +18,6 @@ import {
     LightboxUIPagination,
     LightboxUIBulletlist,
 } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
-
-const randomInt = (a, b) => {
-    const min = Math.ceil(a);
-    const max = Math.floor(b);
-    return Math.floor(Math.random() * (max - min)) + min;
-};
 
 export default class Lightbox {
     /**
@@ -46,13 +43,13 @@ export default class Lightbox {
         this.options = ObjectAssignDeep.noMutate(Lightbox.DEFAULT_CONFIG, customOptions);
 
         if (typeof this.options.animations.open !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
         if (typeof this.options.animations.close !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
         if (typeof this.options.animations.showElement !== 'function') {
-            throw new Error('Invalid open animation');
+            throw new LightboxError(`Invalid open animation @ ${this.options.uid}`);
         }
 
         this.observers = {
@@ -100,10 +97,10 @@ export default class Lightbox {
         // register custom types
         customTypes.forEach((typeClass) => {
             if (!typeClass.TYPE_NAME) {
-                throw new Error(`Invalid Lightbox type : ${typeClass.TYPE_NAME}`);
+                throw new LightboxError(`Invalid Lightbox type : ${typeClass.TYPE_NAME} @ ${this.options.uid}`);
             }
             if (this._typeExists(typeClass.TYPE_NAME)) {
-                throw new Error(`Cannot overwrite existing Lightbox type, ${typeClass.TYPE_NAME}`);
+                throw new LightboxError(`Cannot overwrite existing Lightbox type, ${typeClass.TYPE_NAME} @ ${this.options.uid}`);
             }
             this.types[typeClass.TYPE_NAME] = typeClass;
         });
@@ -151,25 +148,7 @@ export default class Lightbox {
      * if it is already open
      */
     _autoOpenDetect() {
-        /**
-         * Hashmark detection
-         */
-        const hashmark = window.location.hash.substr(1);
-        const regex = /&?([a-z])=([a-zA-Z0-9_-]*)/g;
-
-        const result = {};
-
-        // read URL fragment
-        let match = regex.exec(hashmark);
-        while (match != null) {
-            const key = match[1] || undefined;
-            const value = match[2] || undefined;
-
-            if (key && value) {
-                result[key] = value;
-            }
-            match = regex.exec(hashmark);
-        }
+        const result = Utils.getHashmarkParameters();
 
         // try to load the element if it exists
         if (result.g === this.options.uid) {
@@ -181,7 +160,7 @@ export default class Lightbox {
             } else if (result.i === 'last') {
                 index = this.count - 1;
             } else if (result.i === 'random') {
-                index = randomInt(0, this.count);
+                index = Utils.randomInt(0, this.count);
             } else {
                 index = parseInt(result.i || 0, 10);
             }
@@ -421,7 +400,7 @@ export default class Lightbox {
 
         // check if type is registered
         if (!this._typeExists(dataset.type)) {
-            throw new Error(`Unregistered lightbox type "${dataset.type}"`);
+            throw new LightboxError(`Unregistered lightbox type "${dataset.type}" @ ${this.options.uid}`);
         }
 
         const TypeClass = this.types[dataset.type];
@@ -495,10 +474,10 @@ export default class Lightbox {
      */
     on(eventName, callback) {
         if (typeof callback !== 'function') {
-            throw new Error('Callback must be a function');
+            throw new LightboxError(`Callback must be a function @ ${this.options.uid}`);
         }
         if (!Object.prototype.hasOwnProperty.call(this.observers, eventName)) {
-            throw new Error(`Undefined event name : ${eventName}`);
+            throw new LightboxError(`Undefined event name : ${eventName} @ ${this.options.uid}`);
         }
 
         this.observers[eventName] = callback;
@@ -547,10 +526,10 @@ export default class Lightbox {
             const element = e;
 
             if (!element) {
-                reject(new Error('Invalid element provided'));
+                reject(new LightboxError(`Invalid element provided @ ${this.options.uid}`));
             }
             if (element.loaded || element.loading) {
-                reject(new Error('Cannot preload element, it is either loading or already loaded'));
+                reject(new LightboxError(`Cannot preload element, it is either loading or already loaded @ ${this.options.uid}`));
             }
 
             element.loading = true;
@@ -563,7 +542,7 @@ export default class Lightbox {
             Promise.resolve(element.load()).then((markup) => {
                 // check lb if inner content is valid
                 if (!(typeof markup === 'object')) {
-                    throw new Error('Lightbox item load function must return a valid Node object');
+                    throw new LightboxError(`Lightbox item load function must return a valid Node object @ ${this.options.uid}`);
                 }
                 container.appendChild(markup);
             }).catch((error) => {
