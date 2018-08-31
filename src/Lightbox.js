@@ -3,6 +3,8 @@ import Hammer from 'hammerjs';
 import anime from 'animejs';
 import ObjectAssignDeep from 'object-assign-deep';
 
+import Utils from './Utils';
+
 import LightboxImage from './LightboxItem/LightboxImage';
 import LightboxVideo from './LightboxItem/LightboxVideo';
 import LightboxYoutube from './LightboxItem/LightboxYoutube';
@@ -15,12 +17,6 @@ import {
     LightboxUIPagination,
     LightboxUIBulletlist,
 } from './LightboxUI/LightboxUIElement'; //eslint-disable-line
-
-const randomInt = (a, b) => {
-    const min = Math.ceil(a);
-    const max = Math.floor(b);
-    return Math.floor(Math.random() * (max - min)) + min;
-};
 
 export default class Lightbox {
     /**
@@ -151,25 +147,7 @@ export default class Lightbox {
      * if it is already open
      */
     _autoOpenDetect() {
-        /**
-         * Hashmark detection
-         */
-        const hashmark = window.location.hash.substr(1);
-        const regex = /&?([a-z])=([a-zA-Z0-9_-]*)/g;
-
-        const result = {};
-
-        // read URL fragment
-        let match = regex.exec(hashmark);
-        while (match != null) {
-            const key = match[1] || undefined;
-            const value = match[2] || undefined;
-
-            if (key && value) {
-                result[key] = value;
-            }
-            match = regex.exec(hashmark);
-        }
+        const result = Utils.getHashmarkParameters();
 
         // try to load the element if it exists
         if (result.g === this.options.uid) {
@@ -181,7 +159,7 @@ export default class Lightbox {
             } else if (result.i === 'last') {
                 index = this.count - 1;
             } else if (result.i === 'random') {
-                index = randomInt(0, this.count);
+                index = Utils.randomInt(0, this.count);
             } else {
                 index = parseInt(result.i || 0, 10);
             }
