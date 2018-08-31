@@ -49,8 +49,4 @@
             }
         }
     }
-
-    @include breakpoint-mobile() {
-        padding: 0 $lightbox-hspacing / 2;
-    }
 }

@@ -59,7 +59,7 @@
     }
 
     // ABSOLUTE POSITION (relative to the lightbox content)
-    @else {
+    @elseif $position == absolute {
         $offsetX : 0;
 
         @if $insetX != true and type-of($w) == number {

@@ -29,6 +29,9 @@
     }
 
     &_close {
+        z-index: 511;
+        order: $lightbox-ui-close-order;
+
         @include positionElement(
             $lightbox-ui-close-position,
             $lightbox-ui-close-x,
@@ -41,7 +44,11 @@
     }
 
     &_controls {
+        z-index: 511;
+
         &-next {
+            order: $lightbox-ui-next-order;
+
             @include positionElement(
                 $lightbox-ui-next-position,
                 $lightbox-ui-next-x,
@@ -54,6 +61,8 @@
         }
 
         &-prev {
+            order: $lightbox-ui-prev-order;
+
             @include positionElement(
                 $lightbox-ui-prev-position,
                 $lightbox-ui-prev-x,
@@ -67,6 +76,8 @@
     }
 
     &_pagination {
+        order: $lightbox-ui-pagination-order;
+
         @include positionElement(
             $lightbox-ui-pagination-position,
             $lightbox-ui-pagination-x,
@@ -79,6 +90,8 @@
     }
 
     &_bulletlist {
+        order: $lightbox-ui-bulletlist-order;
+
         @include positionElement(
             $lightbox-ui-bulletlist-position,
             $lightbox-ui-bulletlist-x,
