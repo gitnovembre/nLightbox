@@ -2,6 +2,7 @@
     font-size: .9em;
     color: $lightbox-ui-pagination-color;
     cursor: default;
+    order: $lightbox-ui-pagination-order;
 
     @if $lightbox-ui-pagination-x == center {
         justify-content: center;

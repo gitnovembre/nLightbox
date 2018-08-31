@@ -1,17 +1,7 @@
-[data-lightbox] {
-    cursor: pointer;
-}
-
 .lightbox {
     background: $lightbox-bgcolor;
     font-family: $lightbox-font;
     font-size: $lightbox-fontsize;
-
-    *,
-    *::after,
-    *::before {
-        box-sizing: border-box;
-    }
 
     &__container {
         figure {

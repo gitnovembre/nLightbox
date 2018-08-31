@@ -1,5 +1,8 @@
 @import './utils';
-@import './default';
+
+[data-lightbox] {
+    cursor: pointer;
+}
 
 .lightbox {
     display: none;
@@ -14,6 +17,12 @@
     padding: $lightbox-vspacing-mobile $lightbox-hspacing-mobile;
     overflow: hidden;
     box-sizing: border-box;
+
+    *,
+    *::after,
+    *::before {
+        box-sizing: border-box;
+    }
 
     &.active {
         display: flex;
@@ -89,7 +98,7 @@
         position: relative;
     }
 
-    @media only screen and (min-device-width: 768px) {
+    @include breakpoint-mobile() {
         padding: $lightbox-vspacing $lightbox-hspacing;
 
         &__inner {

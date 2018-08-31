@@ -10,14 +10,9 @@
     border-radius: 0;
     font-family: $lightbox-font;
     font-size: .9em;
-    color: $lightbox-ui-element-color;
     text-align: center;
     cursor: pointer;
     outline: none;
-
-    &:hover {
-        color: $lightbox-ui-element-color-hover;
-    }
 
     &.hidden {
         display: none;
@@ -30,7 +25,13 @@
 
     &_close {
         z-index: 511;
+        font-size: 1.75em;
+        color: $lightbox-ui-close-color;
         order: $lightbox-ui-close-order;
+
+        &:hover {
+            color: $lightbox-ui-close-color-hover;
+        }
 
         @include positionElement(
             $lightbox-ui-close-position,
@@ -45,9 +46,15 @@
 
     &_controls {
         z-index: 511;
+        font-size: 1.75em;
 
         &-next {
+            color: $lightbox-ui-next-color;
             order: $lightbox-ui-next-order;
+
+            &:hover {
+                color: $lightbox-ui-next-color-hover;
+            }
 
             @include positionElement(
                 $lightbox-ui-next-position,
@@ -61,7 +68,12 @@
         }
 
         &-prev {
+            color: $lightbox-ui-prev-color;
             order: $lightbox-ui-prev-order;
+
+            &:hover {
+                color: $lightbox-ui-prev-color-hover;
+            }
 
             @include positionElement(
                 $lightbox-ui-prev-position,
@@ -76,8 +88,6 @@
     }
 
     &_pagination {
-        order: $lightbox-ui-pagination-order;
-
         @include positionElement(
             $lightbox-ui-pagination-position,
             $lightbox-ui-pagination-x,
