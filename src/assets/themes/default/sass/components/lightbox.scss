@@ -1,0 +1,56 @@
+[data-lightbox] {
+    cursor: pointer;
+}
+
+.lightbox {
+    background: $lightbox-bgcolor;
+    font-family: $lightbox-font;
+    font-size: $lightbox-fontsize;
+
+    *,
+    *::after,
+    *::before {
+        box-sizing: border-box;
+    }
+
+    &__container {
+        figure {
+            border-radius: 2px;
+        }
+    }
+
+    &__ui {
+        width: 100%;
+        height: $lightbox-ui-height;
+        position: $lightbox-ui-position;
+        z-index: 510;
+
+        @if $lightbox-ui-position == absolute {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+
+            @if $lightbox-ui-y == top {
+                top: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+            }
+            @else {
+                bottom: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+            }
+        }
+    }
+
+    &.animating.smooth-ui-transition &__ui {
+        opacity: 0;
+        visibility: hidden;
+        transition: none;
+    }
+
+    @media only screen and (min-device-width: $lightbox-mobile-breakpoint) {
+        &__ui {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity ease .25s;
+        }
+    }
+}

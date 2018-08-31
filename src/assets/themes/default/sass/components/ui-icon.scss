@@ -1,0 +1,36 @@
+.lightbox .ui-element {
+    .ui-icon {
+        display: inline-block;
+        font-size: 1.75em;
+        font-style: normal;
+        color: $lightbox-ui-element-color;
+        vertical-align: middle;
+        opacity: 1;
+
+        &_close {
+            &::after {
+                content: $lightbox-ui-close-content;
+            }
+        }
+
+        &_next {
+            &::after {
+                content: $lightbox-ui-next-content;
+            }
+        }
+
+        &_prev {
+            &::after {
+                content: $lightbox-ui-prev-content;
+            }
+        }
+    }
+
+    &:not(.disabled):hover {
+        .ui-icon {
+            color: $lightbox-ui-element-color-hover;
+            opacity: .5;
+            transition: opacity ease .35s;
+        }
+    }
+}

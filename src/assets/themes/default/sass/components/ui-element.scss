@@ -1,0 +1,105 @@
+.lightbox .ui-element {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    z-index: 510;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-family: $lightbox-font;
+    font-size: .9em;
+    color: $lightbox-ui-element-color;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+
+    &:hover {
+        color: $lightbox-ui-element-color-hover;
+    }
+
+    &.hidden {
+        display: none;
+    }
+
+    &.disabled {
+        cursor: default;
+        opacity: .25;
+    }
+
+    &_close {
+        z-index: 511;
+        order: $lightbox-ui-close-order;
+
+        @include positionElement(
+            $lightbox-ui-close-position,
+            $lightbox-ui-close-x,
+            $lightbox-ui-close-y,
+            $lightbox-ui-close-width,
+            $lightbox-ui-close-height,
+            $lightbox-ui-close-inset-x,
+            $lightbox-ui-close-inset-y,
+        );
+    }
+
+    &_controls {
+        z-index: 511;
+
+        &-next {
+            order: $lightbox-ui-next-order;
+
+            @include positionElement(
+                $lightbox-ui-next-position,
+                $lightbox-ui-next-x,
+                $lightbox-ui-next-y,
+                $lightbox-ui-next-width,
+                $lightbox-ui-next-height,
+                $lightbox-ui-next-inset-x,
+                $lightbox-ui-next-inset-y,
+            );
+        }
+
+        &-prev {
+            order: $lightbox-ui-prev-order;
+
+            @include positionElement(
+                $lightbox-ui-prev-position,
+                $lightbox-ui-prev-x,
+                $lightbox-ui-prev-y,
+                $lightbox-ui-prev-width,
+                $lightbox-ui-prev-height,
+                $lightbox-ui-prev-inset-x,
+                $lightbox-ui-prev-inset-y,
+            );
+        }
+    }
+
+    &_pagination {
+        order: $lightbox-ui-pagination-order;
+
+        @include positionElement(
+            $lightbox-ui-pagination-position,
+            $lightbox-ui-pagination-x,
+            $lightbox-ui-pagination-y,
+            $lightbox-ui-pagination-width,
+            $lightbox-ui-pagination-height,
+            $lightbox-ui-pagination-inset-x,
+            $lightbox-ui-pagination-inset-y,
+        );
+    }
+
+    &_bulletlist {
+        order: $lightbox-ui-bulletlist-order;
+
+        @include positionElement(
+            $lightbox-ui-bulletlist-position,
+            $lightbox-ui-bulletlist-x,
+            $lightbox-ui-bulletlist-y,
+            $lightbox-ui-bulletlist-width,
+            $lightbox-ui-bulletlist-height,
+            $lightbox-ui-bulletlist-inset-x,
+            $lightbox-ui-bulletlist-inset-y,
+        );
+    }
+}
