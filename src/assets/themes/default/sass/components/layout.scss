@@ -22,10 +22,18 @@
             align-items: center;
 
             @if $lightbox-ui-y == top {
-                top: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+                top: -($lightbox-ui-height / 2 + $lightbox-vspacing-mobile / 2);
+
+                @include breakpoint-mobile() {
+                    top: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+                }
             }
             @else {
-                bottom: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+                bottom: -($lightbox-ui-height / 2 + $lightbox-vspacing-mobile / 2);
+
+                @include breakpoint-mobile() {
+                    bottom: -($lightbox-ui-height / 2 + $lightbox-vspacing / 2);
+                }
             }
         }
     }
@@ -36,7 +44,7 @@
         transition: none;
     }
 
-    @media only screen and (min-device-width: $lightbox-mobile-breakpoint) {
+    @include breakpoint-mobile() {
         &__ui {
             opacity: 1;
             visibility: visible;
