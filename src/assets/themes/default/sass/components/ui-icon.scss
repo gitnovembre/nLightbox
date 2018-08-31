@@ -1,0 +1,37 @@
+.lightbox .ui-element {
+    .ui-icon {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        font-size: inherit;
+        font-style: normal;
+        line-height: 32px;
+        color: inherit;
+        vertical-align: middle;
+        opacity: 1;
+
+        &_close {
+            @if $lightbox-ui-prev-content != null {
+                &::after {
+                    content: $lightbox-ui-close-content;
+                }
+            }
+        }
+
+        &_next {
+            @if $lightbox-ui-prev-content != null {
+                &::after {
+                    content: $lightbox-ui-next-content;
+                }
+            }
+        }
+
+        &_prev {
+            @if $lightbox-ui-prev-content != null {
+                &::after {
+                    content: $lightbox-ui-prev-content;
+                }
+            }
+        }
+    }
+}

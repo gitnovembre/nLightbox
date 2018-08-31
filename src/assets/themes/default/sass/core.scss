@@ -1,3 +1,7 @@
+[data-lightbox] {
+    cursor: pointer;
+}
+
 .lightbox {
     display: none;
     justify-content: center;
@@ -11,6 +15,12 @@
     padding: $lightbox-vspacing-mobile $lightbox-hspacing-mobile;
     overflow: hidden;
     box-sizing: border-box;
+
+    *,
+    *::after,
+    *::before {
+        box-sizing: border-box;
+    }
 
     &.active {
         display: flex;
@@ -82,11 +92,12 @@
     }
 
     &__inner {
+        max-width: calc(100vw - #{$lightbox-hspacing-mobile * 2});
         max-height: calc(100vh - #{$lightbox-vspacing-mobile * 2});
         position: relative;
     }
 
-    @media only screen and (min-device-width: 768px) {
+    @include breakpoint-mobile() {
         padding: $lightbox-vspacing $lightbox-hspacing;
 
         &__inner {

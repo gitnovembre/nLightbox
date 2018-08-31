@@ -7,6 +7,7 @@ module.exports = {
                     'blockless-after-same-name-blockless', 'first-nested',
                 ],
                 ignore: ['after-comment'],
+                ignoreAtRules: ["else", "elseif"],
             },
         ],
         'at-rule-name-case': 'lower',

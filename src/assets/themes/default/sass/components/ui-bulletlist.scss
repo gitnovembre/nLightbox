@@ -1,0 +1,52 @@
+.lightbox .ui-bulletlist {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+    list-style-type: none;
+
+    @if $lightbox-ui-bulletlist-x == center {
+        justify-content: center;
+    }
+    @elseif $lightbox-ui-bulletlist-x == left {
+        justify-content: flex-start;
+    }
+    @else {
+        justify-content: flex-end;
+    }
+
+    li {
+        display: flex;
+        flex-shrink: 0;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        width: 24px;
+        height: 24px;
+
+        &::after {
+            display: block;
+            width: 9px;
+            height: 9px;
+            background: $lightbox-ui-bulletlist-bgcolor;
+            border-radius: 50%;
+            content: '';
+        }
+
+        &:hover {
+            &::after {
+                background: $lightbox-ui-bulletlist-bgcolor-hover;
+            }
+        }
+
+        &.active,
+        &.active:hover { //stylelint-disable-line
+            &::after { //stylelint-disable-line
+                background: $lightbox-ui-bulletlist-bgcolor-active;
+            }
+        }
+    }
+}
