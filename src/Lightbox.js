@@ -34,7 +34,7 @@ export default class Lightbox {
      * @param {boolean} [customOptions.enableNavUI = true] - Toggle the display of the controls (previous / next) buttons
      * @param {boolean} [customOptions.enablePaginationUI = true] - Toggle the display of the pagination information
      * @param {boolean} [customOptions.enableBulletlistUI = true] - Toggle the display of the bullelist nav
-     * @param {boolean} [customOptions.enableTransition = true] - Add a UI transition effect on navigation
+     * @param {boolean} [customOptions.enableTransition = false] - Add a UI transition effect on navigation
      * @param {boolean} [customOptions.rewind = true] - Navigation loop
      * @param {object} [customOptions.animations = {}]
      * @param {object} [customOptions.animations.open] - Open animation
@@ -755,6 +755,7 @@ export default class Lightbox {
         return new Promise((resolve, reject) => {
             if (this.openState) {
                 this.$lb.classList.add('animating');
+                this.disableUI();
 
                 const animation = this.options.animations.close(this.$lb);
 
@@ -1024,7 +1025,7 @@ Lightbox.DEFAULT_CONFIG = {
     enableNavUI: true,
     enablePaginationUI: true,
     enableBulletlistUI: true,
-    transition: true,
+    enableTransition: false,
     rewind: true,
     animations: {
         open: Lightbox._openAnimation,
