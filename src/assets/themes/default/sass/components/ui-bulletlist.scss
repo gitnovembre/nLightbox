@@ -31,21 +31,21 @@
             display: block;
             width: 9px;
             height: 9px;
-            background: $lightbox-bulletlist-bgcolor;
+            background: $lightbox-ui-bulletlist-bgcolor;
             border-radius: 50%;
             content: '';
         }
 
         &:hover {
             &::after {
-                background: $lightbox-bulletlist-bgcolor-hover;
+                background: $lightbox-ui-bulletlist-bgcolor-hover;
             }
         }
 
         &.active,
         &.active:hover { //stylelint-disable-line
             &::after { //stylelint-disable-line
-                background: $lightbox-bulletlist-bgcolor-active;
+                background: $lightbox-ui-bulletlist-bgcolor-active;
             }
         }
     }

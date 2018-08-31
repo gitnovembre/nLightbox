@@ -1,22 +1,11 @@
+/* DEFAULT THEME CONFIG */
+
+// Lightbox
+
 $lightbox-bgcolor : rgba(20, 20, 20, .925) !default;
 
 $lightbox-font : 'Arial', sans-serif !default;
 $lightbox-fontsize : 15px !default;
-
-$lightbox-message-color : #b4b4b4 !default;
-$lightbox-message-loader-color : #b4b4b4 !default;
-$lightbox-message-error-color : #807f7f !default;
-
-$lightbox-ui-element-color : #ffffff !default;
-
-$lightbox-bulletlist-bgcolor : #414141 !default;
-$lightbox-bulletlist-bgcolor-active : #d4d4d4 !default;
-$lightbox-bulletlist-bgcolor-hover : #919191 !default;
-
-$lightbox-pagination-color : #b4b4b4 !default;
-
-$lightbox-ui-icon-color : #ffffff !default;
-$lightbox-ui-icon-color-hover : #ffffff !default;
 
 $lightbox-mobile-breakpoint : 768px !default;
 
@@ -25,9 +14,18 @@ $lightbox-hspacing-mobile : 48px !default;
 $lightbox-vspacing : 64px !default;
 $lightbox-hspacing : 96px !default;
 
+// Lightbox UI
+
+$lightbox-ui-message-color : #b4b4b4 !default;
+$lightbox-ui-message-loader-color : #b4b4b4 !default;
+$lightbox-ui-message-error-color : #807f7f !default;
+
+$lightbox-ui-element-color : #ffffff !default;
+$lightbox-ui-element-color-hover : #ffffff !default;
+
 $lightbox-ui-close-content : 'x' !default;
-$lightbox-ui-close-width : 48px;
-$lightbox-ui-close-height : 40px;
+$lightbox-ui-close-width : 48px !default;
+$lightbox-ui-close-height : 40px !default;
 $lightbox-ui-close-position : absolute !default;
 $lightbox-ui-close-x : right !default;
 $lightbox-ui-close-y : top !default;
@@ -35,8 +33,8 @@ $lightbox-ui-close-inset-x : false !default;
 $lightbox-ui-close-inset-y : false !default;
 
 $lightbox-ui-next-content : '>' !default;
-$lightbox-ui-next-width : 48px;
-$lightbox-ui-next-height : 40px;
+$lightbox-ui-next-width : 48px !default;
+$lightbox-ui-next-height : 40px !default;
 $lightbox-ui-next-position : absolute !default;
 $lightbox-ui-next-x : right !default;
 $lightbox-ui-next-y : center !default;
@@ -44,25 +42,29 @@ $lightbox-ui-next-inset-x : false !default;
 $lightbox-ui-next-inset-y : true !default;
 
 $lightbox-ui-prev-content : '<' !default;
-$lightbox-ui-prev-width : 48px;
-$lightbox-ui-prev-height : 40px;
+$lightbox-ui-prev-width : 48px !default;
+$lightbox-ui-prev-height : 40px !default;
 $lightbox-ui-prev-position : absolute !default;
 $lightbox-ui-prev-x : left !default;
 $lightbox-ui-prev-y : center !default;
 $lightbox-ui-prev-inset-x : false !default;
 $lightbox-ui-prev-inset-y : true !default;
 
+$lightbox-ui-bulletlist-bgcolor : #414141 !default;
+$lightbox-ui-bulletlist-bgcolor-active : #d4d4d4 !default;
+$lightbox-ui-bulletlist-bgcolor-hover : #919191 !default;
 $lightbox-ui-bulletlist-position : absolute !default;
-$lightbox-ui-bulletlist-width : 100%;
-$lightbox-ui-bulletlist-height : 40px;
+$lightbox-ui-bulletlist-width : 100% !default;
+$lightbox-ui-bulletlist-height : 40px !default;
 $lightbox-ui-bulletlist-x : center !default;
 $lightbox-ui-bulletlist-y : bottom !default;
 $lightbox-ui-bulletlist-inset-x : true !default;
 $lightbox-ui-bulletlist-inset-y : false !default;
 
+$lightbox-ui-pagination-color : #b4b4b4 !default;
 $lightbox-ui-pagination-position : absolute !default;
-$lightbox-ui-pagination-width : 100%;
-$lightbox-ui-pagination-height : 40px;
+$lightbox-ui-pagination-width : 100% !default;
+$lightbox-ui-pagination-height : 40px !default;
 $lightbox-ui-pagination-x : left !default;
 $lightbox-ui-pagination-y : bottom !default;
 $lightbox-ui-pagination-inset-x : true !default;

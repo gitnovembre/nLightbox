@@ -1,12 +1,12 @@
 .lightbox .ui-message {
     font-size: 1em;
     line-height: 20px;
-    color: $lightbox-message-color;
+    color: $lightbox-ui-message-color;
     text-align: center;
 
     &_loader {
         display: none;
-        color: $lightbox-message-loader-color;
+        color: $lightbox-ui-message-loader-color;
     }
 
     &_error {
@@ -16,7 +16,7 @@
 
         .error_message {
             font-size: .9em;
-            color: $lightbox-message-error-color;
+            color: $lightbox-ui-message-error-color;
         }
     }
 }

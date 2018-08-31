@@ -1,90 +1,3 @@
-@mixin positionElement ($position, $x, $y, $w, $h, $insetX: true, $insetY: true) {
-    width: $w;
-    height: $h;
-    position: $position;
-
-    @if $position == fixed {
-        @if type-of($w) == number and unit($w) == px {
-            @if $x == left {
-                left: calc($lightbox-hspacing-mobile / 2 - $w / 2);
-
-                @include breakpoint-mobile() {
-                    left: calc($lightbox-hspacing / 2 - $w / 2);
-                }
-            }
-            @elseif $x == right {
-                right: calc($lightbox-hspacing-mobile / 2 - $w / 2);
-
-                @include breakpoint-mobile() {
-                    right: calc($lightbox-hspacing / 2 - $w / 2);
-                }
-            }
-            @else {
-                left: calc((100% - #{$w}) / 2);
-            }
-        }
-        @else {
-            @if $x == right {
-                right: 0;
-            }
-            @else {
-                left: 0;
-            }
-        }
-
-        @if $y == top {
-            top: $lightbox-vspacing-mobile / 2 - $h / 2;
-
-            @include breakpoint-mobile() {
-                top: $lightbox-vspacing / 2 - $h / 2;
-            }
-        }
-        @elseif $y == bottom {
-            bottom: $lightbox-vspacing-mobile / 2 - $h / 2;
-
-            @include breakpoint-mobile() {
-                bottom: $lightbox-vspacing / 2 - $h / 2;
-            }
-        }
-        @else {
-            top: calc((100% - #{$h}) / 2);
-        }
-    }
-    @else {
-        $offsetX : 0;
-
-        @if $insetX != true and type-of($w) == number {
-            $offsetX : -$w;
-        }
-
-        $offsetY : 0;
-
-        @if $insetY != true and type-of($h) == number {
-            $offsetY : -$h;
-        }
-
-        @if $x == left {
-            left: $offsetX;
-        }
-        @elseif $x == right {
-            right: $offsetX;
-        }
-        @else {
-            left: calc((100% - #{$w}) / 2);
-        }
-
-        @if $y == top {
-            top: $offsetY;
-        }
-        @elseif $y == bottom {
-            bottom: $offsetY;
-        }
-        @else {
-            top: calc((100% - #{$h}) / 2);
-        }
-    }
-}
-
 .lightbox .ui-element {
     display: flex;
     justify-content: center;
@@ -101,6 +14,10 @@
     text-align: center;
     cursor: pointer;
     outline: none;
+
+    &:hover {
+        color: $lightbox-ui-element-color-hover;
+    }
 
     &.hidden {
         display: none;

@@ -3,3 +3,93 @@
         @content;
     }
 }
+
+@mixin positionElement ($position, $x, $y, $w, $h, $insetX: true, $insetY: true) {
+    width: $w;
+    height: $h;
+    position: $position;
+
+    // FIXED POSITION (relative to the window)
+    @if $position == fixed {
+        @if type-of($w) == number and unit($w) == px {
+            @if $x == left {
+                left: $lightbox-hspacing-mobile / 2 - $w / 2;
+
+                @include breakpoint-mobile() {
+                    left: $lightbox-hspacing / 2 - $w / 2;
+                }
+            }
+            @elseif $x == right {
+                right: $lightbox-hspacing-mobile / 2 - $w / 2;
+
+                @include breakpoint-mobile() {
+                    right: $lightbox-hspacing / 2 - $w / 2;
+                }
+            }
+            @else {
+                left: calc((100% - #{$w}) / 2);
+            }
+        }
+        @else {
+            @if $x == right {
+                right: 0;
+            }
+            @else {
+                left: 0;
+            }
+        }
+
+        @if $y == top {
+            top: $lightbox-vspacing-mobile / 2 - $h / 2;
+
+            @include breakpoint-mobile() {
+                top: $lightbox-vspacing / 2 - $h / 2;
+            }
+        }
+        @elseif $y == bottom {
+            bottom: $lightbox-vspacing-mobile / 2 - $h / 2;
+
+            @include breakpoint-mobile() {
+                bottom: $lightbox-vspacing / 2 - $h / 2;
+            }
+        }
+        @else {
+            top: calc((100% - #{$h}) / 2);
+        }
+    }
+
+    // ABSOLUTE POSITION (relative to the lightbox content)
+    @else {
+        $offsetX : 0;
+
+        @if $insetX != true and type-of($w) == number {
+            $offsetX : -$w;
+        }
+
+        $offsetY : 0;
+
+        @if $insetY != true and type-of($h) == number {
+            $offsetY : -$h;
+        }
+
+        @if $x == left {
+            left: $offsetX;
+        }
+        @elseif $x == right {
+            right: $offsetX;
+        }
+        @else {
+            left: calc((100% - #{$w}) / 2);
+        }
+
+        @if $y == top {
+            top: $offsetY;
+        }
+        @elseif $y == bottom {
+            bottom: $offsetY;
+        }
+        @else {
+            top: calc((100% - #{$h}) / 2);
+        }
+    }
+}
