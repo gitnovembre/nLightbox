@@ -149,8 +149,6 @@ export default class Lightbox {
      * s : scroll - Wait for a specific scroll height
      * f : force - Force the lightbox to switch to the target element even
      * if it is already open
-     *
-     * Example localhost:80/#g:l1+k:test+d:200
      */
     _autoOpenDetect() {
         /**
