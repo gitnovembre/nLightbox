@@ -155,7 +155,7 @@ export default class Lightbox {
          * Hashmark detection
          */
         const hashmark = window.location.hash.substr(1);
-        const regex = /&?([a-z])=(\w{0,})/g;
+        const regex = /&?([a-z])=([a-zA-Z0-9_-]*)/g;
 
         const result = {};
 
@@ -179,9 +179,9 @@ export default class Lightbox {
             } else if (result.i === 'first') {
                 index = 0;
             } else if (result.i === 'last') {
-                index = this.count() - 1;
+                index = this.count - 1;
             } else if (result.i === 'random') {
-                index = randomInt(0, this.count());
+                index = randomInt(0, this.count);
             } else {
                 index = parseInt(result.i || 0, 10);
             }
