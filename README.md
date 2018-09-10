@@ -1,4 +1,4 @@
-# lightbox-novembre
+# nLightbox
 
 1. [Getting started](https://github.com/gitnovembre/lightbox-novembre/wiki/1.-Getting-started)
 2. [Optional parameters](https://github.com/gitnovembre/lightbox-novembre/wiki/2.-Optional-parameters)
