@@ -284,18 +284,23 @@ export default class Lightbox {
     _initEvents() {
         // lb events
         this.$lb.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
             if (e.target === this.$lb && this.options.enableCloseOnBlur) {
                 // user clicks off content bounds
+                e.preventDefault();
+                e.stopPropagation();
                 this.close();
             } else if (e.target.classList.contains('lightbox__close')) {
                 // user clicks on a child element of the lightbox which has the classname "close"
+                e.preventDefault();
+                e.stopPropagation();
                 this.close();
             } else if (e.target.classList.contains('lightbox__next')) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.next();
             } else if (e.target.classList.contains('lightbox__prev')) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.prev();
             }
         });
