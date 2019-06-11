@@ -956,7 +956,7 @@ export default class Lightbox {
             opacity: 1,
             duration: 750,
             delay: 250,
-            easing: [0.45, 0.73, 0.3, 1.0],
+            easing: 'cubicBezier(0.45, 0.73, 0.3, 1.0)',
         });
     }
 
