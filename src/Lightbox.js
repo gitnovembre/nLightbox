@@ -1,7 +1,7 @@
 import uniqid from 'uniqid'; //eslint-disable-line
 import Hammer from 'hammerjs';
 import anime from 'animejs';
-import ObjectAssignDeep from 'object-assign-deep';
+import ObjectAssignDeep from '@kyleshockey/object-assign-deep';
 
 import Utils from './Utils';
 import LightboxError from './LightboxError';
