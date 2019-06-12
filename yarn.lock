@@ -2796,10 +2796,6 @@ oauth-sign@~0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.9.0.tgz#47a7b016baa68b5fa0ecf3dee08a85c679ac6455"
 
-object-assign-deep@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/object-assign-deep/-/object-assign-deep-0.4.0.tgz#43505d3679abb9686ab359b97ac14cc837a9d143"
-
 object-assign@^4.0.1, object-assign@^4.1.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
@@ -3097,12 +3093,12 @@ postcss-selector-parser@^3.1.0:
     indexes-of "^1.0.1"
     uniq "^1.0.1"
 
-postcss-sorting@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/postcss-sorting/-/postcss-sorting-4.1.0.tgz#a107f0bf3852977fa64e4442bc340c88d5aacdb3"
+postcss-sorting@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/postcss-sorting/-/postcss-sorting-5.0.0.tgz#4e4ce0a554c17d78d4287f08f792db8992bf62b5"
   dependencies:
-    lodash "^4.17.4"
-    postcss "^7.0.0"
+    lodash "^4.17.11"
+    postcss "^7.0.14"
 
 postcss-syntax@^0.36.2:
   version "0.36.2"
@@ -3766,13 +3762,13 @@ style-search@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/style-search/-/style-search-0.1.0.tgz#7958c793e47e32e07d2b5cafe5c0bf8e12e77902"
 
-stylelint-order@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/stylelint-order/-/stylelint-order-2.2.1.tgz#cd2d4a0d81d91c705f1d275a58487e5ad5aa5828"
+stylelint-order@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/stylelint-order/-/stylelint-order-3.0.0.tgz#ec44afb93a3183dcf8c91540d4486de776250506"
   dependencies:
-    lodash "^4.17.10"
-    postcss "^7.0.2"
-    postcss-sorting "^4.1.0"
+    lodash "^4.17.11"
+    postcss "^7.0.14"
+    postcss-sorting "^5.0.0"
 
 stylelint@^10.1.0:
   version "10.1.0"
