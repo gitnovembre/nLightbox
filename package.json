@@ -9,7 +9,7 @@
   "author": "Jérémie Metter-Rothan <developpeurs@novembre.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.1.6",
+    "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@kyleshockey/object-assign-deep": "^0.4.2",
     "@types/uniqid": "^4.1.3",
