@@ -14,7 +14,7 @@
     "@kyleshockey/object-assign-deep": "^0.4.2",
     "@types/uniqid": "^4.1.3",
     "animejs": "^3.0.1",
-    "google-maps": "^3.3.0",
+    "google-maps": "^4.3.2",
     "hammerjs": "^2.0.8",
     "js": "^0.1.0",
     "node-sass": "^4.12.0",

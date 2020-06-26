@@ -682,6 +682,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/googlemaps@^3.39.1":
+  version "3.39.8"
+  resolved "https://registry.yarnpkg.com/@types/googlemaps/-/googlemaps-3.39.8.tgz#3bca2344e1b050425a7cce4411f8330dddb75540"
+  integrity sha512-z03u79t1v8QIktoUXypWD06Fzl499/hA162hurA+eCDlWXxFynuU+hMZIaferILF5Gzr4PMX1ShHszT666sUHQ==
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
@@ -2011,10 +2016,12 @@ gonzales-pe@^4.2.4:
   dependencies:
     minimist "1.1.x"
 
-google-maps@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/google-maps/-/google-maps-3.3.0.tgz#4432b4715406bc15268ad35b1dd1b04d974956a6"
-  integrity sha512-pj4En0cWKG+lcBvC7qrzu5ItiMsYNTgjG2capsPzAbAM/O8ftugGpUUftTTwdGL8KlNvB4CEZ6IBWwpWYzUEpw==
+google-maps@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/google-maps/-/google-maps-4.3.2.tgz#686183f35ef349b6780e39fd2683078062ac8fb5"
+  integrity sha512-Khyflf23C0I+JFEYapau2jtRzUCQD1f72ZmXd54DZB3yNBD6RXNCB50hkSBZmwgEUDiTosQRbKkRm43SwdsYcQ==
+  dependencies:
+    "@types/googlemaps" "^3.39.1"
 
 graceful-fs@^4.1.2:
   version "4.2.3"
